@@ -1,0 +1,229 @@
+A51 MACRO ASSEMBLER  2121                                                                 12/25/2019 17:09:16 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.5.0
+OBJECT MODULE PLACED IN .\Objects\2121.obj
+ASSEMBLER INVOKED BY: D:\Keil_v5\C51\BIN\A51.EXE 2121.asm SET(SMALL) DEBUG PRINT(.\Listings\2121.lst) OBJECT(.\Objects\2
+                      121.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                     ORG     0000H
+
+0000 803E              2                     SJMP    MAIN
+
+                       3                     
+
+0040                   4                     ORG             0040H
+
+0040 7830              5     MAIN:   MOV             R0,#30H                 ;ÉèÖÃ´¢´æÊ×Ö·
+
+0042 7908              6                     MOV             R1,#08H                 ;ÉèÖÃÑ­»·´ÎÊ
+
+0044 75A00F            7     LOOP:   MOV             P2,#0FH                 ;P1×¼±¸ÊäÈë
+
+0047 E5A0              8                     MOV             A,P2                    ;²éÑ¯ÓÐÎÞ°´¼ü
+
+0049 24F0              9                     ADD             A,#0F0H
+
+004B B4FF02           10                     CJNE    A,#0FFH,IFKEY   ;È¡ÁÐÖµ
+
+004E 80F4             11                     SJMP    LOOP
+
+                      12                     
+
+0050 1200B6           13     IFKEY:  LCALL   DELAY10ms       ;È¥Ç°ÑØ¶¶¶¯
+
+0053 7BFF             14                     MOV             R3,#0FFH        ;ÉèÖÃ°´¼ü³õÖµ   
+
+0055 75A00F           15                     MOV     P2,#0FH                 ;ÐÐÊä³öÈ«0
+
+0058 E5A0             16                     MOV             A,P2                    ;¶ÁÈë¼üÖµ               
+
+005A 24F0             17                     ADD             A,#0F0H
+
+005C 64FF             18                     XRL     A,#0FFH                 ;È¡ÁÐÖµ
+
+005E B40004           19                     CJNE    A,#0,IFKEY1     ;²»ÎªÁãÌø×ª
+
+0061 74FF             20                     MOV             A,#0FFH                 ;½«AÈ«ÖÃ1
+
+0063 803B             21                     SJMP    NOKEY           
+
+0065 F5F0             22     IFKEY1: MOV             B,A                     ;½«ÁÐÖµËÍÈëB
+
+0067 75A0F0           23                     MOV     P2,#0F0H                ;ÁÐÊä³öÈ«0
+
+006A E5A0             24                     MOV             A,P2                    ;¶ÁÈë¼üÖµ               
+
+006C 240F             25                     ADD             A,#0FH
+
+006E 64FF             26                     XRL     A,#0FFH                 ;È¡ÐÐÖµ
+
+0070 B40004           27                     CJNE    A,#0,IFKEY2     ;²»ÎªÁãÌø×ª
+
+0073 74FF             28                     MOV             A,#0FFH           
+
+0075 8029             29             SJMP    NOKEY   
+
+0077 25F0             30     IFKEY2: ADD     A,B                             ;µÃµ½ÌØÕ÷Âë
+
+0079 F5F0             31                     MOV     B,A                             ;½«ÌØÕ÷Âë±£´æµ½B                
+
+007B 9000A5           32                     MOV     DPTR,#KEYCD             
+
+007E 0B               33     SCAN:   INC     R3                              ;ÌØÕ÷ÂëÆ¥Åä
+
+007F EB               34             MOV     A,R3
+
+0080 93               35             MOVC    A,@A+DPTR               ;»ñÈ¡ÌØÕ÷Âë
+
+0081 B5F002           36             CJNE    A,B,SCAN1       ;ÌØÕ÷ÂëÓëBÖÐÊÇ·ñÒ»ÖÂ
+
+0084 8007             37             SJMP    WAIT            
+
+0086 B4FFF5           38     SCAN1:  CJNE    A,#0FFH,SCAN    ;Ã»ÓÐÒç³ö¼ÌÐø²éÑ¯
+
+0089 74FF             39             MOV     A,#0FFH         ;½«AÈ«ÖÃ1    
+
+008B 8013             40             SJMP    NOKEY    
+
+                      41                                         
+
+008D 75A00F           42     WAIT:   MOV     P2,#0FH                 ;ÐÐÊä³öÈ«0
+
+0090 E5A0             43                     MOV             A,P2                    ;¶ÁÈë¼üÖµ               
+
+0092 24F0             44                     ADD             A,#0F0H
+
+0094 64FF             45                     XRL     A,#0FFH                 ;È¡ÁÐÖµ
+
+0096 B400F4           46                     CJNE    A,#0,WAIT               ;²»ÎªÁãÌø×ª
+
+0099 1200B6           47                     LCALL   DELAY10ms       ;È¥ºóÑØ¶¶¶¯
+
+009C EB               48                     MOV     A,R3                    ;´¢´æÊ×Ö
+
+009D F6               49                     MOV     @R0,A
+
+009E 08               50                     INC             R0
+
+009F 19               51                     DEC             R1
+
+00A0 B900A1           52     NOKEY:  CJNE    R1,#0,LOOP              ;Ñ­»·8´Î
+
+00A3 801A             53                     SJMP    DISPLAY                 ;¿ªÊ¼ÏÔÊ¾
+
+                      54             
+
+00A5 11214181         55     KEYCD:  DB 11H,21H,41H,81H,12H,22H,42H,82H,14H,24H,44H,84H,18H,28H,48H,88H,0FFH
+
+00A9 12224282                
+00AD 14244484                
+A51 MACRO ASSEMBLER  2121                                                                 12/25/2019 17:09:16 PAGE     2
+
+00B1 18284888                
+00B5 FF                      
+                      56             
+
+00B6 7E14             57     DELAY10ms:MOV   R6,#20                  ;ÑÓÊ±10ms
+
+00B8 7FFA             58     DELOOP2:MOV     R7,#250                 ;2¦Ìs*250*20
+
+00BA DFFE             59     DELOOP1:DJNZ    R7,DELOOP1
+
+00BC DEFA             60                     DJNZ    R6,DELOOP2
+
+00BE 22               61                     RET
+
+                      62                                                                             
+
+00BF 7830             63     DISPLAY:MOV     R0,#30H                 ;R0Ö¸ÏòÏÔÊ¾»º´æÇøÊ×Ö·
+
+00C1 797F             64                     MOV     R1,#7FH                 ;R1ÎªÎ»¿ØÐÅºÅ¼Ä´æÆ÷£¬Ö¸ÏòµÚ1¸öÊÂë¹Ü
+
+00C3 E6               65     NEXT:   MOV     A,@R0                   ;È¡³öÒ»¸öÊ
+
+00C4 08               66                     INC     R0                              ;Ö¸ÕëÖ¸ÏòÏÂÒ»¸öÊµØÖ·
+
+00C5 9000D9           67                     MOV     DPTR,#TABLE     ;DPTRÖ¸Ïò7¶ÎÂë±íÊ×µØÖ·
+
+00C8 93               68                     MOVC    A,@A+DPTR               ;È¡³ö¸ÃÊµÄ7¶ÎÂë
+
+00C9 F580             69                     MOV     P0,A                    ;½«7¶ÎÂëÊä³öµ½¶ÎÂëÊä³ö¿Ú
+
+00CB E9               70                     MOV     A,R1
+
+00CC F590             71                     MOV     P1,A                    ;Î»¿ØÐÅºÅÊä³öµ½Î»¿ØÊä³ö¿Ú
+
+00CE 1200E3           72                     LCALL   DELAY1ms                
+
+00D1 D3               73                     SETB    C
+
+00D2 E9               74                     MOV     A,R1                    
+
+00D3 13               75                     RRC     A                               
+
+00D4 F9               76                     MOV     R1,A                    ;ÐÞ¸ÄÎ»¿ØÐÅºÅ£¬Ö¸ÏòÏÂÒ»¸öÊÂë¹Ü
+
+00D5 40EC             77                     JC              NEXT                    ;Ã»ÓÐÏÔÊ¾Íê±Ï£¬¼ÌÐø
+
+00D7 80E6             78                     SJMP    DISPLAY                                 
+
+                      79                             
+
+00D9 3F065B4F         80     TABLE: DB 3FH,06H,5BH,4FH,66H,6DH,7DH,07H,7FH,6FH       ;0-9µÄ¶ÎÂë
+
+00DD 666D7D07                
+00E1 7F6F                    
+                      81     
+
+00E3 7E02             82     DELAY1ms:MOV    R6,#2                   ;ÑÓÊ±1ms
+
+00E5 7FFA             83     DELOOP4:MOV     R7,#250                 ;2¦Ìs*250*2
+
+00E7 DFFE             84     DELOOP3:DJNZ    R7,DELOOP3
+
+00E9 DEFA             85                     DJNZ    R6,DELOOP4
+
+00EB 22               86                     RET
+
+                      87                     END
+
+A51 MACRO ASSEMBLER  2121                                                                 12/25/2019 17:09:16 PAGE     3
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+B. . . . . . . . .  D ADDR   00F0H   A   
+DELAY10MS. . . . .  C ADDR   00B6H   A   
+DELAY1MS . . . . .  C ADDR   00E3H   A   
+DELOOP1. . . . . .  C ADDR   00BAH   A   
+DELOOP2. . . . . .  C ADDR   00B8H   A   
+DELOOP3. . . . . .  C ADDR   00E7H   A   
+DELOOP4. . . . . .  C ADDR   00E5H   A   
+DISPLAY. . . . . .  C ADDR   00BFH   A   
+IFKEY. . . . . . .  C ADDR   0050H   A   
+IFKEY1 . . . . . .  C ADDR   0065H   A   
+IFKEY2 . . . . . .  C ADDR   0077H   A   
+KEYCD. . . . . . .  C ADDR   00A5H   A   
+LOOP . . . . . . .  C ADDR   0044H   A   
+MAIN . . . . . . .  C ADDR   0040H   A   
+NEXT . . . . . . .  C ADDR   00C3H   A   
+NOKEY. . . . . . .  C ADDR   00A0H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+SCAN . . . . . . .  C ADDR   007EH   A   
+SCAN1. . . . . . .  C ADDR   0086H   A   
+TABLE. . . . . . .  C ADDR   00D9H   A   
+WAIT . . . . . . .  C ADDR   008DH   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

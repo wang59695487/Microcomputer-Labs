@@ -1,0 +1,517 @@
+C51 COMPILER V9.60.0.0   FINAL3                                                            12/27/2021 07:43:11 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE FINAL3
+OBJECT MODULE PLACED IN .\Objects\final3.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE final3.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\fi
+                    -nal3.lst) TABS(2) OBJECT(.\Objects\final3.obj)
+
+line level    source
+
+   1          #include<reg52.h>
+   2          //#include"DS18B20_3.H"
+   3          #include <string.h>
+   4          #include <intrins.h>
+   5          #define uint unsigned int
+   6          #define uchar unsigned char
+   7          #define wd 1        //?????????  =0????,=1????
+   8          #include "eeprom52.h"
+*** WARNING C318 IN LINE 8 OF final3.c: can't open file 'eeprom52.h'
+   9          
+  10          #define yh 0x80 //LCD????????,??LCD1602??????D7???1(100000000=80)
+  11          #define er 0x80+0x40 //LCD???????(???????????????0x40)
+  12          
+  13          //?????C51?????????(??????C51?P0?)
+  14          sbit en=P2^7;
+  15          sbit rw=P2^5;   //?????rw??,??????????rw=0?
+  16          sbit rs=P2^6;
+  17          
+  18          
+  19          //?????C51???????
+  20          
+  21          sbit set=P1^3;    //???
+  22          sbit add=P1^4;    //??
+  23          sbit dec=P1^5;    //??
+  24          sbit seeNL_NZ=P3^2; //????/??
+  25          
+  26          sbit DQ=P3^7;   //
+  27          sbit buzzer=P1^7; //???,?????8550??,??????
+  28          
+  29          bit  led1=1;
+  30          bit NZ_sdgb=1;
+  31          unsigned char temp_miao;
+  32          unsigned char bltime;  //??????
+  33          
+  34          //DS1302?????C51?????????
+  35          sbit IO=P3^5;
+  36          sbit SCLK=P3^6;
+  37          sbit RST=P3^4;
+  38          
+  39          
+  40          char a,miao,shi,fen,ri,yue,nian,week,setn,temp;
+  41          uint flag;
+  42          //flag????????????,??????
+  43          bit c_moon;
+  44          
+  45          char nz_shi,nz_fen,setNZn;      //??????
+  46          uchar shangyimiao,bsn,temp_hour;      //???????
+  47          uchar T_NL_NZ;              //???
+  48          bit timerOn=0;              //???????
+  49          bit baoshi=0;             //???????
+  50          bit  p_r=0;               //??/??  =0????,=1????
+  51          data uchar year_moon,month_moon,day_moon;
+  52          
+  53          sbit ACC0=ACC^0;
+C51 COMPILER V9.60.0.0   FINAL3                                                            12/27/2021 07:43:11 PAGE 2   
+
+  54          sbit ACC7=ACC^7;
+  55          /************************************************************
+  56          ACC???=A
+  57          ACC.0=E0H 
+  58          
+  59          ACC.0??ACC??0??Acc??????
+  60          
+  61          ???ACC???8??????,??????????,?????????????,
+  62          ??????????????,????????ACC????????????,
+  63          ??A???????????????,???PUSH???,????ACC??????
+  64          ?????,A????????????ACC??????????? 
+  65          ***************************************************************/
+  66          
+  67          /******************???????????eeprom?******************/
+  68          void write_eeprom()
+  69          {
+  70   1        SectorErase(0x2000);
+*** WARNING C206 IN LINE 70 OF final3.c: 'SectorErase': missing function-prototype
+*** ERROR C267 IN LINE 70 OF final3.c: 'SectorErase': requires ANSI-style prototype
+  71   1        byte_write(0x2000, nz_shi);
+  72   1        byte_write(0x2001, nz_fen);
+  73   1        byte_write(0x2002, timerOn);
+  74   1        byte_write(0x2060, a_a);  
+  75   1      }
+  76          
+  77          /******************?????????eeprom????*****************/
+  78          void read_eeprom()
+  79          {
+  80   1        nz_shi   = byte_read(0x2000);
+  81   1        nz_fen = byte_read(0x2001);
+  82   1        timerOn = byte_read(0x2002);
+  83   1        a_a      = byte_read(0x2060);
+  84   1      }
+  85          
+  86          /**************????eeprom???*****************/
+  87          void init_eeprom() 
+  88          {
+  89   1        read_eeprom();    //??
+  90   1        if(a_a != 1)    //????????????eeprom
+  91   1        {
+  92   2          nz_shi   = 12;
+  93   2          nz_fen = 30;
+  94   2          timerOn=0;
+  95   2          a_a = 1;
+  96   2          write_eeprom();    //????
+  97   2        } 
+  98   1      }
+  99          
+ 100          //********???????************************************
+ 101          code uchar year_code[597]={
+ 102                              0x04,0xAe,0x53,    //1901 0
+ 103                              0x0A,0x57,0x48,    //1902 3
+ 104                              0x55,0x26,0xBd,    //1903 6
+ 105                              0x0d,0x26,0x50,    //1904 9
+ 106                              0x0d,0x95,0x44,    //1905 12
+ 107                              0x46,0xAA,0xB9,    //1906 15
+ 108                              0x05,0x6A,0x4d,    //1907 18
+ 109                              0x09,0xAd,0x42,    //1908 21
+ 110                              0x24,0xAe,0xB6,    //1909
+ 111                              0x04,0xAe,0x4A,    //1910
+ 112                              0x6A,0x4d,0xBe,    //1911
+ 113                              0x0A,0x4d,0x52,    //1912
+C51 COMPILER V9.60.0.0   FINAL3                                                            12/27/2021 07:43:11 PAGE 3   
+
+ 114                              0x0d,0x25,0x46,    //1913
+ 115                              0x5d,0x52,0xBA,    //1914
+ 116                              0x0B,0x54,0x4e,    //1915
+ 117                              0x0d,0x6A,0x43,    //1916
+ 118                              0x29,0x6d,0x37,    //1917
+ 119                              0x09,0x5B,0x4B,    //1918
+ 120                              0x74,0x9B,0xC1,    //1919
+ 121                              0x04,0x97,0x54,    //1920
+ 122                              0x0A,0x4B,0x48,    //1921
+ 123                              0x5B,0x25,0xBC,    //1922
+ 124                              0x06,0xA5,0x50,    //1923
+ 125                              0x06,0xd4,0x45,    //1924
+ 126                              0x4A,0xdA,0xB8,    //1925
+ 127                              0x02,0xB6,0x4d,    //1926
+ 128                              0x09,0x57,0x42,    //1927
+ 129                              0x24,0x97,0xB7,    //1928
+ 130                              0x04,0x97,0x4A,    //1929
+ 131                              0x66,0x4B,0x3e,    //1930
+ 132                              0x0d,0x4A,0x51,    //1931
+ 133                              0x0e,0xA5,0x46,    //1932
+ 134                              0x56,0xd4,0xBA,    //1933
+ 135                              0x05,0xAd,0x4e,    //1934
+ 136                              0x02,0xB6,0x44,    //1935
+ 137                              0x39,0x37,0x38,    //1936
+ 138                              0x09,0x2e,0x4B,    //1937
+ 139                              0x7C,0x96,0xBf,    //1938
+ 140                              0x0C,0x95,0x53,    //1939
+ 141                              0x0d,0x4A,0x48,    //1940
+ 142                              0x6d,0xA5,0x3B,    //1941
+ 143                              0x0B,0x55,0x4f,    //1942
+ 144                              0x05,0x6A,0x45,    //1943
+ 145                              0x4A,0xAd,0xB9,    //1944
+ 146                              0x02,0x5d,0x4d,    //1945
+ 147                              0x09,0x2d,0x42,    //1946
+ 148                              0x2C,0x95,0xB6,    //1947
+ 149                              0x0A,0x95,0x4A,    //1948
+ 150                              0x7B,0x4A,0xBd,    //1949
+ 151                              0x06,0xCA,0x51,    //1950
+ 152                              0x0B,0x55,0x46,    //1951
+ 153                              0x55,0x5A,0xBB,    //1952
+ 154                              0x04,0xdA,0x4e,    //1953
+ 155                              0x0A,0x5B,0x43,    //1954
+ 156                              0x35,0x2B,0xB8,    //1955
+ 157                              0x05,0x2B,0x4C,    //1956
+ 158                              0x8A,0x95,0x3f,    //1957
+ 159                              0x0e,0x95,0x52,    //1958
+ 160                              0x06,0xAA,0x48,    //1959
+ 161                              0x7A,0xd5,0x3C,    //1960
+ 162                              0x0A,0xB5,0x4f,    //1961
+ 163                              0x04,0xB6,0x45,    //1962
+ 164                              0x4A,0x57,0x39,    //1963
+ 165                              0x0A,0x57,0x4d,    //1964
+ 166                              0x05,0x26,0x42,    //1965
+ 167                              0x3e,0x93,0x35,    //1966
+ 168                              0x0d,0x95,0x49,    //1967
+ 169                              0x75,0xAA,0xBe,    //1968
+ 170                              0x05,0x6A,0x51,    //1969
+ 171                              0x09,0x6d,0x46,    //1970
+ 172                              0x54,0xAe,0xBB,    //1971
+ 173                              0x04,0xAd,0x4f,    //1972
+ 174                              0x0A,0x4d,0x43,    //1973
+ 175                              0x4d,0x26,0xB7,    //1974
+C51 COMPILER V9.60.0.0   FINAL3                                                            12/27/2021 07:43:11 PAGE 4   
+
+ 176                              0x0d,0x25,0x4B,    //1975
+ 177                              0x8d,0x52,0xBf,    //1976
+ 178                              0x0B,0x54,0x52,    //1977
+ 179                              0x0B,0x6A,0x47,    //1978
+ 180                              0x69,0x6d,0x3C,    //1979
+ 181                              0x09,0x5B,0x50,    //1980
+ 182                              0x04,0x9B,0x45,    //1981
+ 183                              0x4A,0x4B,0xB9,    //1982
+ 184                              0x0A,0x4B,0x4d,    //1983
+ 185                              0xAB,0x25,0xC2,    //1984
+ 186                              0x06,0xA5,0x54,    //1985
+ 187                              0x06,0xd4,0x49,    //1986
+ 188                              0x6A,0xdA,0x3d,    //1987
+ 189                              0x0A,0xB6,0x51,    //1988
+ 190                              0x09,0x37,0x46,    //1989
+ 191                              0x54,0x97,0xBB,    //1990
+ 192                              0x04,0x97,0x4f,    //1991
+ 193                              0x06,0x4B,0x44,    //1992
+ 194                              0x36,0xA5,0x37,    //1993
+ 195                              0x0e,0xA5,0x4A,    //1994
+ 196                              0x86,0xB2,0xBf,    //1995
+ 197                              0x05,0xAC,0x53,    //1996
+ 198                              0x0A,0xB6,0x47,    //1997
+ 199                              0x59,0x36,0xBC,    //1998
+ 200                              0x09,0x2e,0x50,    //1999 294
+ 201                              0x0C,0x96,0x45,    //2000 297
+ 202                              0x4d,0x4A,0xB8,    //2001
+ 203                              0x0d,0x4A,0x4C,    //2002
+ 204                              0x0d,0xA5,0x41,    //2003
+ 205                              0x25,0xAA,0xB6,    //2004
+ 206                              0x05,0x6A,0x49,    //2005
+ 207                              0x7A,0xAd,0xBd,    //2006
+ 208                              0x02,0x5d,0x52,    //2007
+ 209                              0x09,0x2d,0x47,    //2008
+ 210                              0x5C,0x95,0xBA,    //2009
+ 211                              0x0A,0x95,0x4e,    //2010
+ 212                              0x0B,0x4A,0x43,    //2011
+ 213                              0x4B,0x55,0x37,    //2012
+ 214                              0x0A,0xd5,0x4A,    //2013
+ 215                              0x95,0x5A,0xBf,    //2014
+ 216                              0x04,0xBA,0x53,    //2015
+ 217                              0x0A,0x5B,0x48,    //2016
+ 218                              0x65,0x2B,0xBC,    //2017
+ 219                              0x05,0x2B,0x50,    //2018
+ 220                              0x0A,0x93,0x45,    //2019
+ 221                              0x47,0x4A,0xB9,    //2020
+ 222                              0x06,0xAA,0x4C,    //2021
+ 223                              0x0A,0xd5,0x41,    //2022
+ 224                              0x24,0xdA,0xB6,    //2023
+ 225                              0x04,0xB6,0x4A,    //2024
+ 226                              0x69,0x57,0x3d,    //2025
+ 227                              0x0A,0x4e,0x51,    //2026
+ 228                              0x0d,0x26,0x46,    //2027
+ 229                              0x5e,0x93,0x3A,    //2028
+ 230                              0x0d,0x53,0x4d,    //2029
+ 231                              0x05,0xAA,0x43,    //2030
+ 232                              0x36,0xB5,0x37,    //2031
+ 233                              0x09,0x6d,0x4B,    //2032
+ 234                              0xB4,0xAe,0xBf,    //2033
+ 235                              0x04,0xAd,0x53,    //2034
+ 236                              0x0A,0x4d,0x48,    //2035
+ 237                              0x6d,0x25,0xBC,    //2036
+C51 COMPILER V9.60.0.0   FINAL3                                                            12/27/2021 07:43:11 PAGE 5   
+
+ 238                              0x0d,0x25,0x4f,    //2037
+ 239                              0x0d,0x52,0x44,    //2038
+ 240                              0x5d,0xAA,0x38,    //2039
+ 241                              0x0B,0x5A,0x4C,    //2040
+ 242                              0x05,0x6d,0x41,    //2041
+ 243                              0x24,0xAd,0xB6,    //2042
+ 244                              0x04,0x9B,0x4A,    //2043
+ 245                              0x7A,0x4B,0xBe,    //2044
+ 246                              0x0A,0x4B,0x51,    //2045
+ 247                              0x0A,0xA5,0x46,    //2046
+ 248                              0x5B,0x52,0xBA,    //2047
+ 249                              0x06,0xd2,0x4e,    //2048
+ 250                              0x0A,0xdA,0x42,    //2049
+ 251                              0x35,0x5B,0x37,    //2050
+ 252                              0x09,0x37,0x4B,    //2051
+ 253                              0x84,0x97,0xC1,    //2052
+ 254                              0x04,0x97,0x53,    //2053
+ 255                              0x06,0x4B,0x48,    //2054
+ 256                              0x66,0xA5,0x3C,    //2055
+ 257                              0x0e,0xA5,0x4f,    //2056
+ 258                              0x06,0xB2,0x44,    //2057
+ 259                              0x4A,0xB6,0x38,    //2058
+ 260                              0x0A,0xAe,0x4C,    //2059
+ 261                              0x09,0x2e,0x42,    //2060
+ 262                              0x3C,0x97,0x35,    //2061
+ 263                              0x0C,0x96,0x49,    //2062
+ 264                              0x7d,0x4A,0xBd,    //2063
+ 265                              0x0d,0x4A,0x51,    //2064
+ 266                              0x0d,0xA5,0x45,    //2065
+ 267                              0x55,0xAA,0xBA,    //2066
+ 268                              0x05,0x6A,0x4e,    //2067
+ 269                              0x0A,0x6d,0x43,    //2068
+ 270                              0x45,0x2e,0xB7,    //2069
+ 271                              0x05,0x2d,0x4B,    //2070
+ 272                              0x8A,0x95,0xBf,    //2071
+ 273                              0x0A,0x95,0x53,    //2072
+ 274                              0x0B,0x4A,0x47,    //2073
+ 275                              0x6B,0x55,0x3B,    //2074
+ 276                              0x0A,0xd5,0x4f,    //2075
+ 277                              0x05,0x5A,0x45,    //2076
+ 278                              0x4A,0x5d,0x38,    //2077
+ 279                              0x0A,0x5B,0x4C,    //2078
+ 280                              0x05,0x2B,0x42,    //2079
+ 281                              0x3A,0x93,0xB6,    //2080
+ 282                              0x06,0x93,0x49,    //2081
+ 283                              0x77,0x29,0xBd,    //2082
+ 284                              0x06,0xAA,0x51,    //2083
+ 285                              0x0A,0xd5,0x46,    //2084
+ 286                              0x54,0xdA,0xBA,    //2085
+ 287                              0x04,0xB6,0x4e,    //2086
+ 288                              0x0A,0x57,0x43,    //2087
+ 289                              0x45,0x27,0x38,    //2088
+ 290                              0x0d,0x26,0x4A,    //2089
+ 291                              0x8e,0x93,0x3e,    //2090
+ 292                              0x0d,0x52,0x52,    //2091
+ 293                              0x0d,0xAA,0x47,    //2092
+ 294                              0x66,0xB5,0x3B,    //2093
+ 295                              0x05,0x6d,0x4f,    //2094
+ 296                              0x04,0xAe,0x45,    //2095
+ 297                              0x4A,0x4e,0xB9,    //2096
+ 298                              0x0A,0x4d,0x4C,    //2097
+ 299                              0x0d,0x15,0x41,    //2098
+C51 COMPILER V9.60.0.0   FINAL3                                                            12/27/2021 07:43:11 PAGE 6   
+
+ 300                              0x2d,0x92,0xB5,    //2099
+ 301          };
+ 302          
+ 303          ///?????
+ 304          code uchar day_code1[9]={0x0,0x1f,0x3b,0x5a,0x78,0x97,0xb5,0xd4,0xf3};
+ 305          code uint day_code2[3]={0x111,0x130,0x14e};
+ 306          
+ 307          /*
+ 308          ????:??BCD????,??BCD????(???1901-2099?)
+ 309          ??????:Conversion(c_sun,year_sun,month_sun,day_sun)
+ 310          ?:??2004?10?16?Conversion(0,0x4,0x10,0x16);
+ 311          c_sun,year_sun,month_sun,day_sun??BCD??,c_sun??????,c_sun=0?21?
+ 312          ?,c_sun=1?19??
+ 313          ?????,??????,?c_moon,year_moon,month_moon,day_moon????BCD??
+ 314          */
+ 315          
+ 316          bit c_moon;
+ 317          //???,?????????????????,????????1,????0
+ 318          bit get_moon_day(uchar month_p,uint table_addr)
+ 319          {
+ 320   1        uchar temp10;
+ 321   1          switch (month_p){
+ 322   2              case 1:{temp10=year_code[table_addr]&0x08;
+ 323   3                   if (temp10==0)return(0);else return(1);}
+ 324   2              case 2:{temp10=year_code[table_addr]&0x04;
+ 325   3                   if (temp10==0)return(0);else return(1);}
+ 326   2              case 3:{temp10=year_code[table_addr]&0x02;
+ 327   3                   if (temp10==0)return(0);else return(1);}
+ 328   2              case 4:{temp10=year_code[table_addr]&0x01;
+ 329   3                   if (temp10==0)return(0);else return(1);}
+ 330   2              case 5:{temp10=year_code[table_addr+1]&0x80;
+ 331   3                   if (temp10==0) return(0);else return(1);}
+ 332   2              case 6:{temp10=year_code[table_addr+1]&0x40;
+ 333   3                   if (temp10==0)return(0);else return(1);}
+ 334   2              case 7:{temp10=year_code[table_addr+1]&0x20;
+ 335   3                   if (temp10==0)return(0);else return(1);}
+ 336   2              case 8:{temp10=year_code[table_addr+1]&0x10;
+ 337   3                   if (temp10==0)return(0);else return(1);}
+ 338   2              case 9:{temp10=year_code[table_addr+1]&0x08;
+ 339   3                   if (temp10==0)return(0);else return(1);}
+ 340   2              case 10:{temp10=year_code[table_addr+1]&0x04;
+ 341   3                   if (temp10==0)return(0);else return(1);}
+ 342   2              case 11:{temp10=year_code[table_addr+1]&0x02;
+ 343   3                   if (temp10==0)return(0);else return(1);}
+ 344   2              case 12:{temp10=year_code[table_addr+1]&0x01;
+ 345   3                   if (temp10==0)return(0);else return(1);}
+ 346   2              case 13:{temp10=year_code[table_addr+2]&0x80;
+ 347   3                   if (temp10==0)return(0);else return(1);}
+ 348   2          default:return(2);
+ 349   2          }
+ 350   1      }
+ 351          
+ 352          /*
+ 353          ????:??BCD????,??BCD????(???1901-2099?)
+ 354          ??????:Conversion(c_sun,year_sun,month_sun,day_sun)
+ 355          ?:??2004?10?16?Conversion(0,0x4,0x10,0x16);
+ 356          c_sun,year_sun,month_sun,day_sun??BCD??,c_sun??????,c_sun=0?21?
+ 357          ?,c_sun=1?19??
+ 358          ?????,??????,?c_moon,year_moon,month_moon,day_moon????BCD??
+ 359          */
+ 360          
+ 361          void Conversion(bit c,uchar year,uchar month,uchar day)
+C51 COMPILER V9.60.0.0   FINAL3                                                            12/27/2021 07:43:11 PAGE 7   
+
+ 362          {                         //c=0 ?21??,c=1 ?19?? ????????BCD??
+ 363   1          uchar temp1,temp2,temp3,month_p;
+ 364   1          uint temp4,table_addr;
+ 365   1          bit flag2,flag_y;
+ 366   1          temp1=year/16;   //BCD->hex ???????????
+ 367   1          temp2=year%16;
+ 368   1         // year=temp1*10+temp2;
+ 369   1        year=temp1*16+temp2;
+ 370   1          temp1=month/16;
+ 371   1          temp2=month%16;
+ 372   1          //month=temp1*10+temp2;
+ 373   1        month=temp1*16+temp2;
+ 374   1          temp1=day/16;
+ 375   1          temp2=day%16;
+ 376   1          //day=temp1*10+temp2;
+ 377   1        day=temp1*16+temp2;
+ 378   1          //???????
+ 379   1          if(c==0){                   
+ 380   2              table_addr=(year+0x64-1)*0x3;
+ 381   2          }
+ 382   1          else {
+ 383   2              table_addr=(year-1)*0x3;
+ 384   2          }
+ 385   1          //?????????
+ 386   1          //????????????
+ 387   1          temp1=year_code[table_addr+2]&0x60; 
+ 388   1          temp1=_cror_(temp1,5);
+ 389   1          //??????????????
+ 390   1          //???????????
+ 391   1          temp2=year_code[table_addr+2]&0x1f; 
+ 392   1          //?????????????
+ 393   1          // ??????????????,???????1??2?
+ 394   1          if(temp1==0x1){  
+ 395   2              temp3=temp2-1;  
+ 396   2          }  
+ 397   1          else{
+ 398   2              temp3=temp2+0x1f-1;        
+ 399   2          }
+ 400   1          // ????????????????
+ 401   1          //?????????????,??????,?????
+ 402   1          //day_code1[9],day_code2[3]
+ 403   1          //??????????,?????0xff,??day_code1[9],
+ 404   1          //????,????0xff,??day_code2[3]
+ 405   1          //???????8?10?,??????????day_code1[8-1]+10-1
+ 406   1          //???????11?10?,??????????day_code2[11-10]+10-1
+ 407   1          if (month<10){ 
+ 408   2              temp4=day_code1[month-1]+day-1;
+ 409   2          }
+ 410   1          else{
+ 411   2              temp4=day_code2[month-10]+day-1;
+ 412   2          }
+ 413   1          if ((month>0x2)&&(year%0x4==0)){  //???????2??????2????,???1
+ 414   2              temp4+=1;
+ 415   2          }
+ 416   1          //???????????????
+ 417   1          //??????????????
+ 418   1          if (temp4>=temp3){ //????????????????????????
+ 419   2              temp4-=temp3;
+ 420   2              month=0x1;
+ 421   2              month_p=0x1;  //month_p?????,??????????????month_p????
+ 422   2              flag2=get_moon_day(month_p,table_addr); //?????????????,????1,????0
+ 423   2              flag_y=0;
+C51 COMPILER V9.60.0.0   FINAL3                                                            12/27/2021 07:43:11 PAGE 8   
+
+ 424   2              if(flag2==0)temp1=0x1d; //??29?
+ 425   2              else temp1=0x1e; //??30?
+ 426   2              temp2=year_code[table_addr]&0xf0;
+ 427   2              temp2=_cror_(temp2,4);  //?????????????,??0??????
+ 428   2              while(temp4>=temp1){
+ 429   3                  temp4-=temp1;
+ 430   3                  month_p+=1;
+ 431   3                  if(month==temp2){
+ 432   4                  flag_y=~flag_y;
+ 433   4                  if(flag_y==0)month+=1;
+ 434   4                  }
+ 435   3                  else month+=1;
+ 436   3                  flag2=get_moon_day(month_p,table_addr);
+ 437   3                  if(flag2==0)temp1=0x1d;
+ 438   3                  else temp1=0x1e;
+ 439   3              }
+ 440   2              day=temp4+1;
+ 441   2          }
+ 442   1          else{  //?????????????????
+ 443   2              temp3-=temp4;
+ 444   2              if (year==0x0){year=0x63;c=1;}
+ 445   2              else year-=1;
+ 446   2              table_addr-=0x3;
+ 447   2              month=0xc;
+ 448   2              temp2=year_code[table_addr]&0xf0;
+ 449   2              temp2=_cror_(temp2,4);
+ 450   2              if (temp2==0)
+ 451   2            month_p=0xc; 
+ 452   2              else
+ 453   2            month_p=0xd; //
+ 454   2              
+ 455   2               //month_p?????,???????,???????,???13,?????12
+ 456   2              
+ 457   2              flag_y=0;
+ 458   2              flag2=get_moon_day(month_p,table_addr);
+ 459   2              if(flag2==0)temp1=0x1d;
+ 460   2              else temp1=0x1e;
+ 461   2              while(temp3>temp1){
+ 462   3                  temp3-=temp1;
+ 463   3                  month_p-=1;
+ 464   3                  if(flag_y==0)month-=1;
+ 465   3                  if(month==temp2)flag_y=~flag_y;
+ 466   3                  flag2=get_moon_day(month_p,table_addr);
+ 467   3                  if(flag2==0)temp1=0x1d;
+ 468   3                  else temp1=0x1e;
+ 469   3               }
+ 470   2              day=temp1-temp3+1;
+ 471   2          }
+ 472   1          c_moon=c;                 //HEX->BCD ,?????,??????BCD??
+ 473   1          temp1=year/10;
+ 474   1          temp1=_crol_(temp1,4);
+ 475   1          temp2=year%10;
+ 476   1          year_moon=temp1|temp2;
+ 477   1          temp1=month/10;
+ 478   1          temp1=_crol_(temp1,4);
+ 479   1          temp2=month%10;
+ 480   1          month_moon=temp1|temp2;
+ 481   1          temp1=day/10;
+ 482   1          temp1=_crol_(temp1,4);
+ 483   1          temp2=day%10;
+ 484   1          day_moon=temp1|temp2;
+ 485   1      }
+C51 COMPILER V9.60.0.0   FINAL3                                                            12/27/2021 07:43:11 PAGE 9   
+
+ 486          
+
+C51 COMPILATION COMPLETE.  2 WARNING(S),  1 ERROR(S)

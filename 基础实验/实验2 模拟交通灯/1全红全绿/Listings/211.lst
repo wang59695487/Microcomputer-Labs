@@ -1,0 +1,70 @@
+A51 MACRO ASSEMBLER  211                                                                  11/17/2019 17:35:45 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.5.0
+OBJECT MODULE PLACED IN .\Objects\211.obj
+ASSEMBLER INVOKED BY: D:\Keil_v5\C51\BIN\A51.EXE 211.asm SET(SMALL) DEBUG PRINT(.\Listings\211.lst) OBJECT(.\Objects\211
+                      .obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                     ORG 0000H
+
+0000 7590FF            2     LOOP:   MOV P1,#0FFH
+
+0003 00                3                     NOP
+
+0004 120017            4                     LCALL DELAY1S
+
+0007 7590AA            5                     MOV P1,#0AAH
+
+000A 00                6                     NOP
+
+000B 120017            7                     LCALL DELAY1S
+
+000E 759055            8                     MOV P1,#55H
+
+0011 00                9                     NOP
+
+0012 120017           10                     LCALL DELAY1S
+
+0015 80E9             11                     SJMP LOOP
+
+                      12                     
+
+0017 7D08             13     DELAY1S:MOV     R5,#8            ;—” ±1s
+
+0019 7EF8             14     DELOOP3:MOV     R6,#248
+
+001B 7FFA             15     DELOOP2:MOV     R7,#250
+
+001D DFFE             16     DELOOP1:DJNZ    R7,DELOOP1
+
+001F DEFA             17                     DJNZ    R6,DELOOP2
+
+0021 DDF6             18                     DJNZ    R5,DELOOP3      
+
+0023 22               19                     RET
+
+                      20                     END
+
+A51 MACRO ASSEMBLER  211                                                                  11/17/2019 17:35:45 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+DELAY1S. . . . . .  C ADDR   0017H   A   
+DELOOP1. . . . . .  C ADDR   001DH   A   
+DELOOP2. . . . . .  C ADDR   001BH   A   
+DELOOP3. . . . . .  C ADDR   0019H   A   
+LOOP . . . . . . .  C ADDR   0000H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

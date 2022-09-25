@@ -1,0 +1,2679 @@
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.7.0
+OBJECT MODULE PLACED IN .\Objects\clock.obj
+ASSEMBLER INVOKED BY: C:\Keil_v5\C51\BIN\A51.EXE clock.asm SET(SMALL) DEBUG PRINT(.\Listings\clock.lst) OBJECT(.\Objects
+                      \clock.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+                       1     ;*****************************************************                                     
+                                                                                                                        
+                                                                                        ;*****************************************************
+  00B4                 2       RST    EQU  P3.4
+  00B5                 3       IO     EQU  P3.5
+  00B6                 4       SCLK   EQU  P3.6         ;ds1302????
+                       5      
+  0076                 6       year   DATA 76H          ;????????
+  0075                 7       week   DATA 75H
+  0074                 8       month  DATA 74H
+  0073                 9       day    DATA 73H
+  0072                10       hour   DATA 72H
+  0071                11       mintue DATA 71H
+  0070                12       second DATA 70H
+                      13     ;*****************************************************
+                      14     ;*****************************************************
+                      15     
+  00A6                16       RS EQU P2.6
+  00A5                17       RW EQU P2.5 
+  00A7                18       E  EQU P2.7 
+                      19     
+                      20     ;*****************************************************
+                      21     ;*****************************************************
+  002B                22       TEMPH EQU 2BH                   ;DS18B20
+  002A                23       TEMPL EQU 2AH
+  00B7                24       DAT   EQU P3.7                  ;DAT?18b20??? P1.7 p1.5
+                      25     ;*****************************************************
+                      26     
+  0093                27     MAINKEY EQU P1.3                ;????p1.5       p1.3
+  0094                28     UPKEY   EQU P1.4                ;????p1.4       p3.3
+  0095                29     DOWNKEY EQU P1.5                ;????p1.3       p3.4
+  0022                30     SIGN    BIT 22H                 ;SET TIME/SET RING???,?SIGN=0???SET TIME;?SIGN=0?SET RING
+  0023                31     RSIGN   BIT 23H                  
+                      32     
+                      33     
+                      34     
+                      35     
+  0030                36     MKEYVAL    DATA 30H               ;??????
+  0033                37     RHRTEMP    DATA 33H                
+                      38     
+  0034                39     RMINTEMP   DATA 34H                
+  0041                40     RSIGNTEMP  DATA 41H                
+  0024                41     RINGSIGN   BIT  24H                
+  0025                42     REMINDSIGN BIT  25H                
+  00B2                43     RSTOPKEY   EQU  P3.2       
+  0026                44     RINGFIRST  BIT  26H                
+  0077                45     MUNUM      DATA 77H                
+  0078                46     MUNUMTEMP  DATA 78H                
+  007C                47     TIME0H     DATA 7CH                
+  007D                48     TIME0L     DATA 7DH                
+  007E                49     TIME       DATA 7EH                
+  0022                50     FINDNUM    DATA 22H                
+  007F                51     MUCODTEMP  DATA 7FH                
+  0027                52     PRONOFSIGN BIT  27H                
+                      53     
+                      54     ;******************************************************************************************
+                             ***************
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE     2
+
+                      55     
+                      56     
+                      57     
+                      58     
+                      59     
+                      60     
+                      61     
+                      62     
+                      63     ;******************************************************************************************
+                             ***************
+0000                  64       ORG 0000H     
+0000 020018           65       LJMP START 
+000B                  66       ORG 000BH
+000B C28C             67       CLR TR0
+000D B296             68       CPL P1.6
+000F 857C8C           69       MOV TH0,TIME0H
+0012 857D8A           70       MOV TL0,TIME0L
+0015 D28C             71       SETB TR0
+0017 32               72       RETI
+                      73     
+                      74     
+0018                  75     START:
+0018 757941           76       MOV 79H,#41H     
+001B 757A41           77       MOV 7AH,#41H
+001E 757B41           78       MOV 7BH,#41H
+                      79         
+0021 752900           80       MOV 29H,#00    
+0024 758190           81       MOV SP,#90H    
+0027 752300           82       MOV 23H,#00            
+002A 755002           83       MOV 50H,#02H          ;??"2008"??“2”
+002D 755100           84       MOV 51H,#00H          ;??"2008"??“0”
+0030 753000           85       MOV MKEYVAL,#00H
+                      86     
+                      87     
+0033 75A0FE           88       MOV P2,#0FEH          ;?????????,???????
+                      89     
+                      90     
+                      91     
+0036 C226             92       CLR RINGFIRST
+0038 C222             93       CLR SIGN                       ;???????
+003A C224             94       CLR RINGSIGN
+                      95     
+003C 753800           96       MOV 38H,#00H            
+003F 753A00           97       MOV 3AH,#00H            
+                      98     
+0042 7835             99       MOV R0,#35H             
+0044 7F08            100       MOV R7,#08
+0046                 101     ST1:
+0046 7600            102       MOV @R0,#00H
+0048 DFFC            103       DJNZ R7,ST1                                                     
+004A 717C            104       ACALL LCDINT            ;1602???
+004C 5190            105       ACALL DS1302INT         ;1302???
+004E 753290          106       MOV 32H,#90H
+0051 7531A5          107       MOV 31H,#0A5H
+0054 7144            108       ACALL WR1302
+                     109     
+                     110     
+0056                 111     MAIN0:
+0056 120A56          112       LCALL RINGTEST           
+0059 302403          113       JNB RINGSIGN,MAIN        
+005C 753034          114       MOV MKEYVAL,#52 
+005F                 115     MAIN:
+005F E523            116       MOV A,23H
+0061 B40005          117       CJNE A,#00,MAIN1   
+0064 12075D          118       LCALL MAINKEYTEST        
+0067 016B            119       AJMP MAIN2
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE     3
+
+0069                 120     MAIN1:
+0069 1523            121       DEC 23H
+006B                 122     MAIN2:
+                     123     
+006B 900074          124       MOV DPTR,#JMPTAB         
+006E 120A06          125       LCALL RSTOPKEYTEST   
+0071 E530            126       MOV A,MKEYVAL            
+0073 73              127       JMP @A+DPTR
+0074                 128     JMPTAB:
+0074 01AC            129       AJMP START1            ;0?????????
+0076 A1D0            130       AJMP JUDGE0            ;2??,???SETMAIN??
+0078 01E1            131       AJMP SETMAIN           ;4??SET TIME SET RING ????
+007A A1DE            132       AJMP JUDGE             ;6??,?????????,?DS1302,??SING,?0?????08,??????;
+                     133                          
+007C 01FE            134       AJMP MINSET            ;8??????
+007E C171            135       AJMP JUDGE1            ;10??????????
+0080 2105            136       AJMP HRSET             ;12??????
+0082 C182            137       AJMP JUDGE2            ;14??????????
+0084 210D            138       AJMP WEEKSET           ;16??????
+0086 C197            139       AJMP JUDGE3            ;18??????????
+0088 2115            140       AJMP DATSET            ;20?????
+008A C1A6            141       AJMP JUDGE4            ;22??????????
+008C 211D            142       AJMP MONSET            ;24?????
+008E C1B3            143       AJMP JUDGE5            ;26?????????
+0090 2125            144       AJMP YEARSET           ;28?????
+0092 212D            145       AJMP OUTTOMAIN         ;30?????0,?????
+0094 2162            146       AJMP SETONOF           ;32????ON/OF????
+0096 C1C0            147       AJMP JUDGE6            ;34???????????
+0098 2178            148       AJMP RHRSET            ;36????????
+009A C1CD            149       AJMP JUDGE7             ;38???????????
+009C 2181            150       AJMP RMINSET            ;40????????
+009E C1DA            151       AJMP JUDGE8             ;42????????,????????
+00A0 218A            152       AJMP MUNUMSET           ;44????????
+00A2 C1E7            153       AJMP JUDGE9             ;46???????????????????
+00A4 2192            154       AJMP RDSETONOF          ;48??????????
+00A6 E14D            155       AJMP JUDGE10            ;50??????,????? 
+00A8 21A7            156       AJMP RING                   ;52?????? 
+00AA 21FA            157       AJMP PRONOFSET          ;54????????
+                     158     ;*****************************************************
+                     159     
+                     160     
+                     161     ;*****************************************************
+00AC                 162     START1:
+00AC 7554FD          163       MOV 54H,#0FDH    ;FDH+30H=2DH???"-"
+00AF 7557FD          164       MOV 57H,#0FDH     ; "-"
+00B2 755AF0          165       MOV 5AH,#0F0H     ;F0H+30H=20H?????“ ”
+00B5 755B27          166       MOV 5BH,#27H          ;+30H?57H         "W"
+00B8 755C35          167       MOV 5CH,#35H          ;"e"
+00BB 755D35          168       MOV 5DH,#35H          ;"e"
+00BE 755E3B          169       MOV 5EH,#3BH          ;"k"
+00C1 75620A          170       MOV 62H,#0AH          ;":"
+00C4 75650A          171       MOV 65H,#0AH          ;":"
+00C7 7568F0          172       MOV 68H,#0F0H         ;" "
+00CA 7569F0          173       MOV 69H,#0F0H         ;" "
+00CD 756AF0          174       MOV 6AH,#0F0H         ;" "
+00D0 756CFE          175       MOV 6CH,#0FEH         ;+30H?“.”
+00D3 756EF2          176       MOV 6EH,#0F2H         ;+30H???????"
+00D6 756F13          177       MOV 6FH,#13H          ;"C" 
+00D9                 178     STR1:
+00D9 5114            179       ACALL DS1302      ;??????????????????
+00DB 5189            180       ACALL DS18B20     ;???????
+00DD 515C            181       ACALL DISP1602    ;?1602?????????????????????
+00DF 0156            182       AJMP  MAIN0
+                     183     
+                     184     
+                     185     
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE     4
+
+                     186     ;??/??????????
+00E1                 187     SETMAIN:                                
+00E1 F178            188       ACALL KEYTEST1  
+00E3                 189     L3:  
+00E3 302210          190       JNB SIGN,SETST                
+00E6 9103            191       ACALL SETRING
+00E8 71E5            192       ACALL SETTIME
+00EA 74C4            193       MOV A,#0C4H      
+00EC                 194     L4:
+00EC 120F30          195       LCALL time200ms
+00EF 71B4            196       ACALL DISP8B     
+00F1 120F30          197       LCALL time200ms
+00F4 015F            198       AJMP MAIN
+00F6                 199     SETST:
+00F6 71E5            200       ACALL SETTIME
+00F8 9103            201       ACALL SETRING
+00FA 7484            202       MOV A,#84H       
+00FC 01EC            203       AJMP L4
+                     204     
+                     205     
+                     206     ;??
+00FE                 207     MINSET:                           
+00FE 120AEA          208       LCALL MINS1
+0101 F182            209       ACALL MINSETKEYTEST
+0103 015F            210       AJMP MAIN
+                     211     
+                     212     
+                     213     ;??
+0105                 214     HRSET:                     
+0105 120AF1          215       LCALL HRS1
+0108 1207C9          216       LCALL HRSETKEYTEST
+010B 015F            217       AJMP MAIN
+                     218     
+                     219     
+                     220     ;??
+010D                 221     WEEKSET:                                
+010D 120AF8          222       LCALL WEEKS1
+0110 120819          223       LCALL WEEKSETKEYTEST
+0113 015F            224       AJMP MAIN
+                     225     
+                     226     
+                     227     ;??
+0115                 228     DATSET:                           
+0115 120B18          229       LCALL DATS1
+0118 120844          230       LCALL DATSETKEYTEST
+011B 015F            231       AJMP MAIN
+                     232     
+                     233     
+                     234     ;??
+011D                 235     MONSET:                           
+011D 120B1F          236       LCALL MONS1
+0120 120897          237       LCALL MONSETKEYTEST
+0123 015F            238       AJMP MAIN
+                     239     
+                     240     
+                     241     ;??
+0125                 242     YEARSET:                                
+0125 120B26          243       LCALL YEARS1
+0128 1208EC          244       LCALL YEARSETKEYTEST
+012B 015F            245       AJMP MAIN
+                     246     
+                     247     
+                     248     
+                     249     
+012D                 250     OUTTOMAIN:
+012D 20221E          251       JB SIGN,OUTTOMAIN2      
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE     5
+
+                     252                              
+                     253                                                      
+                     254     
+0130 7880            255       MOV R0,#80H             
+0132 7970            256       MOV R1,#70H
+0134 7E06            257       MOV R6,#06H
+0136                 258     OUTTOMAIN1:
+0136 08              259       INC R0                
+0137 08              260       INC R0                 
+0138 09              261       INC R1                 
+0139 8832            262       MOV 32H,R0
+013B 8731            263       MOV 31H,@R1
+013D 7144            264       ACALL WR1302   
+013F DEF5            265       DJNZ R6,OUTTOMAIN1
+0141 753280          266        MOV 32H,#80H     ;?ds1302
+0144 753100          267       MOV 31H,#00H
+0147 7144            268       ACALL WR1302
+0149 753000          269       MOV MKEYVAL,#00H
+014C 0156            270       AJMP MAIN0
+014E                 271     OUTTOMAIN2:                
+014E 85713B          272       MOV 3BH,mintue
+0151 85723C          273       MOV 3CH,hour
+0154 85733D          274       MOV 3DH,day
+0157 85743E          275       MOV 3EH,month
+015A 85763F          276       MOV 3FH,year
+015D 753000          277       MOV MKEYVAL,#00H
+0160 015F            278       AJMP MAIN
+                     279       
+                     280       
+                     281     
+0162                 282     SETONOF:
+0162 75601F          283       MOV 60H,#1FH
+0165 12093F          284       LCALL SETONOFKEYTEST
+0168                 285     ONOF3:
+0168 202305          286       JB RSIGN,SETON
+016B 120B5F          287       LCALL SETOF
+016E 015F            288       AJMP MAIN   
+0170                 289     SETON:              
+0170 75611E          290       MOV 61H,#1EH
+0173 120B65          291       LCALL ONOFS1
+0176 015F            292       AJMP MAIN
+                     293     
+                     294     
+                     295     
+                     296     
+0178                 297     RHRSET: 
+0178 120B7C          298       LCALL RHRS1      
+017B 120949          299       LCALL RHRSETKEYTEST     
+017E 02005F          300       LJMP MAIN
+                     301     
+                     302     
+                     303     
+                     304     
+0181                 305     RMINSET:                
+0181 120B83          306       LCALL RMINSETS1
+0184 12099A          307       LCALL RMINSETKEYTEST
+0187 02005F          308       LJMP MAIN
+                     309     
+                     310     
+                     311     
+018A                 312     MUNUMSET:
+018A 120B8A          313       LCALL MUNUMS1
+018D 1209E2          314       LCALL MUNUMKEYTEST
+0190 015F            315       AJMP MAIN
+                     316     
+                     317     
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE     6
+
+                     318     
+0192                 319     RDSETONOF:
+0192 120935          320       LCALL RDSETONOFKEYTEST    
+0195                 321     RDONOF3:
+0195 202506          322       JB REMINDSIGN,RDSETON
+0198 120B59          323       LCALL RDSETOF             
+019B 02005F          324       LJMP MAIN
+019E                 325     RDSETON:                    
+019E 75671E          326       MOV 67H,#1EH
+01A1 120B42          327       LCALL RDONOFS1
+01A4 02005F          328       LJMP MAIN
+                     329     
+                     330     
+                     331     
+01A7                 332     RING:
+01A7 20260C          333       JB RINGFIRST,NEXT        
+01AA D226            334       SETB RINGFIRST
+01AC 752200          335       MOV FINDNUM,#00H         
+01AF 758901          336       MOV TMOD,#01H            
+01B2 D2A9            337       SETB ET0                         
+01B4 D2AF            338       SETB EA                          
+01B6                 339     NEXT:
+01B6 120ACF          340       LCALL MUNUMTEST          
+01B9 E522            341       MOV A,FINDNUM
+01BB 93              342       MOVC A,@A+DPTR           
+                     343     
+01BC 6038            344       JZ OUT                           
+01BE F57F            345       MOV MUCODTEMP,A          
+01C0 0522            346       INC FINDNUM
+01C2 E522            347       MOV A,FINDNUM
+01C4 93              348       MOVC A,@A+DPTR           
+                     349     
+01C5 75F007          350       MOV B,#07                        
+01C8 A4              351       MUL AB
+01C9 257F            352       ADD A,MUCODTEMP
+01CB 14              353       DEC A
+01CC F57F            354       MOV MUCODTEMP,A          
+                     355     
+01CE 0522            356       INC FINDNUM              
+01D0 E522            357       MOV A,FINDNUM
+01D2 93              358       MOVC A,@A+DPTR
+01D3 F57E            359       MOV TIME,A              
+                     360       
+01D5 900BC1          361       MOV DPTR,#FRQHTAB        
+01D8 E57F            362       MOV A,MUCODTEMP
+01DA 93              363       MOVC A,@A+DPTR
+01DB F57C            364       MOV TIME0H,A
+01DD 900BDD          365       MOV DPTR,#FRQLTAB        
+01E0 E57F            366       MOV A,MUCODTEMP
+01E2 93              367       MOVC A,@A+DPTR
+01E3 F57D            368       MOV TIME0L,A
+01E5 857C8C          369       MOV TH0,TIME0H
+01E8 857D8A          370       MOV TL0,TIME0L
+                     371     
+01EB D28C            372       SETB TR0                         
+01ED AE7E            373       MOV R6,TIME              
+01EF 120F17          374       LCALL DEL                
+01F2 0522            375       INC FINDNUM              
+01F4 015F            376       AJMP MAIN
+01F6                 377     OUT:
+01F6 C226            378       CLR RINGFIRST            
+01F8 015F            379       AJMP MAIN
+                     380     
+                     381     
+                     382     
+01FA                 383     PRONOFSET:
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE     7
+
+01FA 120A4C          384        lCALL PRKEYTEST
+01FD 202705          385        JB PRONOFSIGN,PRONS1
+0200 12020D          386        LCALL PROFS1
+0203 016B            387        AJMP MAIN2
+0205                 388     PRONS1:
+0205 756E1E          389       MOV 6EH,#1EH
+0208 120BAA          390       lCALL PRONOFS1
+020B 016B            391       AJMP MAIN2
+020D                 392     PROFS1:
+020D 756E16          393       MOV 6EH,#16H
+0210 120BAA          394       lCALL PRONOFS1
+0213 22              395       RET
+                     396     
+                     397     
+                     398     
+                     399     
+                     400     
+                     401     
+                     402     
+                     403     
+                     404     
+                     405     
+                     406     
+                     407     
+                     408     
+                     409     
+                     410     
+                     411     
+                     412     
+                     413     
+                     414     
+                     415     
+                     416     
+                     417     ;******************************************************
+                     418     
+                     419     
+                     420     
+                     421      
+                     422     ;*****************************************************
+                     423     
+0214                 424     DS1302:
+0214 797F            425       MOV R1,#7FH             ;??DS1302??????
+0216 786F            426       MOV R0,#6FH 
+0218 7E07            427       MOV R6,#07H
+021A                 428     DS13021:
+021A 09              429       INC R1
+021B 09              430       INC R1
+021C 08              431       INC R0                 
+021D 8932            432       MOV 32H,R1
+021F 7118            433       ACALL RD1302
+0221 A631            434       MOV @R0,31H
+0223 DEF5            435       DJNZ R6,DS13021                
+                     436     
+0225 AF76            437       MOV R7,year    ;???,?????
+0227 7172            438       ACALL DIVIDE
+0229 8B53            439       MOV 53H,R3
+022B 8A52            440       MOV 52H,R2
+022D AF74            441       MOV R7,month   ;???,?????
+022F 7172            442       ACALL DIVIDE
+0231 8B56            443       MOV 56H,R3
+0233 8A55            444       MOV 55H,R2
+0235 AF73            445       MOV R7,day     ;???,?????
+0237 7172            446       ACALL DIVIDE
+0239 8B59            447       MOV 59H,R3
+023B 8A58            448       MOV 58H,R2
+023D AF75            449       MOV R7,week    ;???,?????
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE     8
+
+023F 7172            450       ACALL DIVIDE
+0241 8B5F            451       MOV 5FH,R3
+0243 AF72            452       MOV R7,hour    ;????,?????
+0245 7172            453       ACALL DIVIDE
+0247 8B61            454       MOV 61H,R3
+0249 8A60            455       MOV 60H,R2
+024B AF71            456       MOV R7,mintue  ;????,?????
+024D 7172            457       ACALL DIVIDE
+024F 8B64            458       MOV 64H,R3
+0251 8A63            459       MOV 63H,R2
+0253 AF70            460       MOV R7,second  ;???,?????
+0255 7172            461       ACALL  DIVIDE
+0257 8B67            462       MOV 67H,R3
+0259 8A66            463       MOV 66H,R2
+025B 22              464       RET
+                     465     
+                     466     
+                     467     
+                     468     
+025C                 469     DISP1602:
+025C 758080          470       MOV P0,#80H   ;????????(?1??1???)
+025F 91F0            471       ACALL WRCON  ;?????????
+0261 7E10            472       MOV R6,#10H   ;???????? 16?
+0263 784F            473       MOV R0,#4FH   ;??????????
+0265 5173            474       ACALL DISP16021 ;?????????
+                     475     
+0267 7580C0          476       MOV P0,#0C0H  ;????????(????????)
+026A 91F0            477       ACALL WRCON  ;?????????
+026C 7E10            478       MOV R6,#10H
+026E 785F            479       MOV R0,#5FH
+0270 5173            480       ACALL DISP16021
+0272 22              481       RET
+                     482     
+0273                 483     DISP16021:
+0273 08              484       INC R0
+0274 7430            485       MOV A,#30H
+0276 26              486       ADD A,@R0
+0277 F580            487       MOV P0,A
+0279 517E            488       ACALL LCDDISP
+027B DEF6            489       DJNZ R6,DISP16021
+027D 22              490       RET
+                     491     
+027E                 492     LCDDISP:
+027E D2A6            493     SETB RS         
+0280 C2A5            494     CLR RW          ;RW=0,??????
+0282 C2A7            495     CLR E           ;E=0,??????
+0284 91FB            496     ACALL DELAY     ;??????????
+0286 D2A7            497     SETB E          ;E=1,????
+0288 22              498     RET
+                     499     
+                     500     
+                     501     
+                     502     
+0289                 503     DS18B20:
+0289 B10B            504       ACALL DS1820INTI
+028B B116            505       ACALL RDTEMP
+028D B199            506       ACALL CONVER
+028F 22              507       RET
+                     508     ;*****************************************************
+                     509     
+                     510     
+                     511     
+                     512     
+                     513     
+                     514     ;*****************************************************
+                     515     
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE     9
+
+0290                 516     DS1302INT:
+0290 75328E          517       MOV 32H,#8EH
+0293 753100          518       MOV 31H,#00H      ;???1302,??????,??7?0,?????
+0296 7144            519       ACALL WR1302
+                     520     
+0298 75328D          521       MOV 32H,#8DH           
+029B 7118            522       ACALL RD1302
+029D 853176          523       MOV year,31H
+02A0 E4              524       CLR A
+02A1 B5764A          525       CJNE A,year,DS1302INT1   
+02A4 7532FC          526       MOV 32H,#0FCH                    
+02A7 753100          527       MOV 31H,#00H                     
+02AA 120344          528       LCALL WR1302 
+02AD                 529     DS1302INT0:
+02AD 75328C          530       MOV 32H,#8CH      ;????????08
+02B0 753108          531       MOV 31H,#08H
+02B3 120344          532       LCALL WR1302
+02B6 75328A          533       MOV 32H,#8AH      ;????????06
+02B9 753106          534       MOV 31H,#06H
+02BC 120344          535       LCALL WR1302
+02BF 753288          536       MOV 32H,#88H      ;????????07
+02C2 753107          537       MOV 31H,#07H
+02C5 120344          538       LCALL WR1302
+02C8 753286          539       MOV 32H,#86H      ;????????12
+02CB 753112          540       MOV 31H,#12H
+02CE 120344          541       LCALL WR1302
+02D1 753284          542       MOV 32H,#84H           ;????????00
+02D4 753100          543       MOV 31H,#00H
+02D7 120344          544       LCALL WR1302
+02DA 753282          545       MOV 32H,#82H           ;????????00
+02DD 753100          546       MOV 31H,#00H
+02E0 120344          547       LCALL WR1302
+02E3 753280          548       MOV 32H,#80H           ;????????00
+02E6 753100          549       MOV 31H,#00H
+02E9 120344          550       LCALL WR1302
+02EC 6101            551       AJMP DS1302INT2        
+02EE                 552     DS1302INT1:
+02EE 7532FD          553       MOV 32H,#0FDH           
+02F1 120318          554       LCALL RD1302
+02F4 E531            555       MOV A,31H
+02F6 B40104          556       CJNE A,#01H,DS1302INT3  
+02F9 D227            557       SETB PRONOFSIGN                 
+02FB 6101            558       AJMP DS1302INT2
+02FD                 559     DS1302INT3:
+02FD C227            560       CLR PRONOFSIGN                  
+02FF 41AD            561       AJMP DS1302INT0 
+0301                 562     DS1302INT2:
+0301 753281          563       MOV 32H,#81H                    
+0304 7118            564       ACALL RD1302                     
+0306 853170          565       MOV second,31H
+0309 E570            566       MOV A,second
+030B 547F            567       ANL A,#7FH
+030D F570            568       MOV second,A
+030F 753280          569       MOV 32H,#80H      ;?ds1302
+0312 857031          570       MOV 31H,second
+0315 7144            571       ACALL WR1302  
+0317 22              572       RET
+                     573     
+                     574     
+0318                 575     RD1302:
+0318 C2B6            576       CLR SCLK
+031A 00              577       NOP
+031B 00              578       NOP
+031C D2B4            579       SETB RST
+031E 00              580       NOP
+031F E532            581       MOV A,32H
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    10
+
+0321 7C08            582       MOV R4,#8
+0323                 583     RD13021:
+0323 13              584       RRC A      ;????1302
+0324 00              585       NOP
+0325 92B5            586       MOV IO,C
+0327 D2B6            587       SETB SCLK
+0329 00              588       NOP
+032A C2B6            589       CLR SCLK
+032C 00              590       NOP
+032D 00              591       NOP
+032E DCF3            592       DJNZ R4,RD13021
+0330 7C08            593       MOV R4,#8
+0332                 594     RD13022:
+0332 C2B6            595       CLR SCLK   ;?1302????? 
+0334 00              596       NOP
+0335 A2B5            597       MOV C,IO
+0337 00              598       NOP
+0338 13              599       RRC A
+0339 00              600       NOP
+033A D2B6            601       SETB SCLK
+033C 00              602       NOP
+033D DCF3            603       DJNZ R4,RD13022
+033F F531            604       MOV 31H,A
+0341 C2B4            605       CLR RST
+0343 22              606       RET
+                     607     
+                     608     
+0344                 609     WR1302:
+0344 C2B6            610       CLR SCLK
+0346 00              611       NOP
+0347 D2B4            612       SETB RST
+0349 00              613       NOP
+034A E532            614       MOV A,32H
+034C 7C08            615       MOV R4,#8
+034E                 616     WR13021:
+034E 13              617       RRC A     ;????1302
+034F 00              618       NOP
+0350 C2B6            619       CLR SCLK
+0352 00              620       NOP
+0353 92B5            621       MOV IO,C
+0355 00              622       NOP
+0356 D2B6            623       SETB SCLK
+0358 00              624       NOP
+0359 DCF3            625       DJNZ R4,WR13021
+035B C2B6            626       CLR SCLK
+035D 00              627       NOP
+035E E531            628       MOV A,31H
+0360 7C08            629       MOV R4,#8
+0362                 630     WR13022:
+0362 13              631       RRC A
+0363 00              632       NOP       ;????1302
+0364 C2B6            633       CLR SCLK
+0366 00              634       NOP
+0367 92B5            635       MOV IO,C
+0369 00              636       NOP
+036A D2B6            637       SETB SCLK
+036C 00              638       NOP
+036D DCF3            639       DJNZ R4,WR13022
+036F C2B4            640       CLR RST
+0371 22              641       RET
+                     642     
+                     643     
+0372                 644     DIVIDE:
+0372 EF              645       MOV A,R7
+0373 540F            646       ANL A,#0FH
+0375 FB              647       MOV R3,A
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    11
+
+0376 EF              648       MOV A,R7
+0377 C4              649       SWAP A
+0378 540F            650       ANL A,#0FH
+037A FA              651       MOV R2,A
+037B 22              652       RET
+                     653     ;*****************************************************
+                     654     
+                     655     
+                     656     
+                     657     
+                     658     
+                     659     ;*****************************************************
+                     660     
+037C                 661     LCDINT:
+037C 758001          662       MOV P0,#01H   ;???????
+037F 91F0            663       ACALL WRCON  ;?????????
+                     664     
+0381 758038          665       MOV P0,#38H   ;??????:8?2?5x7??
+0384 91F0            666       ACALL WRCON  ;?????????
+                     667     
+0386 758006          668       MOV P0,#06H   ;????,??????
+0389 91F0            669       ACALL WRCON  ;?????????
+                     670     
+038B 75800C          671       MOV P0,#0CH   ;????????????????
+038E 91F0            672       ACALL WRCON  ;?????????
+0390 22              673       RET
+                     674     
+0391                 675     DISPSET:                  
+0391 F580            676       MOV P0,A
+0393 91F0            677       ACALL WRCON
+0395 758053          678       MOV P0,#53H  ;DISPPLAY "S"
+0398 517E            679       ACALL LCDDISP 
+039A 758065          680       MOV P0,#65H   ;DISPLAY"e"
+039D 517E            681       ACALL LCDDISP 
+039F 758074          682       MOV P0,#74H     ;DISPLAY"t"
+03A2 517E            683       ACALL LCDDISP
+03A4 22              684       RET
+                     685     
+                     686     
+03A5                 687     DISP2B:
+03A5 F580            688       MOV P0,A; ;????????(?1??5???)
+03A7 91F0            689       ACALL WRCON ;?????????
+03A9 758020          690       MOV P0,#20H  ;DISPPLAY " "
+03AC 517E            691       ACALL LCDDISP 
+03AE 758020          692       MOV P0,#20H   ;DISPLAY" "
+03B1 517E            693       ACALL LCDDISP 
+03B3 22              694       RET
+                     695     
+                     696     
+03B4                 697     DISP8B:
+03B4 71A5            698       ACALL DISP2B
+03B6 758020          699       MOV P0,#20H     ;DISPLAY" "
+03B9 517E            700       ACALL LCDDISP
+03BB 758020          701       MOV P0,#20H     ;DISPLAY" "
+03BE 517E            702       ACALL LCDDISP
+03C0 758020          703       MOV P0,#20H     ;DISPLAY" "
+03C3 517E            704       ACALL LCDDISP
+03C5 758020          705       MOV P0,#20H      ;DISPLAY" "
+03C8 517E            706       ACALL LCDDISP
+03CA 758020          707       MOV P0,#20H           ;DISPLAY" "
+03CD 517E            708       ACALL LCDDISP
+03CF 758020          709       MOV P0,#20H           ;DISPLAY" "
+03D2 517E            710       ACALL LCDDISP
+03D4 22              711       RET
+                     712     
+                     713     
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    12
+
+03D5                 714     DISPRING:                  
+03D5 910C            715        ACALL SETRING1
+03D7 75802D          716        MOV P0,#2DH          ;DISPLAY"-"
+03DA 517E            717        ACALL LCDDISP
+03DC E555            718        MOV A,55H        
+03DE 2430            719        ADD A,#30H       
+03E0 F580            720        MOV P0,A
+03E2 517E            721        ACALL LCDDISP
+03E4 22              722        RET    
+                     723       
+                     724     
+03E5                 725     SETTIME:
+03E5 7484            726       MOV A,#84H; ;????????(?1??5???)
+03E7 7191            727       ACALL DISPSET
+03E9 758020          728       MOV P0,#20H     ;DISPLAY" "
+03EC 517E            729       ACALL LCDDISP
+03EE 758054          730       MOV P0,#54H     ;DISPLAY"T"
+03F1 517E            731       ACALL LCDDISP 
+03F3 758069          732       MOV P0,#69H      ;DISPLAY"i"
+03F6 517E            733       ACALL LCDDISP
+03F8 75806D          734       MOV P0,#6DH           ;DISPLAY"m"
+03FB 517E            735       ACALL LCDDISP
+03FD 758065          736       MOV P0,#65H           ;DISPLAY"e"
+0400 517E            737       ACALL LCDDISP
+0402 22              738       RET
+                     739     
+                     740     
+0403                 741     SETRING:
+0403 74C4            742       MOV A,#0C4H; ;????????(?2??5???)
+0405 7191            743       ACALL DISPSET
+0407 758020          744       MOV P0,#20H     ;DISPLAY" "
+040A 517E            745       ACALL LCDDISP
+040C                 746     SETRING1:
+040C 758052          747       MOV P0,#52H  ;DISPPLAY "R"
+040F 517E            748       ACALL LCDDISP 
+0411 758069          749       MOV P0,#69H   ;DISPLAY"i"
+0414 517E            750       ACALL LCDDISP 
+0416 75806E          751       MOV P0,#6EH     ;DISPLAY"n"
+0419 517E            752       ACALL LCDDISP
+041B 758067          753       MOV P0,#67H     ;DISPLAY"g"
+041E 517E            754       ACALL LCDDISP
+0420 22              755       RET
+                     756     
+                     757     ;??????
+0421                 758     RINGPIC: 
+0421 7554F0          759       MOV 54H,#0F0H
+0424 758001          760       MOV P0,#01H   ;???????
+0427 1204F0          761       LCALL WRCON  ;?????????     
+042A 758084          762       MOV P0,#84H
+042D 1204F0          763       LCALL WRCON    ;?????“RING !!!”
+0430 910C            764       ACALL SETRING1
+0432 758021          765       MOV P0,#21H      
+0435 12027E          766       LCALL LCDDISP
+0438 758021          767       MOV P0,#21H      
+043B 12027E          768       LCALL LCDDISP
+043E 758021          769       MOV P0,#21H      
+0441 12027E          770       LCALL LCDDISP 
+                     771     
+0444 7580C5          772       MOV P0,#0C5H  ;???????
+0447 1204F0          773       LCALL WRCON
+044A 785F            774       MOV R0,#5FH   ;??????
+044C 7E05            775       MOV R6,#05H
+044E 120273          776       LCALL DISP16021
+0451 22              777       RET
+                     778     
+                     779     
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    13
+
+                     780     
+0452                 781     RDRINGPIC:
+0452 120214          782       LCALL DS1302
+0455 7554FD          783       MOV 54H,#0FDH
+0458 755B14          784       MOV 5BH,#14H          ;+30H?44H?D ???5B-5F?Date+??
+045B 755C31          785       MOV 5CH,#31H
+045E 755D44          786       MOV 5DH,#44H           
+0461 755E35          787       MOV 5EH,#35H           
+0464 755FF0          788       MOV 5FH,#0F0H
+0467 75620A          789       MOV 62H,#0AH           
+046A 7565F0          790       MOV 65H,#0F0H
+046D 75661F          791       MOV 66H,#1FH
+0470 75671E          792       MOV 67H,#1EH
+0473 756A22          793       MOV 6AH,#22H
+0476 756B35          794       MOV 6BH,#35H
+0479 756C3D          795       MOV 6CH,#3DH
+047C 756D39          796       MOV 6DH,#39H
+047F 756E3E          797       MOV 6EH,#3EH
+0482 756F34          798       MOV 6FH,#34H
+0485 12025C          799       LCALL DISP1602
+0488 22              800       RET
+                     801     
+                     802     
+                     803     
+                     804     
+0489                 805     PRSETPIC:
+0489 75511F          806       MOV 51H,#1FH                    
+048C 755245          807       MOV 52H,#45H
+048F 755344          808       MOV 53H,#44H
+0492 7554F0          809       MOV 54H,#0F0H
+0495 75553F          810       MOV 55H,#3FH
+0498 755636          811       MOV 56H,#36H
+049B 7557F0          812       MOV 57H,#0F0H
+049E 755832          813       MOV 58H,#32H
+04A1 755931          814       MOV 59H,#31H
+04A4 755A44          815       MOV 5AH,#44H
+04A7 755B44          816       MOV 5BH,#44H
+04AA 755C35          817       MOV 5CH,#35H
+04AD 755D42          818       MOV 5DH,#42H
+04B0 755E49          819       MOV 5EH,#49H
+04B3 758081          820       MOV P0,#81H
+04B6 91F0            821       ACALL WRCON
+04B8 7850            822       MOV R0,#50H
+04BA 7E0E            823       MOV R6,#14
+04BC 120273          824       LCALL DISP16021                
+04BF 7580C1          825       MOV P0,#0C1H
+04C2 91F0            826       ACALL WRCON
+04C4 756020          827       MOV 60H,#20H
+04C7 756142          828       MOV 61H,#42H
+04CA 75623F          829       MOV 62H,#3FH
+04CD 756344          830       MOV 63H,#44H
+04D0 756435          831       MOV 64H,#35H
+04D3 756533          832       MOV 65H,#33H
+04D6 756644          833       MOV 66H,#44H
+04D9 756739          834       MOV 67H,#39H
+04DC 75683F          835       MOV 68H,#3FH
+04DF 75693E          836       MOV 69H,#3EH
+04E2 756A0A          837       MOV 6AH,#0AH
+04E5 756D1F          838       MOV 6DH,#1FH
+04E8 785F            839       MOV R0,#5FH
+04EA 7E0B            840       MOV R6,#11
+04EC 120273          841       LCALL DISP16021
+04EF 22              842       RET
+                     843     
+                     844     
+                     845     
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    14
+
+                     846     
+04F0                 847     WRCON:
+04F0 C2A6            848     CLR RS          ;??????????
+04F2 C2A5            849     CLR RW
+04F4 C2A7            850     CLR E 
+04F6 91FB            851     ACALL DELAY
+04F8 D2A7            852     SETB E
+04FA 22              853     RET
+                     854     
+04FB                 855     DELAY:
+04FB 7580FF          856     MOV P0,#0FFH    ;??????????????
+04FE C2A6            857     CLR RS
+0500 D2A5            858     SETB RW
+0502 C2A7            859     CLR E
+0504 00              860     NOP
+0505 D2A7            861     SETB E
+0507 2087F1          862     JB P0.7,DELAY   ;??P0.7????????????
+050A 22              863     RET
+                     864     ;*****************************************************
+                     865     
+                     866     
+                     867     
+                     868     
+                     869     
+                     870     
+                     871     ;*****************************************************************
+                     872     
+050B                 873     DS1820INTI:
+050B B136            874       ACALL RESET1820                
+050D 74CC            875       MOV A,#0CCH                    
+050F B15E            876       ACALL WR1820
+0511 744E            877       MOV A,#4EH                     
+0513 B15E            878       ACALL WR1820
+0515 22              879       RET
+                     880     
+                     881     
+0516                 882     RDTEMP:
+0516 B136            883       ACALL RESET1820
+0518 74CC            884       MOV A,#0CCH               
+051A B15E            885       ACALL WR1820
+051C 7444            886       MOV A,#44H                
+051E B15E            887       ACALL WR1820
+0520 120F20          888       LCALL TIME1MS
+0523 B136            889       ACALL RESET1820
+0525 74CC            890       MOV A,#0CCH               
+0527 B15E            891       ACALL WR1820
+0529 74BE            892       MOV A,#0BEH               
+052B B15E            893       ACALL WR1820
+052D B17A            894       ACALL RD1820              
+052F F52A            895       MOV TEMPL,A
+0531 B17A            896       ACALL RD1820              
+0533 F52B            897       MOV TEMPH,A
+0535 22              898       RET
+                     899     
+                     900     
+0536                 901     RESET1820:
+0536                 902     LA:
+0536 D2B7            903       SETB DAT                         
+0538 7542C8          904       MOV 42H,#200
+053B                 905     LB:
+053B C2B7            906       CLR DAT                  
+053D D542FB          907       DJNZ 42H,LB      
+0540 D2B7            908       SETB DAT
+0542 75421E          909       MOV 42H,#30
+0545                 910     LC:
+0545 D542FD          911       DJNZ 42H,LC
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    15
+
+0548 C3              912       CLR C               
+0549 72B7            913       ORL C,DAT
+                     914       
+054B 754850          915       MOV 48H,#80
+054E                 916     LD:
+054E 72B7            917       ORL C,DAT              
+0550 4005            918       JC LP                   
+0552 D548F9          919       DJNZ 48H,LD     
+0555 80DF            920       SJMP LA                 
+0557                 921     LP:                               
+0557 7542FA          922       MOV 42H,#250
+055A                 923     LF:
+055A D542FD          924       DJNZ 42H,LF
+055D 22              925       RET
+                     926     
+                     927     
+055E                 928     WR1820:
+055E 754308          929       MOV 43H,#08
+0561                 930     WR18201:
+0561 D2B7            931       SETB DAT
+0563 754408          932       MOV 44H,#08
+0566 13              933       RRC A
+0567 C2B7            934       CLR DAT
+0569                 935     WR18202:
+0569 D544FD          936       DJNZ 44H,WR18202
+056C 92B7            937       MOV DAT,C
+056E 75441E          938       MOV 44H,#30
+0571                 939     WR18203:
+0571 D544FD          940       DJNZ 44H,WR18203
+0574 D543EA          941       DJNZ 43H,WR18201
+0577 D2B7            942       SETB DAT
+0579 22              943       RET
+                     944     
+                     945     
+057A                 946     RD1820:
+057A C2AF            947       CLR EA
+057C 754808          948       MOV 48H,#08
+057F                 949     RD18201:
+057F C2B7            950       CLR DAT
+0581 754406          951       MOV 44H,#06
+0584 00              952       NOP
+0585 D2B7            953       SETB DAT
+0587                 954     RD18202:
+0587 D544FD          955       DJNZ 44H,RD18202
+058A A2B7            956       MOV C,DAT
+058C 13              957       RRC A
+058D 75451E          958       MOV 45H,#30
+0590                 959     RD18203:
+0590 D545FD          960       DJNZ 45H,RD18203
+0593 D548E9          961       DJNZ 48H,RD18201
+0596 D2B7            962       SETB DAT
+0598 22              963       RET
+                     964     
+                     965     
+0599                 966     CONVER:
+0599 E52A            967       MOV A,TEMPL
+059B 540F            968       ANL A,#0FH
+059D 9005C0          969       MOV DPTR,#TABDOT
+05A0 93              970       MOVC A,@A+DPTR
+05A1 F56D            971       MOV 6DH,A
+05A3 E52B            972       MOV A,TEMPH
+05A5 5407            973       ANL A,#07H
+05A7 F56A            974       MOV 6AH,A
+05A9 E52A            975       MOV A,TEMPL
+05AB 54F0            976       ANL A,#0F0H
+05AD 456A            977       ORL A,6AH
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    16
+
+05AF C4              978       SWAP A
+05B0 75F064          979       MOV B,#100
+05B3 84              980       DIV AB
+05B4 E5F0            981       MOV A,B
+05B6 75F00A          982       MOV B,#10
+05B9 84              983       DIV AB
+05BA F56A            984       MOV 6AH,A
+05BC 85F06B          985       MOV 6BH,B
+05BF 22              986       RET
+                     987     
+05C0                 988     TABDOT: 
+05C0 00010102        989       DB    00H,01H,01H,02H,03H,03H,04H,04H,05H,06H,06H,07H,08H,08H,09H,09H
+05C4 03030404                
+05C8 05060607                
+05CC 08080909                
+                     990     ;*************************************************************************
+                     991     
+                     992     
+                     993     
+                     994     
+                     995     
+                     996     
+                     997     
+                     998     ;*************************************************************************
+05D0                 999     JUDGE0:
+05D0 758001         1000       MOV P0,#01H   ;???????
+05D3 91F0           1001       ACALL WRCON  ;?????????
+05D5 71E5           1002       ACALL SETTIME
+05D7 9103           1003       ACALL SETRING
+05D9 753004         1004       MOV MKEYVAL,#04H
+05DC 015F           1005       AJMP MAIN
+                    1006     
+05DE                1007     JUDGE:
+05DE 758001         1008       MOV P0,#01H   ;???????
+05E1 91F0           1009       ACALL WRCON  ;?????????
+05E3 20220F         1010       JB SIGN,J1
+05E6 753008         1011       MOV MKEYVAL,#08H
+05E9 515C           1012       ACALL DISP1602
+05EB 753280         1013       MOV 32H,#80H      ;?ds1302
+05EE 753180         1014       MOV 31H,#80H
+05F1 7144           1015       ACALL WR1302
+05F3 C16F           1016       AJMP JUDGEOUT
+                    1017     
+05F5                1018     J1:
+05F5 753336         1019       MOV RHRTEMP,#36H
+05F8 753435         1020       MOV RMINTEMP,#35H
+05FB 757879         1021       MOV MUNUMTEMP,#79H
+05FE 755501         1022       MOV 55H,#01H           
+0601 7562F0         1023       MOV 62H,#0F0H  ;      " "
+0604                1024     J11:
+0604 758001         1025       MOV P0,#01H   ;???????
+0607 91F0           1026       ACALL WRCON  ;?????????
+0609 753020         1027       MOV MKEYVAL,#32         
+                    1028     
+060C C3             1029       CLR C                            
+060D E541           1030       MOV A,RSIGNTEMP
+060F 13             1031       RRC A
+0610 F541           1032       MOV RSIGNTEMP,A
+0612 9223           1033       MOV RSIGN,C
+                    1034     
+0614 A934           1035       MOV R1,RMINTEMP           
+0616 8771           1036       MOV mintue,@R1
+0618 AF71           1037       MOV R7,mintue             
+061A 7172           1038       ACALL DIVIDE
+061C 8B67           1039       MOV 67H,R3
+061E 8A66           1040       MOV 66H,R2
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    17
+
+                    1041     
+0620 A933           1042       MOV R1,RHRTEMP           
+0622 8772           1043       MOV hour,@R1
+0624 AF72           1044       MOV R7,hour
+0626 7172           1045       ACALL DIVIDE
+0628 8B64           1046       MOV 64H,R3
+062A 8A63           1047       MOV 63H,R2
+                    1048     
+062C A978           1049       MOV R1,MUNUMTEMP          
+062E 8777           1050       MOV MUNUM,@R1
+                    1051     
+0630 71D5           1052       ACALL DISPRING                 
+                    1053     
+0632 75808A         1054       MOV P0,#8AH                    
+0635 91F0           1055       ACALL WRCON
+                    1056     
+0637 75804D         1057       MOV P0,#4DH                    
+063A 517E           1058       ACALL LCDDISP
+063C 758075         1059       MOV P0,#75H                    
+063F 517E           1060       ACALL LCDDISP
+0641 758073         1061       MOV P0,#73H                    
+0644 517E           1062       ACALL LCDDISP
+0646 758069         1063       MOV P0,#69H                    
+0649 517E           1064       ACALL LCDDISP
+064B 758063         1065       MOV P0,#63H                    
+064E 517E           1066       ACALL LCDDISP
+                    1067       
+0650 7580C2         1068       MOV P0,#0C2H                   
+0653 91F0           1069       ACALL WRCON
+                    1070     
+0655 7861           1071       MOV R0,#61H               
+0657 7E06           1072       MOV R6,#06H
+0659 5173           1073       ACALL DISP16021
+                    1074     
+065B 7580CB         1075       MOV P0,#0CBH              
+065E 91F0           1076       ACALL WRCON
+                    1077     
+0660 758028         1078       MOV P0,#28H               
+0663 517E           1079       ACALL LCDDISP
+0665 857780         1080       MOV P0,MUNUM              
+0668 517E           1081       ACALL LCDDISP
+066A 758029         1082       MOV P0,#29H               
+066D 517E           1083       ACALL LCDDISP  
+066F                1084     JUDGEOUT:       
+066F 015F           1085       AJMP MAIN
+                    1086     
+                    1087     
+0671                1088     JUDGE1:
+0671 7580C3         1089       MOV P0,#0C3H  ;????????(????4???)
+0674 91F0           1090       ACALL WRCON  ;?????????
+0676 7862           1091       MOV R0,#62H    ;??????
+0678 7E02           1092       MOV R6,#02H
+067A 5173           1093       ACALL DISP16021
+067C                1094     JU1:
+067C 0530           1095       INC MKEYVAL
+067E 0530           1096       INC MKEYVAL
+0680 015F           1097       AJMP MAIN
+                    1098     
+                    1099     
+                    1100     
+0682                1101     JUDGE2:
+0682 7580C0         1102       MOV P0,#0C0H  ;????????(????1???)
+0685 91F0           1103       ACALL WRCON  ;?????????
+0687                1104     JUDGE21:
+0687 785F           1105       MOV R0,#5FH
+0689 7E02           1106       MOV R6,#02H      
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    18
+
+068B 5173           1107       ACALL DISP16021
+068D 202202         1108       JB SIGN,JUDGE2OUT
+0690 C17C           1109       AJMP JU1
+0692                1110     JUDGE2OUT:
+0692 753014         1111       MOV MKEYVAL,#20
+0695 015F           1112       AJMP MAIN       
+                    1113     
+                    1114     
+                    1115     
+0697                1116     JUDGE3:
+0697 75808F         1117       MOV P0,#8FH  ;????????(?1??16???)
+069A 91F0           1118       ACALL WRCON  ;?????????
+069C 7430           1119       MOV A,#30H    ;?????
+069E 255F           1120       ADD A,5FH
+06A0 F580           1121       MOV P0,A
+06A2 517E           1122       ACALL LCDDISP
+06A4 C17C           1123       AJMP JU1
+                    1124     
+                    1125     
+06A6                1126     JUDGE4:
+06A6 758088         1127       MOV P0,#88H  ;????????(?1??9???)
+06A9 91F0           1128       ACALL WRCON  ;?????????
+06AB 7857           1129       MOV R0,#57H      
+06AD 7E02           1130       MOV R6,#02H
+06AF 5173           1131       ACALL DISP16021
+06B1 C17C           1132       AJMP JU1 
+                    1133     
+                    1134     
+06B3                1135     JUDGE5:
+06B3 758085         1136       MOV P0,#85H  ;????????(?1??6???)
+06B6 91F0           1137       ACALL WRCON  ;?????????
+06B8 7854           1138       MOV R0,#54H
+06BA 7E02           1139       MOV R6,#02H            
+06BC 5173           1140       ACALL DISP16021
+06BE C17C           1141       AJMP JU1
+                    1142     
+06C0                1143     JUDGE6:
+06C0 7580C0         1144       MOV P0,#0C0H           
+06C3 91F0           1145       ACALL WRCON
+06C5 785F           1146       MOV R0,#5FH
+06C7 7E02           1147       MOV R6,#02H
+06C9 5173           1148       ACALL DISP16021
+06CB C17C           1149       AJMP JU1
+                    1150      
+06CD                1151     JUDGE7:
+06CD 7580C3         1152       MOV P0,#0C3H            
+06D0 91F0           1153       ACALL WRCON
+06D2 7862           1154       MOV R0,#62H
+06D4 7E02           1155       MOV R6,#02H
+06D6 5173           1156       ACALL DISP16021
+06D8 C17C           1157       AJMP JU1
+                    1158     
+06DA                1159     JUDGE8:
+06DA 7580C6         1160       MOV P0,#0C6H             
+06DD 91F0           1161       ACALL WRCON
+06DF 7865           1162       MOV R0,#65H
+06E1 7E02           1163       MOV R6,#02H
+06E3 5173           1164       ACALL DISP16021
+06E5 C17C           1165       AJMP JU1
+                    1166       
+06E7                1167     JUDGE9:
+06E7 A223           1168       MOV C,RSIGN       
+06E9 E529           1169       MOV A,29H
+06EB 13             1170       RRC A
+06EC F529           1171       MOV 29H,A
+                    1172     
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    19
+
+06EE A933           1173       MOV R1,RHRTEMP         
+06F0 A772           1174       MOV @R1,hour
+06F2 A934           1175       MOV R1,RMINTEMP
+06F4 A771           1176       MOV @R1,mintue
+06F6 A978           1177       MOV R1,MUNUMTEMP        
+06F8 A777           1178       MOV @R1,MUNUM
+                    1179     
+06FA 7439           1180       MOV A,#39H             
+06FC B53440         1181       CJNE A,RMINTEMP,JUDGE92        
+06FF E529           1182       MOV A,29H                       
+0701 C3             1183       CLR C
+0702 13             1184       RRC A
+0703 C4             1185       SWAP A
+0704 F541           1186       MOV RSIGNTEMP,A
+0706 752900         1187       MOV 29H,#00H
+                    1188     
+0709 5114           1189       ACALL DS1302
+070B 7554FD         1190       MOV 54H,#0FDH
+070E 755B14         1191       MOV 5BH,#14H          ;+30H?44H?D ???5B-5F?Date+??
+0711 755C31         1192       MOV 5CH,#31H
+0714 755D44         1193       MOV 5DH,#44H
+0717 755E35         1194       MOV 5EH,#35H
+071A 755FF0         1195       MOV 5FH,#0F0H
+071D 75620A         1196       MOV 62H,#0AH           
+0720 7565F0         1197       MOV 65H,#0F0H
+0723 75661F         1198       MOV 66H,#1FH
+0726 756716         1199       MOV 67H,#16H
+0729 756A22         1200       MOV 6AH,#22H
+072C 756B35         1201       MOV 6BH,#35H
+072F 756C3D         1202       MOV 6CH,#3DH
+0732 756D39         1203       MOV 6DH,#39H
+0735 756E3E         1204       MOV 6EH,#3EH
+0738 756F34         1205       MOV 6FH,#34H
+073B 515C           1206       ACALL DISP1602
+073D C17C           1207       AJMP JU1       
+                    1208     
+073F                1209     JUDGE92:
+073F 0533           1210       INC RHRTEMP               
+0741 0533           1211       INC RHRTEMP
+0743 0534           1212       INC RMINTEMP
+0745 0534           1213       INC RMINTEMP
+0747 0578           1214       INC MUNUMTEMP
+0749 0555           1215       INC 55H                           
+074B C104           1216       AJMP J11
+                    1217     
+074D                1218     JUDGE10:
+074D 7580C6         1219       MOV P0,#0C6H              
+0750 91F0           1220       ACALL WRCON
+0752 7865           1221       MOV R0,#65H
+0754 7E02           1222       MOV R6,#02H
+0756 5173           1223       ACALL DISP16021
+0758 753008         1224       MOV MKEYVAL,#08H
+075B 015F           1225       AJMP MAIN             
+                    1226     
+                    1227     ;*************************************************************************
+                    1228      
+                    1229      
+                    1230      
+                    1231      
+                    1232     ;************************************************************************* 
+                    1233     
+075D                1234     MAINKEYTEST:
+075D 209314         1235       JB MAINKEY,MAINKEYTESTOUT
+0760 7F32           1236       MOV R7,#50
+0762                1237     M1:
+0762 120F20         1238       LCALL TIME1MS
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    20
+
+0765 DFFB           1239       DJNZ R7,M1 
+0767 3093FD         1240       JNB MAINKEY,$                     
+076A D28E           1241       SETB TR1
+076C 752301         1242       MOV 23H,#01
+076F 0530           1243       INC MKEYVAL
+0771 0530           1244       INC MKEYVAL
+                    1245       ;LCALL KEYVOICE                          /*????2*/
+0773 22             1246       RET
+0774                1247     MAINKEYTESTOUT:
+0774 752300         1248       MOV 23H,#00
+0777 22             1249       RET
+                    1250     
+                    1251        
+                    1252     
+0778                1253     KEYTEST1:
+0778 209403         1254       JB UPKEY,L1
+077B                1255     L2:
+077B B222           1256       CPL SIGN
+077D 22             1257       RET
+077E                1258     L1:
+077E 3095FA         1259       JNB DOWNKEY,L2
+0781 22             1260       RET 
+                    1261     
+                    1262     
+                    1263     
+0782                1264     MINSETKEYTEST:
+0782 209423         1265       JB UPKEY,MINSET1        
+0785 3094FD         1266       JNB UPKEY,$
+0788 7409           1267       MOV A,#09H              
+078A B56410         1268       CJNE A,64H,MINSET2  
+078D 7405           1269       MOV A,#05H              
+078F B56305         1270       CJNE A,63H,MINSET3  
+0792 757100         1271       MOV mintue,#00H         
+0795 E19F           1272       AJMP MINSET4
+0797                1273     MINSET3:                          
+0797 7406           1274       MOV A,#06H              
+0799 2571           1275       ADD A,mintue
+079B F571           1276       MOV mintue,A
+079D                1277     MINSET2:
+079D 0571           1278       INC mintue
+079F                1279     MINSET4:        
+079F AF71           1280       MOV R7,mintue       
+07A1 7172           1281       ACALL DIVIDE
+07A3 8B64           1282       MOV 64H,R3
+07A5 8A63           1283       MOV 63H,R2
+07A7 22             1284       RET
+07A8                1285     MINSET1:                          
+07A8 20951D         1286       JB DOWNKEY,MINSETKEYTESTOUT
+07AB 3095FD         1287       JNB DOWNKEY,$
+07AE E4             1288       CLR A
+07AF B56411         1289       CJNE A,64H,MINSET5
+07B2 E4             1290       CLR A
+07B3 B56306         1291       CJNE A,63H,MINSET6
+07B6 757159         1292       MOV mintue,#59H
+07B9 02079F         1293       LJMP MINSET4
+07BC                1294     MINSET6:
+07BC C3             1295       CLR C
+07BD E571           1296       MOV A,mintue
+07BF 9406           1297       SUBB A,#06H
+07C1 F571           1298       MOV mintue,A 
+07C3                1299     MINSET5:
+07C3 1571           1300       DEC mintue
+07C5 02079F         1301       LJMP MINSET4
+07C8                1302     MINSETKEYTESTOUT:
+07C8 22             1303       RET
+                    1304     
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    21
+
+                    1305     
+07C9                1306     HRSETKEYTEST:
+07C9 20942C         1307       JB UPKEY,HRSET1
+                    1308       ;ACALL HRS1
+07CC 3094FD         1309       JNB UPKEY,$
+                    1310     
+07CF 7409           1311       MOV A,#09H
+07D1 B56109         1312       CJNE A,61H,HRSET0
+07D4 7406           1313       MOV A,#06H
+07D6 2572           1314       ADD A,hour
+07D8 F572           1315       MOV hour,A
+07DA 0207EC         1316       LJMP HRSET2
+07DD                1317     HRSET0:
+07DD 7403           1318       MOV A,#03H
+07DF B5610A         1319       CJNE A,61H,HRSET2
+                    1320     
+07E2 7402           1321       MOV A,#02H
+07E4 B56005         1322       CJNE A,60H,HRSET2
+07E7 757200         1323       MOV hour,#00H
+07EA E1EE           1324       AJMP HRSET4
+07EC                1325     HRSET2:
+07EC 0572           1326       INC hour
+07EE                1327     HRSET4:
+07EE AF72           1328       MOV R7,hour  ;??,????? ??
+07F0 120372         1329       LCALL DIVIDE
+07F3 8B61           1330       MOV 61H,R3
+07F5 8A60           1331       MOV 60H,R2
+07F7 22             1332       RET
+07F8                1333     HRSET1:
+07F8 20951D         1334       JB DOWNKEY,HRSETKEYTESTOUT
+                    1335       ;ACALL HRS1
+07FB 3095FD         1336       JNB DOWNKEY,$
+07FE E4             1337       CLR A
+07FF B56111         1338       CJNE A,61H,HRSET5
+0802 E4             1339       CLR A
+0803 B56006         1340       CJNE A,60H,HRSET6
+0806 757223         1341       MOV hour,#23H
+0809 0207EE         1342       LJMP HRSET4
+080C                1343     HRSET6:
+080C C3             1344       CLR C
+080D E572           1345       MOV A,hour
+080F 9406           1346       SUBB A,#06H
+0811 F572           1347       MOV hour,A
+0813                1348     HRSET5:
+0813 1572           1349       DEC hour
+0815 0207EE         1350       LJMP HRSET4
+0818                1351     HRSETKEYTESTOUT:
+0818 22             1352       RET
+                    1353     
+                    1354     
+                    1355     
+0819                1356     WEEKSETKEYTEST:
+0819 209413         1357       JB UPKEY,WEEKSET1
+081C 3094FD         1358       JNB UPKEY,$
+081F 7407           1359       MOV A,#07H
+0821 B55F05         1360       CJNE A,5FH,WEEKSET2
+0824 757501         1361       MOV week,#01H
+0827 012B           1362       AJMP WEEKSET3
+0829                1363     WEEKSET2:
+0829 0575           1364       INC week
+082B                1365     WEEKSET3:       
+082B 85755F         1366       MOV 5FH,week
+082E 22             1367       RET
+082F                1368     WEEKSET1:
+082F 209511         1369       JB DOWNKEY,WEEKSETOUT
+0832 3095FD         1370       JNB DOWNKEY,$
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    22
+
+0835 7401           1371       MOV A,#01H
+0837 B55F05         1372       CJNE A,5FH,WEEKSET4
+083A 757507         1373       MOV week,#07H
+083D 012B           1374       AJMP WEEKSET3
+083F                1375     WEEKSET4:
+083F 1575           1376       DEC week
+0841 012B           1377       AJMP WEEKSET3
+0843                1378     WEEKSETOUT:
+0843 22             1379       RET
+                    1380     
+                    1381     
+                    1382     
+                    1383     
+0844                1384     DATSETKEYTEST:
+0844 20942B         1385       JB UPKEY,DATSET1
+0847 3094FD         1386       JNB UPKEY,$
+084A 7409           1387       MOV A,#09H
+084C B55908         1388       CJNE A,59H,DATSET2
+084F 7406           1389       MOV A,#06H
+0851 2573           1390       ADD A,day
+0853 F573           1391       MOV day,A
+0855 0166           1392       AJMP DATSET3
+0857                1393     DATSET2:
+0857 7401           1394       MOV A,#01H
+0859 B5590A         1395       CJNE A,59H,DATSET3
+085C 7403           1396       MOV A,#03H
+085E B55805         1397       CJNE A,58H,DATSET3
+0861 757301         1398       MOV day,#01H
+0864 0168           1399       AJMP DATSET4
+0866                1400     DATSET3:
+0866 0573           1401       INC day
+0868                1402     DATSET4:
+0868 AF73           1403       MOV R7,day     ;???,?????
+086A 120372         1404       LCALL DIVIDE
+086D 8B59           1405       MOV 59H,R3
+086F 8A58           1406       MOV 58H,R2
+0871 22             1407       RET
+0872                1408     DATSET1:
+0872 209521         1409       JB DOWNKEY,DATSETOUT
+0875 3095FD         1410       JNB DOWNKEY,$
+0878 7401           1411       MOV A,#01H
+087A B55909         1412       CJNE A,59H,DATSET5
+087D E4             1413       CLR A
+087E B55810         1414       CJNE A,58H,DATSET6
+0881 757331         1415       MOV day,#31H
+0884 0168           1416       AJMP DATSET4
+0886                1417     DATSET5:
+0886 E4             1418       CLR A
+0887 B55907         1419       CJNE A,59H,DATSET6
+088A C3             1420       CLR C
+088B E573           1421       MOV A,day
+088D 9406           1422       SUBB A,#06H
+088F F573           1423       MOV day,A
+0891                1424     DATSET6:
+0891 1573           1425       DEC day
+0893 020868         1426       LJMP DATSET4 
+0896                1427     DATSETOUT:
+0896 22             1428       RET
+                    1429        
+                    1430     
+                    1431     
+                    1432     
+                    1433     
+0897                1434     MONSETKEYTEST:
+0897 20942C         1435       JB UPKEY,MONSET1
+089A 3094FD         1436       JNB UPKEY,$
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    23
+
+089D 7409           1437       MOV A,#09H
+089F B55609         1438       CJNE A,56H,MONSET2
+08A2 7407           1439       MOV A,#07H
+08A4 2574           1440       ADD A,month
+08A6 F574           1441       MOV month,A
+08A8 0208BC         1442       LJMP MONSET4
+08AB                1443     MONSET2:
+08AB 7402           1444       MOV A,#02H
+08AD B5560A         1445       CJNE A,56H,MONSET3
+08B0 7401           1446       MOV A,#01H
+08B2 B55505         1447       CJNE A,55H,MONSET3
+08B5 757401         1448       MOV month,#01H
+08B8 01BC           1449       AJMP MONSET4
+08BA                1450     MONSET3:
+08BA 0574           1451       INC month
+08BC                1452     MONSET4:  
+08BC AF74           1453       MOV R7,month   ;???,?????
+08BE 120372         1454       LCALL DIVIDE
+08C1 8B56           1455       MOV 56H,R3
+08C3 8A55           1456       MOV 55H,R2
+08C5 22             1457       RET
+08C6                1458     MONSET1:
+08C6 209522         1459       JB DOWNKEY,MONSETOUT
+08C9 3095FD         1460       JNB DOWNKEY,$
+08CC 7401           1461       MOV A,#01H
+08CE B5560A         1462       CJNE A,56H,MONSET5
+08D1 E4             1463       CLR A
+08D2 B55511         1464       CJNE A,55H,MONSET6
+08D5 757412         1465       MOV month,#12H
+08D8 0208BC         1466       LJMP MONSET4
+08DB                1467     MONSET5:
+08DB E4             1468       CLR A
+08DC B55607         1469       CJNE A,56H,MONSET6
+08DF C3             1470       CLR C
+08E0 E574           1471       MOV A,month
+08E2 9406           1472       SUBB A,#06H
+08E4 F574           1473       MOV month,A
+08E6                1474     MONSET6:
+08E6 1574           1475       DEC month
+08E8 0208BC         1476       LJMP MONSET4
+08EB                1477     MONSETOUT:
+08EB 22             1478       RET
+                    1479     
+                    1480     
+                    1481     
+08EC                1482     YEARSETKEYTEST:
+08EC 209425         1483       JB UPKEY,YEARSET1
+08EF 3094FD         1484       JNB UPKEY,$
+08F2 7409           1485       MOV A,#09H
+08F4 B55311         1486       CJNE A,53H,YEARSET2
+08F7 7409           1487       MOV A,#09H
+08F9 B55206         1488       CJNE A,52H,YEARSET3
+08FC 757600         1489       MOV year,#00H
+08FF 02090A         1490       LJMP YEARSET4
+0902                1491     YEARSET3:
+0902 7406           1492       MOV A,#06H
+0904 2576           1493       ADD A,year
+0906 F576           1494       MOV year,A
+0908                1495     YEARSET2:
+0908 0576           1496       INC year
+090A                1497     YEARSET4:    
+090A AF76           1498       MOV R7,year    ;???,?????
+090C 120372         1499       LCALL DIVIDE
+090F 8B53           1500       MOV 53H,R3
+0911 8A52           1501       MOV 52H,R2
+0913 22             1502       RET
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    24
+
+0914                1503     YEARSET1:
+0914 20951D         1504       JB DOWNKEY,YEARSETOUT
+0917 3095FD         1505       JNB DOWNKEY,$
+091A E4             1506       CLR A
+091B B55311         1507       CJNE A,53H,YEARSET5
+091E E4             1508       CLR A
+091F B55206         1509       CJNE A,52H,YEARSET6
+0922 757699         1510       MOV year,#99H
+0925 02090A         1511       LJMP YEARSET4
+0928                1512     YEARSET6:
+0928 C3             1513       CLR C
+0929 E576           1514       MOV A,year
+092B 9406           1515       SUBB A,#06H
+092D F576           1516       MOV year,A
+092F                1517     YEARSET5:
+092F 1576           1518       DEC year
+0931 02090A         1519       LJMP YEARSET4
+0934                1520     YEARSETOUT:
+0934 22             1521       RET
+                    1522     
+                    1523     
+                    1524     
+0935                1525     RDSETONOFKEYTEST:
+0935 209403         1526       JB UPKEY,RDONOF1
+0938                1527     RDONOF2:
+0938 B225           1528       CPL REMINDSIGN
+093A 22             1529       RET
+093B                1530     RDONOF1:
+093B 3095FA         1531       JNB DOWNKEY,RDONOF2
+093E 22             1532       RET 
+                    1533     
+                    1534     
+093F                1535     SETONOFKEYTEST:  
+093F 209403         1536       JB UPKEY,ONOF1
+0942                1537     ONOF2:
+0942 B223           1538       CPL RSIGN
+0944 22             1539       RET
+0945                1540     ONOF1:
+0945 3095FA         1541       JNB DOWNKEY,ONOF2
+0948 22             1542       RET
+                    1543     
+                    1544     
+                    1545     
+                    1546     
+                    1547     
+0949                1548     RHRSETKEYTEST:
+0949 20942D         1549       JB UPKEY,RHRSET1
+                    1550       ;ACALL HRS1
+094C 3094FD         1551       JNB UPKEY,$
+                    1552     
+094F 7409           1553       MOV A,#09H
+0951 B56409         1554       CJNE A,64H,RHRSET0
+0954 7406           1555       MOV A,#06H
+0956 2572           1556       ADD A,hour
+0958 F572           1557       MOV hour,A
+095A 02096D         1558       LJMP RHRSET2
+095D                1559     RHRSET0:
+095D 7403           1560       MOV A,#03H
+095F B5640B         1561       CJNE A,64H,RHRSET2
+                    1562     
+0962 7402           1563       MOV A,#02H
+0964 B56306         1564       CJNE A,63H,RHRSET2
+0967 757200         1565       MOV hour,#00H
+096A 02096F         1566       LJMP RHRSET4
+096D                1567     RHRSET2:
+096D 0572           1568       INC hour
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    25
+
+096F                1569     RHRSET4:
+096F AF72           1570       MOV R7,hour  ;??,????? ??
+0971 120372         1571       LCALL DIVIDE
+0974 8B64           1572       MOV 64H,R3
+0976 8A63           1573       MOV 63H,R2
+0978 22             1574       RET
+0979                1575     RHRSET1:            
+0979 20951D         1576       JB DOWNKEY,RHRSETKEYTESTOUT
+                    1577       ;ACALL HRS1
+097C 3095FD         1578       JNB DOWNKEY,$
+097F E4             1579       CLR A
+0980 B56411         1580       CJNE A,64H,RHRSET5
+0983 E4             1581       CLR A
+0984 B56306         1582       CJNE A,63H,RHRSET6
+0987 757223         1583       MOV hour,#23H
+098A 02096F         1584       LJMP RHRSET4
+098D                1585     RHRSET6:
+098D C3             1586       CLR C
+098E E572           1587       MOV A,hour
+0990 9406           1588       SUBB A,#06H
+0992 F572           1589       MOV hour,A
+0994                1590     RHRSET5:
+0994 1572           1591       DEC hour
+0996 02096F         1592     LJMP RHRSET4
+0999                1593     RHRSETKEYTESTOUT:
+0999 22             1594       RET
+                    1595     
+                    1596     
+099A                1597     RMINSETKEYTEST:
+099A 209424         1598       JB UPKEY,RMINSET1
+099D 3094FD         1599       JNB UPKEY,$
+09A0 7409           1600       MOV A,#09H
+09A2 B56710         1601       CJNE A,67H,RMINSET2
+                    1602     
+09A5 7405           1603       MOV A,#05H
+09A7 B56605         1604       CJNE A,66H,RMINSET3
+09AA 757100         1605       MOV mintue,#00H
+09AD 21B7           1606       AJMP RMINSET4
+09AF                1607     RMINSET3:
+09AF 7406           1608       MOV A,#06H
+09B1 2571           1609       ADD A,mintue
+09B3 F571           1610       MOV mintue,A
+09B5                1611     RMINSET2:
+09B5 0571           1612       INC mintue
+09B7                1613     RMINSET4:       
+09B7 AF71           1614       MOV R7,mintue  ;????,????? ????
+09B9 120372         1615       LCALL DIVIDE
+09BC 8B67           1616       MOV 67H,R3
+09BE 8A66           1617       MOV 66H,R2
+09C0 22             1618       RET
+09C1                1619     RMINSET1:                 
+09C1 20951D         1620       JB DOWNKEY,RMINSETKEYTESTOUT
+09C4 3095FD         1621       JNB DOWNKEY,$
+09C7 E4             1622       CLR A
+09C8 B56711         1623       CJNE A,67H,RMINSET5
+09CB E4             1624       CLR A
+09CC B56606         1625       CJNE A,66H,RMINSET6
+09CF 757159         1626       MOV mintue,#59H
+09D2 0209B7         1627       LJMP RMINSET4
+09D5                1628     RMINSET6:
+09D5 C3             1629       CLR C
+09D6 E571           1630       MOV A,mintue
+09D8 9406           1631       SUBB A,#06H
+09DA F571           1632       MOV mintue,A 
+09DC                1633     RMINSET5:
+09DC 1571           1634       DEC mintue
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    26
+
+09DE 0209B7         1635       LJMP RMINSET4
+09E1                1636     RMINSETKEYTESTOUT:
+09E1 22             1637       RET
+                    1638     
+                    1639     
+09E2                1640     MUNUMKEYTEST:
+09E2 20940F         1641       JB UPKEY,MUNUMSET1
+09E5 3094FD         1642       JNB UPKEY,$
+09E8 E577           1643       MOV A,MUNUM
+09EA B44304         1644       CJNE A,#43H,MUNUMSET2
+09ED 757741         1645       MOV MUNUM,#41H
+09F0 22             1646       RET
+09F1                1647     MUNUMSET2:
+09F1 0577           1648       INC MUNUM
+09F3 22             1649       RET
+09F4                1650     MUNUMSET1:
+09F4 20950E         1651       JB DOWNKEY,MUNUMSETOUT
+09F7 3095FD         1652       JNB DOWNKEY,$
+09FA E577           1653       MOV A,MUNUM
+09FC B44104         1654       CJNE A,#41H,MUNUMSET3
+09FF 757743         1655       MOV MUNUM,#43H
+0A02 22             1656       RET
+0A03                1657     MUNUMSET3:
+0A03 1577           1658       DEC MUNUM
+0A05                1659     MUNUMSETOUT:
+0A05 22             1660       RET
+                    1661     
+                    1662     
+                    1663     
+0A06                1664     RSTOPKEYTEST:
+0A06 20B242         1665       JB RSTOPKEY,RSTOPKEYTEST1
+0A09 30B2FD         1666       JNB RSTOPKEY,$
+                    1667     
+0A0C E530           1668       MOV A,MKEYVAL
+0A0E B4000D         1669       CJNE A,#00H,STOPTEST1
+0A11 753036         1670       MOV MKEYVAL,#54
+0A14 758001         1671       MOV P0,#01H   ;???????
+0A17 1204F0         1672       LCALL WRCON  ;?????????
+0A1A 120489         1673       LCALL PRSETPIC
+0A1D 22             1674       RET
+0A1E                1675     STOPTEST1:
+0A1E E530           1676       MOV A,MKEYVAL
+0A20 B4361A         1677       CJNE A,#54,STOPTEST2
+0A23 753000         1678       MOV MKEYVAL,#00H
+0A26 20270A         1679       JB PRONOFSIGN,STRPR
+0A29 7532FC         1680       MOV 32H,#0FCH
+0A2C 753100         1681       MOV 31H,#00H
+0A2F 120344         1682       LCALL WR1302 
+0A32 22             1683       RET 
+0A33                1684     STRPR:
+0A33 7532FC         1685       MOV 32H,#0FCH
+0A36 753101         1686       MOV 31H,#01H
+0A39 120344         1687       LCALL WR1302                    
+0A3C 22             1688       RET
+                    1689     
+0A3D                1690     STOPTEST2:
+0A3D C224           1691       CLR RINGSIGN
+                    1692       ;CLR REMINDSIGN
+0A3F C226           1693       CLR RINGFIRST
+                    1694       ;SETB RSTOPSIGN
+0A41 753000         1695       MOV MKEYVAL,#00H
+0A44 D296           1696       SETB P1.6
+0A46 C2AF           1697       CLR EA
+0A48 120301         1698       LCALL DS1302INT2       
+0A4B                1699     RSTOPKEYTEST1:
+0A4B 22             1700       RET
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    27
+
+                    1701       
+                    1702     
+                    1703     
+0A4C                1704     PRKEYTEST:
+0A4C 209403         1705       JB UPKEY,PRONOF1
+0A4F                1706     PRONOF2:
+0A4F B227           1707       CPL PRONOFSIGN          
+0A51 22             1708       RET
+0A52                1709     PRONOF1:
+0A52 3095FA         1710       JNB DOWNKEY,PRONOF2
+0A55 22             1711       RET
+                    1712              
+                    1713     
+                    1714     
+                    1715     
+0A56                1716     RINGTEST:
+0A56 E4             1717       CLR A
+0A57 B5705D         1718       CJNE A,second,RINGTESTOUT       
+0A5A 302521         1719       JNB REMINDSIGN,RINGTEST0
+0A5D 7871           1720       MOV R0,#71H              
+0A5F 793B           1721       MOV R1,#3BH              
+0A61 7F04           1722       MOV R7,#04H              
+0A63                1723     RETESTNEXT:
+0A63 E6             1724       MOV A,@R0
+0A64 872E           1725       MOV 2EH,@R1               
+0A66 B52E15         1726       CJNE A,2EH,RINGTEST0
+0A69 08             1727       INC R0
+0A6A 09             1728       INC R1
+0A6B DFF6           1729       DJNZ R7,RETESTNEXT
+0A6D E53F           1730       MOV A,3FH
+0A6F B5760C         1731       CJNE A,year,RINGTEST0          
+0A72 D224           1732       SETB RINGSIGN
+0A74 757700         1733       MOV MUNUM,#00H
+0A77 120452         1734       LCALL RDRINGPIC
+0A7A 753034         1735       MOV MKEYVAL,#52
+0A7D 22             1736       RET       
+0A7E                1737     RINGTEST0:                          
+0A7E E541           1738       MOV A,RSIGNTEMP                         
+0A80 13             1739       RRC A
+0A81 400E           1740       JC RINGTEST1           
+0A83                1741     RING2TEST:
+0A83 E541           1742       MOV A,RSIGNTEMP
+0A85 13             1743       RRC A
+0A86 13             1744       RRC A
+0A87 4015           1745       JC RINGTEST2            
+0A89                1746     RING3TEST:
+0A89 E541           1747       MOV A,RSIGNTEMP
+0A8B 13             1748       RRC A
+0A8C 13             1749       RRC A
+0A8D 13             1750       RRC A 
+0A8E 401B           1751       JC RINGTEST3           
+0A90 22             1752       RET
+0A91                1753     RINGTEST1:                       
+0A91 7835           1754       MOV R0,#35H
+0A93 7971           1755       MOV R1,#71H
+0A95 51B8           1756       ACALL RTEST
+0A97 3024E9         1757       JNB RINGSIGN,RING2TEST
+0A9A 857977         1758       MOV MUNUM,79H
+0A9D 22             1759       RET
+                    1760       ;AJMP RING2TEST
+                    1761     
+0A9E                1762     RINGTEST2:                   
+0A9E 7837           1763       MOV R0,#37H
+0AA0 7971           1764       MOV R1,#71H
+0AA2 51B8           1765       ACALL RTEST
+0AA4 3024E2         1766       JNB RINGSIGN,RING3TEST
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    28
+
+0AA7 857A77         1767       MOV MUNUM,7AH
+                    1768       ;AJMP RING3TEST
+0AAA 22             1769       RET
+0AAB                1770     RINGTEST3:                        
+0AAB 7839           1771       MOV R0,#39H
+0AAD 7971           1772       MOV R1,#71H
+0AAF 51B8           1773       ACALL RTEST
+0AB1 302403         1774       JNB RINGSIGN,RINGTESTOUT
+0AB4 857B77         1775       MOV MUNUM,7BH
+0AB7                1776     RINGTESTOUT:
+0AB7 22             1777       RET
+                    1778     
+0AB8                1779     RTEST:                      
+0AB8 E6             1780       MOV A,@R0
+0AB9 872F           1781       MOV 2FH,@R1
+0ABB B52F10         1782       CJNE A,2FH,RTESTOUT
+0ABE 08             1783       INC R0
+0ABF 09             1784       INC R1
+                    1785     
+0AC0 E6             1786       MOV A,@R0
+0AC1 872F           1787       MOV 2FH,@R1
+0AC3 B52F08         1788       CJNE A,2FH,RTESTOUT    
+0AC6 D224           1789       SETB RINGSIGN                  
+0AC8 753034         1790       MOV MKEYVAL,#52                
+0ACB 120421         1791       LCALL RINGPIC
+0ACE                1792     RTESTOUT:
+0ACE 22             1793       RET
+                    1794     
+                    1795     
+                    1796     
+0ACF                1797     MUNUMTEST:
+0ACF E577           1798       MOV A,MUNUM
+0AD1 B44104         1799       CJNE A,#41H,MUNUMTESTNEXT      
+0AD4 900C5F         1800       MOV DPTR,#MUSICTAB2
+0AD7 22             1801       RET
+0AD8                1802     MUNUMTESTNEXT:
+0AD8 B44204         1803       CJNE A,#42H,MUNUMTESTNEXT1   
+0ADB 900CDA         1804       MOV DPTR,#MUSICTAB3
+0ADE 22             1805       RET
+0ADF                1806     MUNUMTESTNEXT1:
+0ADF B44304         1807       CJNE A,#43H,MUNUMTESTOUT       
+0AE2 900DA6         1808       MOV DPTR,#MUSICTAB4
+0AE5 22             1809       RET
+0AE6                1810     MUNUMTESTOUT:                            
+0AE6 900BF9         1811       MOV DPTR,#MUSICTAB
+0AE9 22             1812       RET
+                    1813     
+                    1814     ;**************************************************************
+                    1815     
+                    1816     
+                    1817     
+                    1818     
+                    1819     
+                    1820     ;**************************************************************
+                    1821     ;???? 
+0AEA                1822     MINS1:
+0AEA 7DC3           1823       MOV R5,#0C3H  ;???????? 
+0AEC 7C62           1824       MOV R4,#62H   ;????????????????
+0AEE 712D           1825       ACALL S1
+0AF0 22             1826       RET
+                    1827     
+                    1828     ;????
+0AF1                1829     HRS1:
+0AF1 7DC0           1830       MOV R5,#0C0H
+0AF3 7C5F           1831       MOV R4,#5FH
+0AF5 712D           1832       ACALL S1
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    29
+
+0AF7 22             1833       RET
+                    1834     
+                    1835     ;????
+0AF8                1836     WEEKS1:
+0AF8 75808F         1837       MOV P0,#8FH   ;????????(?1??16???)
+0AFB 1204F0         1838       LCALL WRCON  ;?????????
+                    1839     
+0AFE 7430           1840       MOV A,#30H    ;?????
+0B00 255F           1841       ADD A,5FH
+0B02 F580           1842       MOV P0,A
+0B04 12027E         1843       LCALL LCDDISP
+0B07 F130           1844       ACALL time200ms
+                    1845     
+0B09 75808F         1846       MOV P0,#8FH   ;????????(?1??16???)
+0B0C 1204F0         1847       LCALL WRCON  ;?????????
+                    1848     
+0B0F 758020         1849       MOV P0,#20H     ;DISPLAY" "
+0B12 12027E         1850       LCALL LCDDISP
+0B15 F130           1851       ACALL time200ms
+0B17 22             1852       RET
+                    1853     
+                    1854     
+                    1855     ;????
+0B18                1856     DATS1:
+0B18 7D88           1857       MOV R5,#88H
+0B1A 7C57           1858       MOV R4,#57H
+0B1C 712D           1859       ACALL S1
+0B1E 22             1860       RET
+                    1861     
+                    1862     ;????
+0B1F                1863     MONS1:
+0B1F 7D85           1864       MOV R5,#85H
+0B21 7C54           1865       MOV R4,#54H
+0B23 712D           1866       ACALL S1
+0B25 22             1867       RET
+                    1868     
+                    1869     
+                    1870     ;????
+0B26                1871     YEARS1:
+0B26 7D82           1872       MOV R5,#82H
+0B28 7C51           1873       MOV R4,#51H
+0B2A 712D           1874       ACALL S1
+0B2C 22             1875       RET
+                    1876     
+                    1877     
+0B2D                1878     S1:
+0B2D 8D80           1879       MOV P0,R5   ;????????
+0B2F 1204F0         1880       LCALL WRCON  ;?????????
+0B32 EC             1881       MOV A,R4
+0B33 F8             1882       MOV R0,A         
+0B34 7E02           1883       MOV R6,#02H  ;??????????
+0B36 120273         1884       LCALL DISP16021
+0B39 F130           1885       ACALL time200ms
+0B3B ED             1886       MOV A,R5
+0B3C 1203A5         1887       LCALL DISP2B
+0B3F F130           1888       ACALL time200ms
+0B41 22             1889       RET
+                    1890     
+                    1891     
+                    1892     
+0B42                1893     RDONOFS1:                   
+0B42 7580C6         1894       MOV P0,#0C6H
+0B45 1204F0         1895       LCALL WRCON
+                    1896     
+0B48 7865           1897       MOV R0,#65H
+0B4A 7E02           1898       MOV R6,#02H
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    30
+
+0B4C 120273         1899       LCALL DISP16021
+0B4F F130           1900       ACALL time200ms
+0B51 74C6           1901       MOV A,#0C6H
+0B53 1203A5         1902       LCALL DISP2B
+                    1903     
+0B56 F130           1904       ACALL time200ms
+0B58 22             1905       RET
+                    1906     
+0B59                1907     RDSETOF:                   
+0B59 756716         1908       MOV 67H,#16H
+0B5C 7142           1909       ACALL RDONOFS1
+0B5E 22             1910       RET
+                    1911     
+0B5F                1912     SETOF:              
+0B5F 756116         1913       MOV 61H,#16H
+0B62 7165           1914       ACALL ONOFS1
+0B64 22             1915       RET
+                    1916     
+0B65                1917     ONOFS1:                  
+0B65 7580C0         1918       MOV P0,#0C0H
+0B68 1204F0         1919       LCALL WRCON
+                    1920     
+0B6B 785F           1921       MOV R0,#5FH
+0B6D 7E02           1922       MOV R6,#02H
+0B6F 120273         1923       LCALL DISP16021
+                    1924     
+0B72 F130           1925       ACALL time200ms
+                    1926     
+0B74 74C0           1927       MOV A,#0C0H
+0B76 1203A5         1928       LCALL DISP2B
+                    1929     
+0B79 F130           1930       ACALL time200ms
+0B7B 22             1931       RET
+                    1932     
+0B7C                1933     RHRS1:              
+0B7C 7DC3           1934       MOV R5,#0C3H   
+0B7E 7C62           1935       MOV R4,#62H
+0B80 712D           1936       ACALL S1
+0B82 22             1937       RET
+                    1938     
+0B83                1939     RMINSETS1:               
+0B83 7DC6           1940       MOV R5,#0C6H
+0B85 7C65           1941       MOV R4,#65H
+0B87 712D           1942       ACALL S1
+0B89 22             1943       RET
+                    1944     
+0B8A                1945     MUNUMS1:                 
+0B8A 85776C         1946       MOV 6CH,MUNUM
+0B8D 7580CC         1947       MOV P0,#0CCH
+0B90 1204F0         1948       LCALL WRCON
+0B93 856C80         1949       MOV P0,6CH
+0B96 12027E         1950       LCALL LCDDISP
+0B99 F130           1951       ACALL time200ms
+0B9B 7580CC         1952       MOV P0,#0CCH
+0B9E 1204F0         1953       LCALL WRCON
+0BA1 758020         1954       MOV P0,#20H
+0BA4 12027E         1955       LCALL LCDDISP
+0BA7 F130           1956       ACALL time200ms
+0BA9 22             1957       RET
+                    1958     
+0BAA                1959     PRONOFS1:            
+0BAA 7580CD         1960       MOV P0,#0CDH
+0BAD 1204F0         1961       LCALL WRCON
+0BB0 786C           1962       MOV R0,#6CH
+0BB2 7E02           1963       MOV R6,#02H
+0BB4 120273         1964       LCALL DISP16021
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    31
+
+0BB7 F130           1965       ACALL time200ms
+0BB9 74CD           1966       MOV A,#0CDH
+0BBB 1203A5         1967       LCALL DISP2B
+0BBE F130           1968       ACALL time200ms
+0BC0 22             1969       RET
+                    1970     
+                    1971     ;*****************************************************
+                    1972     
+                    1973     
+                    1974     
+                    1975     
+                    1976     
+                    1977     ;*****************************************************
+0BC1                1978     FRQHTAB:
+0BC1 F2F3F5F5       1979       DB  0F2H,0F3H,0F5H,0F5H,0F6H,0F7H,0F8H  
+0BC5 F6F7F8                  
+0BC8 F9F9FAFA       1980       DB  0F9H,0F9H,0FAH,0FAH,0FBH,0FBH,0FCH
+0BCC FBFBFC                  
+0BCF FCFCFDFD       1981       DB  0FCH,0FCH,0FDH,0FDH,0FDH,0FDH,0FEH
+0BD3 FDFDFE                  
+0BD6 FEFEFEFE       1982       DB  0FEH,0FEH,0FEH,0FEH,0FEH,0FEH,0FFH
+0BDA FEFEFF                  
+0BDD                1983     FRQLTAB:
+0BDD 42C117B6       1984       DB  42H,0C1H,17H,0B6H,0D0H,0D1H,0B6H 
+0BE1 D0D1B6                  
+0BE4 21E18CD8       1985       DB  21H,0E1H,8CH,0D8H,68H,0E9H,5BH
+0BE8 68E95B                  
+0BEB 8FEE446B       1986       DB  8FH,0EEH,44H,6BH,0B4H,0F4H,2DH 
+0BEF B4F42D                  
+0BF2 4777A2B6       1987       DB  47H,77H,0A2H,0B6H,0DAH,0FAH,16H
+0BF6 DAFA16                  
+                    1988     
+                    1989     
+0BF9                1990     MUSICTAB:
+0BF9 06020305       1991         DB     6,2,3,      5,2,1,      3,2,2, 5,2,2, 1,3,2, 6,2,1, 5,2,1,6,2,4 
+0BFD 02010302                
+0C01 02050202                
+0C05 01030206                
+0C09 02010502                
+0C0D 01060204                
+0C11 03020205       1992         DB     3,2,2,      5,2,1,      6,2,1, 5,2,2, 3,2,2, 1,2,1
+0C15 02010602                
+0C19 01050202                
+0C1D 03020201                
+0C21 0201                    
+0C23 06010105       1993         DB     6,1,1,      5,2,1,      3,2,1, 2,2,4, 2,2,3, 3,2,1, 5,2,2
+0C27 02010302                
+0C2B 01020204                
+0C2F 02020303                
+0C33 02010502                
+0C37 02                      
+0C38 05020106       1994         DB     5,2,1,      6,2,1,      3,2,2, 2,2,2, 1,2,4, 5,2,3, 3,2,1
+0C3C 02010302                
+0C40 02020202                
+0C44 01020405                
+0C48 02030302                
+0C4C 01                      
+0C4D 02020101       1995         DB     2,2,1,      1,2,1,      6,1,1, 1,2,1, 5,1,6, 0,0,0 
+0C51 02010601                
+0C55 01010201                
+0C59 05010600                
+0C5D 0000                    
+                    1996     
+                    1997     
+0C5F                1998     MUSICTAB2:
+0C5F 03020203       1999       DB  3,2,2, 3,2,1, 4,2,1, 3,2,2, 2,2,1, 1,2,1, 2,2,2
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    32
+
+0C63 02010402                
+0C67 01030202                
+0C6B 02020101                
+0C6F 02010202                
+0C73 02                      
+0C74 05020102       2000       DB  5,2,1, 2,2,2, 2,2,3, 1,2,2, 1,2,1, 2,2,1, 1,2,2
+0C78 02020202                
+0C7C 03010202                
+0C80 01020102                
+0C84 02010102                
+0C88 02                      
+0C89 07010106       2001       DB  7,1,1, 6,1,1, 7,1,2, 3,2,1, 7,1,1, 7,1,3, 6,1,2
+0C8D 01010701                
+0C91 02030201                
+0C95 07010107                
+0C99 01030601                
+0C9D 02                      
+0C9E 02020103       2002       DB  2,2,1, 3,2,1, 2,2,1, 1,2,1, 6,1,2, 5,1,2, 2,2,1
+0CA2 02010202                
+0CA6 01010201                
+0CAA 06010205                
+0CAE 01020202                
+0CB2 01                      
+0CB3 03020102       2003       DB  3,2,1, 2,2,1, 1,2,2, 6,1,3, 6,1,2, 2,2,1, 3,2,1
+0CB7 02010102                
+0CBB 02060103                
+0CBF 06010202                
+0CC3 02010302                
+0CC7 01                      
+0CC8 02020101       2004       DB  2,2,1, 1,2,1, 6,1,1, 1,2,1, 1,2,5, 0,0,0
+0CCC 02010601                
+0CD0 01010201                
+0CD4 01020500                
+0CD8 0000                    
+                    2005     
+                    2006     
+0CDA                2007     MUSICTAB3:
+0CDA 03020206       2008       DB  3,2,2, 6,2,1, 3,2,2, 3,2,1, 5,2,1, 6,2,1, 6,2,2
+0CDE 02010302                
+0CE2 02030201                
+0CE6 05020106                
+0CEA 02010602                
+0CEE 02                      
+0CEF 06020106       2009       DB  6,2,1, 6,2,1, 1,3,1, 6,2,1, 5,2,1, 6,2,1, 5,2,1, 3,2,1
+0CF3 02010103                
+0CF7 01060201                
+0CFB 05020106                
+0CFF 02010502                
+0D03 01030201                
+0D07 02020103       2010       DB  2,2,1, 3,2,2, 6,1,2, 3,2,1, 2,2,2, 2,2,2, 3,2,1
+0D0B 02020601                
+0D0F 02030201                
+0D13 02020202                
+0D17 02020302                
+0D1B 01                      
+0D1C 06020106       2011       DB  6,2,1, 6,2,1, 1,2,2, 1,2,1, 3,2,1, 6,2,1, 6,2,1, 3,2,1
+0D20 02010102                
+0D24 02010201                
+0D28 03020106                
+0D2C 02010602                
+0D30 01030201                
+0D34 06020107       2012       DB  6,2,1, 7,2,2, 7,2,4, 3,2,2, 6,2,1, 3,2,2, 3,2,1
+0D38 02020702                
+0D3C 04030202                
+0D40 06020103                
+0D44 02020302                
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    33
+
+0D48 01                      
+0D49 05020106       2013       DB  5,2,1, 6,2,1, 6,2,2, 6,2,1, 6,2,1, 1,3,1, 6,2,1
+0D4D 02010602                
+0D51 02060201                
+0D55 06020101                
+0D59 03010602                
+0D5D 01                      
+0D5E 05020106       2014       DB  5,2,1, 6,2,1, 5,2,1, 3,2,1, 2,2,1, 3,2,1, 6,1,1
+0D62 02010502                
+0D66 01030201                
+0D6A 02020103                
+0D6E 02010601                
+0D72 01                      
+0D73 03020102       2015       DB  3,2,1, 2,2,2, 2,2,2, 3,2,1, 3,2,2, 3,2,1, 6,1,2, 6,1,1
+0D77 02020202                
+0D7B 02030201                
+0D7F 03020203                
+0D83 02010601                
+0D87 02060101                
+0D8B 07010107       2016       DB  7,1,1, 7,1,1, 7,1,1, 2,2,1, 1,2,1, 7,1,2, 6,1,1
+0D8F 01010701                
+0D93 01020201                
+0D97 01020107                
+0D9B 01020601                
+0D9F 01                      
+0DA0 06010200       2017       DB  6,1,2, 0,0,0
+0DA4 0000                    
+                    2018     
+                    2019     
+0DA6                2020     MUSICTAB4:
+0DA6 06010206       2021       DB  6,1,2, 6,1,1, 6,1,1, 5,1,1, 6,1,1, 1,2,1, 1,2,1
+0DAA 01010601                
+0DAE 01050101                
+0DB2 06010101                
+0DB6 02010102                
+0DBA 01                      
+0DBB 02020103       2022       DB  2,2,1, 3,2,1, 1,2,1, 2,2,1, 2,2,2, 1,2,1, 6,1,2
+0DBF 02010102                
+0DC3 01020201                
+0DC7 02020201                
+0DCB 02010601                
+0DCF 02                      
+0DD0 06010101       2023       DB  6,1,1, 1,2,1, 1,2,1, 1,2,1, 2,2,1, 1,2,1, 6,1,1
+0DD4 02010102                
+0DD8 01010201                
+0DDC 02020101                
+0DE0 02010601                
+0DE4 01                      
+0DE5 02010103       2024       DB  2,1,1, 3,1,1, 5,1,1, 5,1,1, 3,1,2, 3,1,2, 3,1,1
+0DE9 01010501                
+0DED 01050101                
+0DF1 03010203                
+0DF5 01020301                
+0DF9 01                      
+0DFA 05010106       2025       DB  5,1,1, 6,1,1, 1,2,1, 2,2,1, 6,1,2, 5,1,1, 6,1,1
+0DFE 01010102                
+0E02 01020201                
+0E06 06010205                
+0E0A 01010601                
+0E0E 01                      
+0E0F 01020106       2026       DB  1,2,1, 6,1,1, 3,1,1, 2,1,2, 1,1,1, 1,1,1, 2,1,1
+0E13 01010301                
+0E17 01020102                
+0E1B 01010101                
+0E1F 01010201                
+0E23 01                      
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    34
+
+0E24 03010105       2027       DB  3,1,1, 5,1,1, 6,1,1, 2,2,1, 1,2,1, 5,1,1, 1,2,1
+0E28 01010601                
+0E2C 01020201                
+0E30 01020105                
+0E34 01010102                
+0E38 01                      
+0E39 06010206       2028       DB  6,1,2, 6,1,2, 1,1,1, 1,1,1, 2,1,1, 3,1,1, 5,1,1
+0E3D 01020101                
+0E41 01010101                
+0E45 02010103                
+0E49 01010501                
+0E4D 01                      
+0E4E 06010102       2029       DB  6,1,1, 2,2,1, 2,2,1, 2,2,1, 3,2,1, 2,2,1, 1,2,1
+0E52 02010202                
+0E56 01020201                
+0E5A 03020102                
+0E5E 02010102                
+0E62 01                      
+0E63 06010103       2030       DB  6,1,1, 3,1,1, 5,1,1, 5,1,1, 1,2,1, 1,2,1, 1,2,2
+0E67 01010501                
+0E6B 01050101                
+0E6F 01020101                
+0E73 02010102                
+0E77 02                      
+0E78 06010306       2031       DB  6,1,3, 6,1,3, 0,0,0 
+0E7C 01030000                
+0E80 00                      
+                    2032     
+                    2033     
+0E81                2034     MUSICTAB5:
+0E81 05010105       2035       DB  5,1,1, 5,2,1, 4,2,1, 3,2,2, 3,2,1, 4,2,1, 3,2,2
+0E85 02010402                
+0E89 01030202                
+0E8D 03020104                
+0E91 02010302                
+0E95 02                      
+0E96 03020104       2036       DB  3,2,1, 4,2,1, 3,2,1, 4,2,1, 3,2,1, 2,2,1, 1,2,1
+0E9A 02010302                
+0E9E 01040201                
+0EA2 03020102                
+0EA6 02010102                
+0EAA 01                      
+0EAB 01020103       2037       DB  1,2,1, 3,2,1, 5,2,1, 6,2,2, 6,2,1, 6,2,1, 5,2,1
+0EAF 02010502                
+0EB3 01060202                
+0EB7 06020106                
+0EBB 02010502                
+0EBF 01                      
+0EC0 02020102       2038       DB  2,2,1, 2,2,1, 4,2,1, 3,2,1, 3,2,3, 1,2,1, 3,2,1
+0EC4 02010402                
+0EC8 01030201                
+0ECC 03020301                
+0ED0 02010302                
+0ED4 01                      
+0ED5 05020106       2039       DB  5,2,1, 6,2,1, 6,2,2, 6,2,1, 5,2,1, 5,2,1, 2,2,1
+0ED9 02010602                
+0EDD 02060201                
+0EE1 05020105                
+0EE5 02010202                
+0EE9 01                      
+0EEA 02020104       2040       DB  2,2,1, 4,2,1, 3,2,1, 4,2,1, 3,2,1, 1,2,1, 2,2,1
+0EEE 02010302                
+0EF2 01040201                
+0EF6 03020101                
+0EFA 02010202                
+0EFE 01                      
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    35
+
+0EFF 03020106       2041       DB  3,2,1, 6,1,1, 6,1,1, 1,2,1, 1,2,2, 7,1,2, 1,2,3, 0,0,0 
+0F03 01010601                
+0F07 01010201                
+0F0B 01020207                
+0F0F 01020102                
+0F13 03000000                
+                    2042     ;*****************************************************
+                    2043     
+                    2044     
+                    2045     
+                    2046     
+                    2047     ;*****************************************************
+                    2048     
+                    2049     
+                    2050     
+                    2051     
+                    2052     
+                    2053     
+                    2054     
+0F17                2055     DEL:
+0F17 F130           2056       ACALL time200ms
+0F19 F130           2057       ACALL time200ms
+0F1B DEFA           2058       DJNZ R6,DEL
+0F1D C28C           2059       CLR TR0
+0F1F 22             2060       RET
+                    2061     
+0F20                2062     TIME1MS:
+0F20 7BFA           2063       MOV R3,#0FAH                 
+0F22                2064     TIME1MS_1:
+0F22 00             2065       NOP   
+0F23 00             2066       NOP   
+0F24 DBFC           2067       DJNZ R3,TIME1MS_1    
+0F26 22             2068       RET
+                    2069     ;??100mS    
+                    2070     ;*****************************************************************    
+                    2071        
+0F27 7DC3           2072     time100ms:              mov     r5,#0c3h        ;100.036ms    
+0F29 7EFF           2073     time100ms_1:            mov     r6,#0ffh        ;511us    
+0F2B DEFE           2074                             djnz    r6,$    
+0F2D DDFA           2075                             djnz    r5,time100ms_1    
+0F2F 22             2076                             ret  
+0F30                2077     time200ms:
+0F30 7FC8           2078       MOV R7,#200
+0F32                2079     time1:
+0F32 F120           2080       ACALL TIME1MS
+0F34 DFFC           2081       DJNZ R7,time1
+0F36 22             2082       RET
+                    2083       
+                    2084          
+                    2085     END   
+                             ;******************************************************************************************
+                             ***************************************
+                              
+                               
+                               
+                               
+                               
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    36
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+B. . . . . . . . .  D ADDR   00F0H   A   
+CONVER . . . . . .  C ADDR   0599H   A   
+DAT. . . . . . . .  B ADDR   00B0H.7 A   
+DATS1. . . . . . .  C ADDR   0B18H   A   
+DATSET . . . . . .  C ADDR   0115H   A   
+DATSET1. . . . . .  C ADDR   0872H   A   
+DATSET2. . . . . .  C ADDR   0857H   A   
+DATSET3. . . . . .  C ADDR   0866H   A   
+DATSET4. . . . . .  C ADDR   0868H   A   
+DATSET5. . . . . .  C ADDR   0886H   A   
+DATSET6. . . . . .  C ADDR   0891H   A   
+DATSETKEYTEST. . .  C ADDR   0844H   A   
+DATSETOUT. . . . .  C ADDR   0896H   A   
+DAY. . . . . . . .  D ADDR   0073H   A   
+DEL. . . . . . . .  C ADDR   0F17H   A   
+DELAY. . . . . . .  C ADDR   04FBH   A   
+DISP1602 . . . . .  C ADDR   025CH   A   
+DISP16021. . . . .  C ADDR   0273H   A   
+DISP2B . . . . . .  C ADDR   03A5H   A   
+DISP8B . . . . . .  C ADDR   03B4H   A   
+DISPRING . . . . .  C ADDR   03D5H   A   
+DISPSET. . . . . .  C ADDR   0391H   A   
+DIVIDE . . . . . .  C ADDR   0372H   A   
+DOWNKEY. . . . . .  B ADDR   0090H.5 A   
+DS1302 . . . . . .  C ADDR   0214H   A   
+DS13021. . . . . .  C ADDR   021AH   A   
+DS1302INT. . . . .  C ADDR   0290H   A   
+DS1302INT0 . . . .  C ADDR   02ADH   A   
+DS1302INT1 . . . .  C ADDR   02EEH   A   
+DS1302INT2 . . . .  C ADDR   0301H   A   
+DS1302INT3 . . . .  C ADDR   02FDH   A   
+DS1820INTI . . . .  C ADDR   050BH   A   
+DS18B20. . . . . .  C ADDR   0289H   A   
+E. . . . . . . . .  B ADDR   00A0H.7 A   
+EA . . . . . . . .  B ADDR   00A8H.7 A   
+ET0. . . . . . . .  B ADDR   00A8H.1 A   
+FINDNUM. . . . . .  D ADDR   0022H   A   
+FRQHTAB. . . . . .  C ADDR   0BC1H   A   
+FRQLTAB. . . . . .  C ADDR   0BDDH   A   
+HOUR . . . . . . .  D ADDR   0072H   A   
+HRS1 . . . . . . .  C ADDR   0AF1H   A   
+HRSET. . . . . . .  C ADDR   0105H   A   
+HRSET0 . . . . . .  C ADDR   07DDH   A   
+HRSET1 . . . . . .  C ADDR   07F8H   A   
+HRSET2 . . . . . .  C ADDR   07ECH   A   
+HRSET4 . . . . . .  C ADDR   07EEH   A   
+HRSET5 . . . . . .  C ADDR   0813H   A   
+HRSET6 . . . . . .  C ADDR   080CH   A   
+HRSETKEYTEST . . .  C ADDR   07C9H   A   
+HRSETKEYTESTOUT. .  C ADDR   0818H   A   
+IO . . . . . . . .  B ADDR   00B0H.5 A   
+J1 . . . . . . . .  C ADDR   05F5H   A   
+J11. . . . . . . .  C ADDR   0604H   A   
+JMPTAB . . . . . .  C ADDR   0074H   A   
+JU1. . . . . . . .  C ADDR   067CH   A   
+JUDGE. . . . . . .  C ADDR   05DEH   A   
+JUDGE0 . . . . . .  C ADDR   05D0H   A   
+JUDGE1 . . . . . .  C ADDR   0671H   A   
+JUDGE10. . . . . .  C ADDR   074DH   A   
+JUDGE2 . . . . . .  C ADDR   0682H   A   
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    37
+
+JUDGE21. . . . . .  C ADDR   0687H   A   
+JUDGE2OUT. . . . .  C ADDR   0692H   A   
+JUDGE3 . . . . . .  C ADDR   0697H   A   
+JUDGE4 . . . . . .  C ADDR   06A6H   A   
+JUDGE5 . . . . . .  C ADDR   06B3H   A   
+JUDGE6 . . . . . .  C ADDR   06C0H   A   
+JUDGE7 . . . . . .  C ADDR   06CDH   A   
+JUDGE8 . . . . . .  C ADDR   06DAH   A   
+JUDGE9 . . . . . .  C ADDR   06E7H   A   
+JUDGE92. . . . . .  C ADDR   073FH   A   
+JUDGEOUT . . . . .  C ADDR   066FH   A   
+KEYTEST1 . . . . .  C ADDR   0778H   A   
+L1 . . . . . . . .  C ADDR   077EH   A   
+L2 . . . . . . . .  C ADDR   077BH   A   
+L3 . . . . . . . .  C ADDR   00E3H   A   
+L4 . . . . . . . .  C ADDR   00ECH   A   
+LA . . . . . . . .  C ADDR   0536H   A   
+LB . . . . . . . .  C ADDR   053BH   A   
+LC . . . . . . . .  C ADDR   0545H   A   
+LCDDISP. . . . . .  C ADDR   027EH   A   
+LCDINT . . . . . .  C ADDR   037CH   A   
+LD . . . . . . . .  C ADDR   054EH   A   
+LF . . . . . . . .  C ADDR   055AH   A   
+LP . . . . . . . .  C ADDR   0557H   A   
+M1 . . . . . . . .  C ADDR   0762H   A   
+MAIN . . . . . . .  C ADDR   005FH   A   
+MAIN0. . . . . . .  C ADDR   0056H   A   
+MAIN1. . . . . . .  C ADDR   0069H   A   
+MAIN2. . . . . . .  C ADDR   006BH   A   
+MAINKEY. . . . . .  B ADDR   0090H.3 A   
+MAINKEYTEST. . . .  C ADDR   075DH   A   
+MAINKEYTESTOUT . .  C ADDR   0774H   A   
+MINS1. . . . . . .  C ADDR   0AEAH   A   
+MINSET . . . . . .  C ADDR   00FEH   A   
+MINSET1. . . . . .  C ADDR   07A8H   A   
+MINSET2. . . . . .  C ADDR   079DH   A   
+MINSET3. . . . . .  C ADDR   0797H   A   
+MINSET4. . . . . .  C ADDR   079FH   A   
+MINSET5. . . . . .  C ADDR   07C3H   A   
+MINSET6. . . . . .  C ADDR   07BCH   A   
+MINSETKEYTEST. . .  C ADDR   0782H   A   
+MINSETKEYTESTOUT .  C ADDR   07C8H   A   
+MINTUE . . . . . .  D ADDR   0071H   A   
+MKEYVAL. . . . . .  D ADDR   0030H   A   
+MONS1. . . . . . .  C ADDR   0B1FH   A   
+MONSET . . . . . .  C ADDR   011DH   A   
+MONSET1. . . . . .  C ADDR   08C6H   A   
+MONSET2. . . . . .  C ADDR   08ABH   A   
+MONSET3. . . . . .  C ADDR   08BAH   A   
+MONSET4. . . . . .  C ADDR   08BCH   A   
+MONSET5. . . . . .  C ADDR   08DBH   A   
+MONSET6. . . . . .  C ADDR   08E6H   A   
+MONSETKEYTEST. . .  C ADDR   0897H   A   
+MONSETOUT. . . . .  C ADDR   08EBH   A   
+MONTH. . . . . . .  D ADDR   0074H   A   
+MUCODTEMP. . . . .  D ADDR   007FH   A   
+MUNUM. . . . . . .  D ADDR   0077H   A   
+MUNUMKEYTEST . . .  C ADDR   09E2H   A   
+MUNUMS1. . . . . .  C ADDR   0B8AH   A   
+MUNUMSET . . . . .  C ADDR   018AH   A   
+MUNUMSET1. . . . .  C ADDR   09F4H   A   
+MUNUMSET2. . . . .  C ADDR   09F1H   A   
+MUNUMSET3. . . . .  C ADDR   0A03H   A   
+MUNUMSETOUT. . . .  C ADDR   0A05H   A   
+MUNUMTEMP. . . . .  D ADDR   0078H   A   
+MUNUMTEST. . . . .  C ADDR   0ACFH   A   
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    38
+
+MUNUMTESTNEXT. . .  C ADDR   0AD8H   A   
+MUNUMTESTNEXT1 . .  C ADDR   0ADFH   A   
+MUNUMTESTOUT . . .  C ADDR   0AE6H   A   
+MUSICTAB . . . . .  C ADDR   0BF9H   A   
+MUSICTAB2. . . . .  C ADDR   0C5FH   A   
+MUSICTAB3. . . . .  C ADDR   0CDAH   A   
+MUSICTAB4. . . . .  C ADDR   0DA6H   A   
+MUSICTAB5. . . . .  C ADDR   0E81H   A   
+NEXT . . . . . . .  C ADDR   01B6H   A   
+ONOF1. . . . . . .  C ADDR   0945H   A   
+ONOF2. . . . . . .  C ADDR   0942H   A   
+ONOF3. . . . . . .  C ADDR   0168H   A   
+ONOFS1 . . . . . .  C ADDR   0B65H   A   
+OUT. . . . . . . .  C ADDR   01F6H   A   
+OUTTOMAIN. . . . .  C ADDR   012DH   A   
+OUTTOMAIN1 . . . .  C ADDR   0136H   A   
+OUTTOMAIN2 . . . .  C ADDR   014EH   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+P3 . . . . . . . .  D ADDR   00B0H   A   
+PRKEYTEST. . . . .  C ADDR   0A4CH   A   
+PROFS1 . . . . . .  C ADDR   020DH   A   
+PRONOF1. . . . . .  C ADDR   0A52H   A   
+PRONOF2. . . . . .  C ADDR   0A4FH   A   
+PRONOFS1 . . . . .  C ADDR   0BAAH   A   
+PRONOFSET. . . . .  C ADDR   01FAH   A   
+PRONOFSIGN . . . .  B ADDR   0024H.7 A   
+PRONS1 . . . . . .  C ADDR   0205H   A   
+PRSETPIC . . . . .  C ADDR   0489H   A   
+RD1302 . . . . . .  C ADDR   0318H   A   
+RD13021. . . . . .  C ADDR   0323H   A   
+RD13022. . . . . .  C ADDR   0332H   A   
+RD1820 . . . . . .  C ADDR   057AH   A   
+RD18201. . . . . .  C ADDR   057FH   A   
+RD18202. . . . . .  C ADDR   0587H   A   
+RD18203. . . . . .  C ADDR   0590H   A   
+RDONOF1. . . . . .  C ADDR   093BH   A   
+RDONOF2. . . . . .  C ADDR   0938H   A   
+RDONOF3. . . . . .  C ADDR   0195H   A   
+RDONOFS1 . . . . .  C ADDR   0B42H   A   
+RDRINGPIC. . . . .  C ADDR   0452H   A   
+RDSETOF. . . . . .  C ADDR   0B59H   A   
+RDSETON. . . . . .  C ADDR   019EH   A   
+RDSETONOF. . . . .  C ADDR   0192H   A   
+RDSETONOFKEYTEST .  C ADDR   0935H   A   
+RDTEMP . . . . . .  C ADDR   0516H   A   
+REMINDSIGN . . . .  B ADDR   0024H.5 A   
+RESET1820. . . . .  C ADDR   0536H   A   
+RETESTNEXT . . . .  C ADDR   0A63H   A   
+RHRS1. . . . . . .  C ADDR   0B7CH   A   
+RHRSET . . . . . .  C ADDR   0178H   A   
+RHRSET0. . . . . .  C ADDR   095DH   A   
+RHRSET1. . . . . .  C ADDR   0979H   A   
+RHRSET2. . . . . .  C ADDR   096DH   A   
+RHRSET4. . . . . .  C ADDR   096FH   A   
+RHRSET5. . . . . .  C ADDR   0994H   A   
+RHRSET6. . . . . .  C ADDR   098DH   A   
+RHRSETKEYTEST. . .  C ADDR   0949H   A   
+RHRSETKEYTESTOUT .  C ADDR   0999H   A   
+RHRTEMP. . . . . .  D ADDR   0033H   A   
+RING . . . . . . .  C ADDR   01A7H   A   
+RING2TEST. . . . .  C ADDR   0A83H   A   
+RING3TEST. . . . .  C ADDR   0A89H   A   
+RINGFIRST. . . . .  B ADDR   0024H.6 A   
+RINGPIC. . . . . .  C ADDR   0421H   A   
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    39
+
+RINGSIGN . . . . .  B ADDR   0024H.4 A   
+RINGTEST . . . . .  C ADDR   0A56H   A   
+RINGTEST0. . . . .  C ADDR   0A7EH   A   
+RINGTEST1. . . . .  C ADDR   0A91H   A   
+RINGTEST2. . . . .  C ADDR   0A9EH   A   
+RINGTEST3. . . . .  C ADDR   0AABH   A   
+RINGTESTOUT. . . .  C ADDR   0AB7H   A   
+RMINSET. . . . . .  C ADDR   0181H   A   
+RMINSET1 . . . . .  C ADDR   09C1H   A   
+RMINSET2 . . . . .  C ADDR   09B5H   A   
+RMINSET3 . . . . .  C ADDR   09AFH   A   
+RMINSET4 . . . . .  C ADDR   09B7H   A   
+RMINSET5 . . . . .  C ADDR   09DCH   A   
+RMINSET6 . . . . .  C ADDR   09D5H   A   
+RMINSETKEYTEST . .  C ADDR   099AH   A   
+RMINSETKEYTESTOUT.  C ADDR   09E1H   A   
+RMINSETS1. . . . .  C ADDR   0B83H   A   
+RMINTEMP . . . . .  D ADDR   0034H   A   
+RS . . . . . . . .  B ADDR   00A0H.6 A   
+RSIGN. . . . . . .  B ADDR   0024H.3 A   
+RSIGNTEMP. . . . .  D ADDR   0041H   A   
+RST. . . . . . . .  B ADDR   00B0H.4 A   
+RSTOPKEY . . . . .  B ADDR   00B0H.2 A   
+RSTOPKEYTEST . . .  C ADDR   0A06H   A   
+RSTOPKEYTEST1. . .  C ADDR   0A4BH   A   
+RTEST. . . . . . .  C ADDR   0AB8H   A   
+RTESTOUT . . . . .  C ADDR   0ACEH   A   
+RW . . . . . . . .  B ADDR   00A0H.5 A   
+S1 . . . . . . . .  C ADDR   0B2DH   A   
+SCLK . . . . . . .  B ADDR   00B0H.6 A   
+SECOND . . . . . .  D ADDR   0070H   A   
+SETMAIN. . . . . .  C ADDR   00E1H   A   
+SETOF. . . . . . .  C ADDR   0B5FH   A   
+SETON. . . . . . .  C ADDR   0170H   A   
+SETONOF. . . . . .  C ADDR   0162H   A   
+SETONOFKEYTEST . .  C ADDR   093FH   A   
+SETRING. . . . . .  C ADDR   0403H   A   
+SETRING1 . . . . .  C ADDR   040CH   A   
+SETST. . . . . . .  C ADDR   00F6H   A   
+SETTIME. . . . . .  C ADDR   03E5H   A   
+SIGN . . . . . . .  B ADDR   0024H.2 A   
+SP . . . . . . . .  D ADDR   0081H   A   
+ST1. . . . . . . .  C ADDR   0046H   A   
+START. . . . . . .  C ADDR   0018H   A   
+START1 . . . . . .  C ADDR   00ACH   A   
+STOPTEST1. . . . .  C ADDR   0A1EH   A   
+STOPTEST2. . . . .  C ADDR   0A3DH   A   
+STR1 . . . . . . .  C ADDR   00D9H   A   
+STRPR. . . . . . .  C ADDR   0A33H   A   
+TABDOT . . . . . .  C ADDR   05C0H   A   
+TEMPH. . . . . . .  N NUMB   002BH   A   
+TEMPL. . . . . . .  N NUMB   002AH   A   
+TH0. . . . . . . .  D ADDR   008CH   A   
+TIME . . . . . . .  D ADDR   007EH   A   
+TIME0H . . . . . .  D ADDR   007CH   A   
+TIME0L . . . . . .  D ADDR   007DH   A   
+TIME1. . . . . . .  C ADDR   0F32H   A   
+TIME100MS. . . . .  C ADDR   0F27H   A   
+TIME100MS_1. . . .  C ADDR   0F29H   A   
+TIME1MS. . . . . .  C ADDR   0F20H   A   
+TIME1MS_1. . . . .  C ADDR   0F22H   A   
+TIME200MS. . . . .  C ADDR   0F30H   A   
+TL0. . . . . . . .  D ADDR   008AH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TR0. . . . . . . .  B ADDR   0088H.4 A   
+TR1. . . . . . . .  B ADDR   0088H.6 A   
+A51 MACRO ASSEMBLER  CLOCK                                                                12/26/2021 07:51:23 PAGE    40
+
+UPKEY. . . . . . .  B ADDR   0090H.4 A   
+WEEK . . . . . . .  D ADDR   0075H   A   
+WEEKS1 . . . . . .  C ADDR   0AF8H   A   
+WEEKSET. . . . . .  C ADDR   010DH   A   
+WEEKSET1 . . . . .  C ADDR   082FH   A   
+WEEKSET2 . . . . .  C ADDR   0829H   A   
+WEEKSET3 . . . . .  C ADDR   082BH   A   
+WEEKSET4 . . . . .  C ADDR   083FH   A   
+WEEKSETKEYTEST . .  C ADDR   0819H   A   
+WEEKSETOUT . . . .  C ADDR   0843H   A   
+WR1302 . . . . . .  C ADDR   0344H   A   
+WR13021. . . . . .  C ADDR   034EH   A   
+WR13022. . . . . .  C ADDR   0362H   A   
+WR1820 . . . . . .  C ADDR   055EH   A   
+WR18201. . . . . .  C ADDR   0561H   A   
+WR18202. . . . . .  C ADDR   0569H   A   
+WR18203. . . . . .  C ADDR   0571H   A   
+WRCON. . . . . . .  C ADDR   04F0H   A   
+YEAR . . . . . . .  D ADDR   0076H   A   
+YEARS1 . . . . . .  C ADDR   0B26H   A   
+YEARSET. . . . . .  C ADDR   0125H   A   
+YEARSET1 . . . . .  C ADDR   0914H   A   
+YEARSET2 . . . . .  C ADDR   0908H   A   
+YEARSET3 . . . . .  C ADDR   0902H   A   
+YEARSET4 . . . . .  C ADDR   090AH   A   
+YEARSET5 . . . . .  C ADDR   092FH   A   
+YEARSET6 . . . . .  C ADDR   0928H   A   
+YEARSETKEYTEST . .  C ADDR   08ECH   A   
+YEARSETOUT . . . .  C ADDR   0934H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

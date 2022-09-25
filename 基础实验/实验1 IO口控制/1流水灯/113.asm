@@ -1,0 +1,22 @@
+		ORG 	0000H
+MAIN: 	MOV		R3,#40		;设置循环次数
+		MOV 	A,#01H		;设置初始状态
+OUTPUT: MOV 	P1,A
+		RL		A			;循环左移
+		LCALL	DELAY
+		DJNZ 	R3,OUTPUT	
+		MOV 	P1,#0		;将输出置零
+		SJMP 	$
+		
+DELAY: 	MOV 	R5,#4		 ;延时程序,500毫秒
+DELOOP3:MOV 	R6,#248
+DELOOP2:MOV 	R7,#250
+DELOOP1:DJNZ 	R7,DELOOP1
+		DJNZ 	R6,DELOOP2
+		DJNZ 	R5,DELOOP3	
+		MOV		R4,#2		 ;补充延时8微秒
+DELOOP0:DJNZ 	R4,DELOOP0
+		NOP
+		RET
+		END
+

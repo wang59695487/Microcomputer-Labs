@@ -1,0 +1,212 @@
+A51 MACRO ASSEMBLER  2121                                                                 12/05/2019 16:25:24 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.5.0
+OBJECT MODULE PLACED IN .\Objects\2121.obj
+ASSEMBLER INVOKED BY: D:\Keil_v5\C51\BIN\A51.EXE 2121.asm SET(SMALL) DEBUG PRINT(.\Listings\2121.lst) OBJECT(.\Objects\2
+                      121.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+  0090                 1                     OUTPUT BIT P1.0
+
+0000                   2                     ORG 0000H
+
+0000 020030            3                     LJMP START
+
+000B                   4                     ORG 000BH
+
+000B 02008E            5                     LJMP INT00
+
+                       6                     
+
+0030                   7                     ORG 0030H
+
+0030 758901            8     START:  MOV TMOD, #01H          ;¹¤×÷·½Ê½1£¬16Î»¼ÆÊÆ÷
+
+0033 D2A9              9                     SETB ET0                        ;T0ÖÐ¶ÏÔÊÐí
+
+0035 D2AF             10                     SETB EA                         ;CPUÖÐ¶ÏÔÊÐí
+
+0037 E4               11     MUSIC0: CLR A
+
+0038 F540             12                     MOV 40H, A                      ;40H´æ·ÅÈ¡ÖµµÄÐòºÅ
+
+003A 900097           13     MUSIC1: MOV DPTR, #TABLE
+
+003D E540             14                     MOV A, 40H
+
+003F 93               15                     MOVC A, @A+DPTR         ;È¡³öÒ»¸öÒôµ÷+½ÚÅÄ
+
+                      16     
+
+0040 602F             17                     JZ END0                         ;00H±íÊ¾Õû¸öÀÖÇú²¥·Å½áÊø
+
+0042 F530             18                     MOV 30H, A                      ;30HÔÝ´æ Òôµ÷+½ÚÅÄ
+
+0044 540F             19                     ANL A, #0FH             ;µÍËÄÎ»±íÊ¾½ÚÅÄ
+
+0046 F531             20                     MOV 31H, A                      ;31H´æ·Å½ÚÅÄÂë(»ù±¾DELAYµÄ¸öÊ)
+
+0048 E530             21                     MOV A, 30H
+
+004A C4               22                     SWAP A
+
+004B 540F             23                     ANL A, #0FH                     ;¸ßËÄÎ»±íÊ¾Òôµ÷
+
+004D F532             24                     MOV 32H,A                       ;32H´æ·ÅÒô·ûµÄÒôµ÷£¬²éµÃ¶¨Ê±³õÖµ
+
+004F 9000D6           25     MUSIC2: MOV DPTR,# TABLE1       ;¼òÆ×ÆµÂÊ±í±íÍ·£¨¶¨Ê±³õÖµ£©
+
+0052 E532             26                     MOV A, 32H                      ;È¡³ö¶¨Ê±³õÖµ
+
+0054 23               27                     RL A                            ;Ñ­»·×óÒÆ,³õÖµ³Ë2µÃ¶¨Ê±³õÖµÎ»ÖÃ
+
+0055 F534             28                     MOV 34H,A                       ;34H´æ·Å¶¨Ê±³õÖµÎ»ÖÃ
+
+0057 93               29                     MOVC A,@A+DPTR          ;È¡³ö³õÖµ¸ß×Ö½Ú
+
+0058 F58C             30                     MOV TH0,A                       ;Éè¶¨¶¨Ê±Æ÷µÄ³õÖµ¸ß×Ö½Ú
+
+005A F544             31                     MOV 44H,A                       ;44H±£´æ¶¨Ê±Æ÷³õÖµ¸ß×Ö½Ú
+
+005C 0534             32                     INC 34H                         
+
+005E E534             33                     MOV A,34H
+
+0060 93               34                     MOVC A,@A+DPTR          ;È¡³ö³õÖµµÍ×Ö½Ú
+
+0061 F58A             35                     MOV TL0,A                       ;Éè¶¨¶¨Ê±Æ÷µÄ³õÖµµÍ×Ö½Ú
+
+0063 F545             36                     MOV 45H,A                       ;45H±£´æ¶¨Ê±Æ÷³õÖµ¸ß×Ö½Ú
+
+0065 D28C             37                     SETB TR0                        ;¿ªÊ¼¼ÆÊ±£¬²¥·ÅÒôµ÷
+
+0067 120081           38     DEL_NS: LCALL DLY125ms          ;½øÐÐ½ÚÅÄÊµÄÑÓÊ±
+
+006A D531FA           39                     DJNZ 31H, DEL_NS        ;31HÎªÖ®Ç°²éµÃµÄ½ÚÅÄÊ(»ù±¾DELAYµÄ¸öÊ)
+
+006D 0540             40                     INC 40H                         ;×¼±¸ÏÂÒ»¸öÒô·ûµÄ²¥·Å
+
+006F 80C9             41                     SJMP MUSIC1
+
+0071 C28C             42     END0:   CLR TR0                         ;Ò»±é½áÊø£¬Í£Ö¹¼ÆÊ±                                
+                                                  
+
+0073 120081           43                     LCALL DLY125ms          ;ÑÓÊ±0.5sºó£¬Ñ­»·²¥·Å
+
+0076 120081           44                     LCALL DLY125ms
+
+0079 120081           45                     LCALL DLY125ms
+
+007C 120081           46                     LCALL DLY125ms
+
+007F 80B6             47                     SJMP MUSIC0
+
+                      48                     
+
+0081 7B05             49     DLY125ms: MOV R3, #5            ;Òôµ÷µÄÒ»¸ö»ù±¾ÑÓÊ±Ê±¼ä125ms
+
+0083 7C32             50     DEL2:     MOV R4, #50           ;R4Ñ­»·ÑÓÊ±50x0.5ms=25ms
+
+0085 7DFA             51     DEL3:     MOV R5, #250          ;R5Ñ­»·ÑÓÊ±250x2us=0.5ms
+
+0087 DDFE             52     DEL4:     DJNZ R5, DEL4
+
+0089 DCFA             53                       DJNZ R4, DEL3
+
+008B DBF6             54                       DJNZ R3, DEL2
+
+008D 22               55                       RET
+
+                      56                     
+
+A51 MACRO ASSEMBLER  2121                                                                 12/05/2019 16:25:24 PAGE     2
+
+008E 85448C           57     INT00:  MOV TH0,44H             ;¶¨Ê±ÖÐ¶Ï·þÎñ³ÌÐò
+
+0091 85458A           58                     MOV TL0,45H                     ;ÖØÐÂÔØÈë¶¨Ê±³õÖµ
+
+0094 B290             59                     CPL OUTPUT                      ;P1.0È¡·´
+
+0096 32               60                     RETI
+
+                      61                     
+
+                      62     ;¡¶»¶ÀÖËÌ¡·¼òÆ×ÖÐÃ¿¸öÒô·û¼°½ÚÅÄµÄ±àÂë±í£¬¸ßËÄÎ»Îª¼òÆ×±àÂë£¬µÍËÄÎ»Îª½ÚÅÄ£¨»ù±¾delayµÄ¸öÊ£©
+
+0097 64647484         63     TABLE:  DB 64H,64H,74H,84H,84H,74H,64H,54H,44H,44H,54H,64H,66H,52H,58H
+
+009B 84746454                
+009F 44445464                
+00A3 665258                  
+00A6 64647484         64                     DB 64H,64H,74H,84H,84H,74H,64H,54H,44H,44H,54H,64H,56H,42H,48H
+
+00AA 84746454                
+00AE 44445464                
+00B2 564248                  
+00B5 64546444         65                     DB 64H,54H,64H,44H,54H,62H,72H,64H,54H,62H,72H,64H,54H,44H,54H,12H,64H
+
+00B9 54627264                
+00BD 54627264                
+00C1 54445412                
+00C5 64                      
+00C6 64647484         66                     DB 64H,64H,74H,84H,84H,74H,64H,54H,44H,44H,54H,64H,56H,42H,48H,00H
+
+00CA 84746454                
+00CE 44445464                
+00D2 56424800                
+                      67     
+
+00D6 0000FB04         68     TABLE1: DB 00H,00H,0FBH, 04H,0FBH,92H,0FCH,0CH ;µÍÒô5-µÍÒô7
+
+00DA FB92FC0C                
+00DE FC44FCAC         69                     DB 0FCH, 44H,0FCH,0ACH,0FDH,09H            ;ÖÐÒô1-ÖÐÒô3
+
+00E2 FD09                    
+00E4 FD34FD82         70                     DB 0FDH, 34H,0FDH,82H,0FDH,0C8H            ;ÖÐÒô4-ÖÐÒô5
+
+00E8 FDC8                    
+00EA FE06FE22         71                     DB 0FEH, 06H,0FEH,22H,0FEH,56H             ;ÖÐÒô6-¸ßÒô1
+
+00EE FE56                    
+00F0 FE85FE9A         72                     DB 0FEH, 85H,0FEH,9AH,0FEH,0C1H            ;¸ßÒô2-¸ßÒô5
+
+00F4 FEC1                    
+                      73                     END
+
+A51 MACRO ASSEMBLER  2121                                                                 12/05/2019 16:25:24 PAGE     3
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+DEL2 . . . . . . .  C ADDR   0083H   A   
+DEL3 . . . . . . .  C ADDR   0085H   A   
+DEL4 . . . . . . .  C ADDR   0087H   A   
+DEL_NS . . . . . .  C ADDR   0067H   A   
+DLY125MS . . . . .  C ADDR   0081H   A   
+EA . . . . . . . .  B ADDR   00A8H.7 A   
+END0 . . . . . . .  C ADDR   0071H   A   
+ET0. . . . . . . .  B ADDR   00A8H.1 A   
+INT00. . . . . . .  C ADDR   008EH   A   
+MUSIC0 . . . . . .  C ADDR   0037H   A   
+MUSIC1 . . . . . .  C ADDR   003AH   A   
+MUSIC2 . . . . . .  C ADDR   004FH   A   
+OUTPUT . . . . . .  B ADDR   0090H.0 A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+START. . . . . . .  C ADDR   0030H   A   
+TABLE. . . . . . .  C ADDR   0097H   A   
+TABLE1 . . . . . .  C ADDR   00D6H   A   
+TH0. . . . . . . .  D ADDR   008CH   A   
+TL0. . . . . . . .  D ADDR   008AH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TR0. . . . . . . .  B ADDR   0088H.4 A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

@@ -1,0 +1,117 @@
+A51 MACRO ASSEMBLER  2121                                                                 12/25/2019 16:55:10 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.5.0
+OBJECT MODULE PLACED IN .\Objects\2121.obj
+ASSEMBLER INVOKED BY: D:\Keil_v5\C51\BIN\A51.EXE 2121.asm SET(SMALL) DEBUG PRINT(.\Listings\2121.lst) OBJECT(.\Objects\2
+                      121.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                     ORG     0000H                   
+
+0000 7590FF            2     MAIN:   MOV             P1,#0FFH                ;P1×¼±¸ÊäÈë
+
+0003 E590              3                     MOV             A,P1                    ;²éÑ¯ÓÐÎÞ°´¼ü
+
+0005 B4FF02            4                     CJNE    A,#0FFH,IFKEY   ;ÎÞ°´¼üÖØÐÂ²éÑ¯
+
+0008 80F6              5                     SJMP    MAIN
+
+                       6                     
+
+000A 120044            7     IFKEY:  LCALL   DELAY10ms       ;È¥Ç°ÑØ¶¶¶¯
+
+000D 7B00              8                     MOV             R3,#00H         ;ÉèÖÃ°´¼ü³õÖµ
+
+000F E590              9                     MOV             A,P1                    ;¶ÁÈë¼üÖµ
+
+0011 64FF             10                     XRL             A,#0FFH                 ;½«AÈ¡·´
+
+0013 B40004           11                     CJNE    A,#0H,SCAN      ;ÎÞ°´¼üÌø×ª
+
+0016 74FF             12                     MOV             A,#0FFH                 ;½«AÈ«ÖÃ1
+
+0018 8014             13                     SJMP    NOKEY           
+
+001A 7A08             14     SCAN:   MOV             R2,#8           ;Ñ­»·8´Î
+
+001C 13               15     SCAN1:  RRC             A                               ;Ñ­»·ÓÒÒÆ
+
+001D 4007             16                     JC              WAIT            ;ÅÐ¶ÏAÖÐÎª1µÄÎ»ÊÇ·ñÒÆ³ö
+
+001F 0B               17                     INC             R3                              ;¼üÖµ¼Ó1
+
+0020 DAFA             18                     DJNZ    R2,SCAN1
+
+0022 74FF             19                     MOV             A,#0FFH         ;½«AÈ«ÖÃ1
+
+0024 8008             20             SJMP    NOKEY                             
+
+0026 E590             21     WAIT:   MOV             A,P1                    ;Êä³öµ½P1
+
+0028 B4FFFB           22                     CJNE    A,#0FFH,WAIT    ;µÈ´°´¼üÌ§Æð
+
+002B 120044           23                     LCALL   DELAY10ms       ;È¥ºóÑØ¶¶¶¯
+
+002E EB               24     NOKEY:  MOV     A,R3                    ;¾²Ì¬ÊÂë¹ÜÏÔÊ¾ÊÖµ
+
+002F 04               25                     INC             A                               ;ÓÉ0-7±äÎª1-8
+
+0030 F5F0             26                     MOV     B,A                             ;±£´æµ½B
+
+0032 90003A           27                     MOV     DPTR,#TABLE 
+
+0035 93               28                     MOVC    A,@A+DPTR 
+
+0036 F580             29                     MOV     P0,A
+
+0038 80C6             30                     SJMP    MAIN    
+
+                      31                     
+
+003A C0F9A4B0         32     TABLE:  DB 0C0H,0F9H,0A4H,0B0H,99H,92H,82H,0F8H,80H,90H
+
+003E 999282F8                
+0042 8090                    
+                      33             
+
+0044 7E14             34     DELAY10ms:MOV   R6,#20                  ;ÑÓÊ±10ms
+
+0046 7FFA             35     DELOOP2:MOV     R7,#250                 ;2¦Ìs*250*20
+
+0048 DFFE             36     DELOOP1:DJNZ    R7,DELOOP1
+
+004A DEFA             37                     DJNZ    R6,DELOOP2
+
+004C 22               38                     RET
+
+                      39                     END
+
+A51 MACRO ASSEMBLER  2121                                                                 12/25/2019 16:55:10 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+B. . . . . . . . .  D ADDR   00F0H   A   
+DELAY10MS. . . . .  C ADDR   0044H   A   
+DELOOP1. . . . . .  C ADDR   0048H   A   
+DELOOP2. . . . . .  C ADDR   0046H   A   
+IFKEY. . . . . . .  C ADDR   000AH   A   
+MAIN . . . . . . .  C ADDR   0000H   A   
+NOKEY. . . . . . .  C ADDR   002EH   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+SCAN . . . . . . .  C ADDR   001AH   A   
+SCAN1. . . . . . .  C ADDR   001CH   A   
+TABLE. . . . . . .  C ADDR   003AH   A   
+WAIT . . . . . . .  C ADDR   0026H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

@@ -1,0 +1,17 @@
+<html>
+<body>
+<pre>
+<h1>礦ision Build Log</h1>
+<h2>Project:</h2>
+C:\Users\USER\Desktop\51黑论坛_lcd时钟\lcd时钟\时钟.uvproj
+Project File Date:  05/12/2018
+
+<h2>Output:</h2>
+Rebuild target 'Target 1'
+compiling main.c...
+compiling ds1302.c...
+compiling lcd1602.c...
+linking...
+Program Size: data=69.1 xdata=0 code=5190
+creating hex file from "时钟"...
+"时钟" - 0 Error(s), 0 Warning(s).

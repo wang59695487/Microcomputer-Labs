@@ -1,0 +1,39 @@
+A51 MACRO ASSEMBLER  2121                                                                 11/27/2019 12:52:33 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.5.0
+OBJECT MODULE PLACED IN .\Objects\2121.obj
+ASSEMBLER INVOKED BY: D:\Keil_v5\C51\BIN\A51.EXE 2121.asm SET(SMALL) DEBUG PRINT(.\Listings\2121.lst) OBJECT(.\Objects\2
+                      121.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                     ORG     0000H
+
+0000 759000            2                     MOV     P1,#0H          
+
+0003 7580FE            3                     MOV     P0,#0FEH
+
+0006 75A001            4                     MOV     P2,#01H         
+
+                       5     
+
+                       6                     END
+
+A51 MACRO ASSEMBLER  2121                                                                 11/27/2019 12:52:33 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

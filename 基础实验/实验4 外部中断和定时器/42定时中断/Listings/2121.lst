@@ -1,0 +1,68 @@
+A51 MACRO ASSEMBLER  2121                                                                 12/05/2019 21:32:20 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.5.0
+OBJECT MODULE PLACED IN .\Objects\2121.obj
+ASSEMBLER INVOKED BY: D:\Keil_v5\C51\BIN\A51.EXE 2121.asm SET(SMALL) DEBUG PRINT(.\Listings\2121.lst) OBJECT(.\Objects\2
+                      121.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                     ORG 0000H
+
+0000 800B              2                     SJMP MAIN
+
+000B                   3                     ORG 000BH
+
+000B 8011              4                     SJMP T0INT
+
+                       5                     
+
+000D 758901            6     MAIN:   MOV  TMOD,#01H
+
+0010 758C08            7     LOOP:   MOV  TH0,#08H
+
+0013 758A30            8                     MOV  TL0,#30H
+
+0016 D28C              9                     SETB TR0
+
+0018 D2AF             10                     SETB EA
+
+001A D2A9             11                     SETB ET0
+
+001C 80FE             12                     SJMP $
+
+001E 758A30           13     T0INT:  MOV  TL0,#30H
+
+0021 758C08           14                     MOV  TH0,#08H
+
+0024 B290             15                     CPL      P1.0
+
+0026 32               16                     RETI
+
+                      17                     END
+
+A51 MACRO ASSEMBLER  2121                                                                 12/05/2019 21:32:20 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+EA . . . . . . . .  B ADDR   00A8H.7 A   
+ET0. . . . . . . .  B ADDR   00A8H.1 A   
+LOOP . . . . . . .  C ADDR   0010H   A   
+MAIN . . . . . . .  C ADDR   000DH   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+T0INT. . . . . . .  C ADDR   001EH   A   
+TH0. . . . . . . .  D ADDR   008CH   A   
+TL0. . . . . . . .  D ADDR   008AH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TR0. . . . . . . .  B ADDR   0088H.4 A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

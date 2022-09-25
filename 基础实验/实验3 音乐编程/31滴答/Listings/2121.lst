@@ -1,0 +1,63 @@
+A51 MACRO ASSEMBLER  2121                                                                 11/29/2019 20:40:52 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.5.0
+OBJECT MODULE PLACED IN .\Objects\2121.obj
+ASSEMBLER INVOKED BY: D:\Keil_v5\C51\BIN\A51.EXE 2121.asm SET(SMALL) DEBUG PRINT(.\Listings\2121.lst) OBJECT(.\Objects\2
+                      121.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                             ORG 0000H
+
+  0090                 2     OUTPUT          BIT P1.0
+
+0000 C290              3     LOOP:           CLR OUTPUT
+
+0002 12000C            4                             LCALL DELAY250ms
+
+0005 D290              5                             SETB OUTPUT
+
+0007 12000C            6                             LCALL DELAY250ms
+
+000A 80F4              7                             SJMP LOOP
+
+                       8     
+
+000C 7D04              9     DELAY250ms:     MOV R5,#4
+
+000E 7EFF             10     A1:                     MOV R6,#0FFH
+
+0010 7FFF             11     A2:                     MOV R7,#0FFH
+
+0012 DFFE             12     DLOOP:          DJNZ R7,DLOOP
+
+0014 DEFA             13                             DJNZ R6,A2
+
+0016 DDF6             14                             DJNZ R5,A1
+
+0018 22               15                             RET
+
+                      16                             END
+
+A51 MACRO ASSEMBLER  2121                                                                 11/29/2019 20:40:52 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+A1 . . . . . . . .  C ADDR   000EH   A   
+A2 . . . . . . . .  C ADDR   0010H   A   
+DELAY250MS . . . .  C ADDR   000CH   A   
+DLOOP. . . . . . .  C ADDR   0012H   A   
+LOOP . . . . . . .  C ADDR   0000H   A   
+OUTPUT . . . . . .  B ADDR   0090H.0 A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

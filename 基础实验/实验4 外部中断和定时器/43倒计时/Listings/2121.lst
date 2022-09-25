@@ -1,0 +1,178 @@
+A51 MACRO ASSEMBLER  2121                                                                 12/16/2019 21:09:30 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.5.0
+OBJECT MODULE PLACED IN .\Objects\2121.obj
+ASSEMBLER INVOKED BY: D:\Keil_v5\C51\BIN\A51.EXE 2121.asm SET(SMALL) DEBUG PRINT(.\Listings\2121.lst) OBJECT(.\Objects\2
+                      121.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                     ORG 0000H
+
+0000 803E              2                     SJMP MAIN
+
+000B                   3                     ORG 000BH                               ;T0÷–∂œ
+
+000B 02009D            4                     LJMP T0INT
+
+001B                   5                     ORG 001BH
+
+001B 0200A5            6                     LJMP T0INT1                             ;T1÷–∂œ
+
+                       7                     
+
+0040                   8                     ORG 0040H               
+
+0040 758901            9     MAIN:   MOV     TMOD,#01H               ;π§◊˜∑Ω Ω1
+
+0043 7806             10             MOV     R0,#6                   ; ÆŒª≥ı º÷µ
+
+0045 7901             11                     MOV     R1,#1                   ;∏ˆŒª≥ı º÷µ
+
+                      12     
+
+0047 19               13     LOOP:   DEC             R1                              ;∏ˆŒª√Î ºı“ª
+
+0048 7A14             14                     MOV     R2,#20                  ;…Ë÷√20∏ˆ50ms—≠ª∑
+
+004A 758C3C           15                     MOV     TH0,#3CH                ;∂® ±≥ı º◊¥Ã¨
+
+004D 758AB0           16                     MOV     TL0,#0B0H
+
+0050 D28C             17                     SETB    TR0                             
+
+0052 D2AF             18                     SETB    EA                              ;÷–∂œ≥ı ºªØ
+
+0054 D2A9             19                     SETB    ET0
+
+                      20     
+
+                      21                     ;∂ØÃ¨ ¬Îπ‹œ‘ æ
+
+0056 E9               22     DISDLAY:MOV     A,R1                    ;∏ˆŒªœ‘ æ
+
+0057 900083           23                     MOV     DPTR,#TABLE 
+
+005A 93               24                     MOVC    A,@A+DPTR 
+
+005B F580             25                     MOV     P0,A
+
+005D 75907F           26                     MOV     P1,#7FH 
+
+0060 12008D           27                     LCALL   DELAY1ms                ;—”≥Ÿœ‘ æ               
+
+                      28                     
+
+0063 E8               29             MOV     A,R0                    ; ÆŒªœ‘ æ
+
+0064 900083           30                     MOV     DPTR,#TABLE 
+
+0067 93               31                     MOVC    A,@A+DPTR 
+
+0068 F580             32                     MOV     P0,A
+
+006A 7590BF           33                     MOV     P1,#0BFH
+
+006D 12008D           34                     LCALL   DELAY1ms                ;—”≥Ÿœ‘ æ                       
+
+                      35                     
+
+0070 BA00E3           36                     CJNE    R2,#0,DISDLAY   ;≈–∂œ50ms «∑ÒÕÍ≥…
+
+0073 B900D1           37                     CJNE    R1,#0,LOOP              ;≈–∂œ∏ˆŒª «∑ÒŒ™¡„£¨≤ªŒ™¡„Ã¯◊™
+
+0076 B80005           38                     CJNE    R0,#0,GOON              ;≈–∂œ ÆŒª «∑ÒŒ™¡„£¨≤ªŒ™¡„Ã¯◊™
+
+0079 758000           39                     MOV     P0,#0                   ;÷√¡„£¨Õ£÷π
+
+007C 80FE             40                     SJMP    $
+
+                      41                     
+
+007E 790A             42     GOON:   MOV     R1,#0AH                 ;…Ë÷√∏ˆŒª¿‡≥ı º◊¥Ã¨
+
+0080 18               43                     DEC             R0                              ; ÆŒªºı“ª
+
+0081 80C4             44                     SJMP    LOOP                    ;ºÃ–¯—≠ª∑
+
+                      45                             
+
+0083 3F065B4F         46     TABLE: DB 3FH,06H,5BH,4FH,66H,6DH,7DH,07H,7FH,6FH
+
+0087 666D7D07                
+008B 7F6F                    
+                      47     
+
+008D 7B01             48     DELAY1ms:       MOV     R3,#1           ;—” ±1ms
+
+008F D2AB             49                             SETB    ET1                     ;…Ë÷√T1≥ı º◊¥Ã¨
+
+0091 758DFC           50                             MOV     TH1,#0FCH
+
+0094 758B18           51                             MOV     TL1,#18H
+
+0097 D28E             52                             SETB    TR1
+
+0099 BB00FD           53                             CJNE    R3,#0,$         ;Ã§≤Ωµ»¥º∆ ±ÕÍ≥…
+
+009C 22               54                             RET
+
+                      55     
+
+A51 MACRO ASSEMBLER  2121                                                                 12/16/2019 21:09:30 PAGE     2
+
+009D 758AB0           56     T0INT:  MOV  TL0,#0B0H                  ;T0÷–∂œ
+
+00A0 758C3C           57                     MOV  TH0,#3CH
+
+00A3 1A               58                     DEC  R2
+
+00A4 32               59                     RETI
+
+                      60                     
+
+00A5 758B18           61     T0INT1: MOV  TL1,#18H                   ;T1÷–∂œ
+
+00A8 758DFC           62                     MOV  TH1,#0FCH
+
+00AB 1B               63                     DEC  R3
+
+00AC 32               64                     RETI
+
+                      65                     END
+
+A51 MACRO ASSEMBLER  2121                                                                 12/16/2019 21:09:30 PAGE     3
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+DELAY1MS . . . . .  C ADDR   008DH   A   
+DISDLAY. . . . . .  C ADDR   0056H   A   
+EA . . . . . . . .  B ADDR   00A8H.7 A   
+ET0. . . . . . . .  B ADDR   00A8H.1 A   
+ET1. . . . . . . .  B ADDR   00A8H.3 A   
+GOON . . . . . . .  C ADDR   007EH   A   
+LOOP . . . . . . .  C ADDR   0047H   A   
+MAIN . . . . . . .  C ADDR   0040H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+T0INT. . . . . . .  C ADDR   009DH   A   
+T0INT1 . . . . . .  C ADDR   00A5H   A   
+TABLE. . . . . . .  C ADDR   0083H   A   
+TH0. . . . . . . .  D ADDR   008CH   A   
+TH1. . . . . . . .  D ADDR   008DH   A   
+TL0. . . . . . . .  D ADDR   008AH   A   
+TL1. . . . . . . .  D ADDR   008BH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TR0. . . . . . . .  B ADDR   0088H.4 A   
+TR1. . . . . . . .  B ADDR   0088H.6 A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

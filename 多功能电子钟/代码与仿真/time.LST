@@ -1,0 +1,341 @@
+C51 COMPILER V9.60.0.0   TIME                                                              12/22/2021 23:11:53 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE TIME
+OBJECT MODULE PLACED IN time.OBJ
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE time.c OPTIMIZE(8,SPEED) BROWSE TABS(2)
+
+line level    source
+
+   1          #include"Feiyun.h"
+   2          uchar hour=0;
+   3          uchar min=0;
+   4          uchar sec=0;
+   5          uchar year=0;
+   6          uchar month=0;
+   7          uchar day=0;
+   8          uchar ahour=0;
+   9          uchar amin=0;
+  10          void TimeDateInit()  //时间和日期的初始化
+  11          {
+  12   1        year=11;
+  13   1        month=6;
+  14   1        day=19;
+  15   1        hour=23;
+  16   1        min=0;
+  17   1        sec=0;
+  18   1        ahour=23;
+  19   1        amin=1;
+  20   1      }
+  21          uchar isleep(y)
+  22          {
+  23   1        return !(y%4);
+  24   1      }
+  25          uchar GetMDM(y,m)
+  26          {
+  27   1          uchar mon[]={31,28,31,30,31,30,31,31,30,31,30,31};
+  28   1        if(m==2) 
+  29   1          return mon[1]+isleep(y);
+  30   1        else       
+  31   1          return mon[m-1];
+  32   1      }
+  33          uint GetMDY(y)
+  34          {
+  35   1          if(isleep(y))
+  36   1          return 366;
+  37   1        else 
+  38   1          return 365;
+  39   1      }
+  40          uchar GetWeek()
+  41          {
+  42   1          uint num=0;
+  43   1        uchar i,week;
+  44   1        for(i=1;i<year;i++)
+  45   1           num+=GetMDY(i);
+  46   1        for(i=1;i<month;i++)
+  47   1           num+=GetMDM(year,i);
+  48   1        num+=day; 
+  49   1        week=num%7;
+  50   1        return week;       
+  51   1      }
+  52          void DateCg()
+  53          {
+  54   1         if(hour==24)
+  55   1         hour=0,day++;
+C51 COMPILER V9.60.0.0   TIME                                                              12/22/2021 23:11:53 PAGE 2   
+
+  56   1         if(day>GetMDM(year,month))
+  57   1         day=1,month++;
+  58   1         if(month>12)
+  59   1         month=1,year++;
+  60   1      }
+  61          void TimeCg()                //时间模块
+  62          {
+  63   1         sec++;
+  64   1         if(sec==60)
+  65   1         sec=0,min++;
+  66   1         if(min==60)
+  67   1         min=0,hour++;  
+  68   1      }
+  69          String TimetoStr()       
+  70          {
+  71   1        uchar time[6];
+  72   1        uchar buf[6];
+  73   1        uchar i;
+  74   1        time[0]=hour/10-1+'1';
+  75   1        time[1]=hour%10-1+'1';
+  76   1        time[2]=min/10-1+'1';
+  77   1        time[3]=min%10-1+'1';
+  78   1        time[4]=sec/10-1+'1';
+  79   1        time[5]=sec%10-1+'1';
+  80   1        for(i=0;i<6;i++)
+  81   1          buf[i]=time[i];
+  82   1        return buf;
+  83   1      }
+  84          void TimeShow()            //用LCD1602显示时间 
+  85          {
+  86   1        String time;  
+  87   1        time=TimetoStr();
+  88   1        LcdStr(0x04,"Time");
+  89   1        LcdData(0x08,hour);
+  90   1        LcdChar(0x0a,'-');
+  91   1        LcdData(0x0b,min);
+  92   1        LcdChar(0x0d,'-');
+  93   1        LcdData(0x0e,sec);
+  94   1      }
+  95          String DatetoStr()       //日期模块
+  96          {
+  97   1        uchar Date[6];
+  98   1        uchar buf[6];
+  99   1        uchar i;
+ 100   1        Date[0]=year/10+'1'-1;
+ 101   1        Date[1]=year%10+'1'-1;
+ 102   1        Date[2]=month/10+'1'-1;
+ 103   1        Date[3]=month%10+'1'-1;
+ 104   1        Date[4]=day/10+'1'-1;
+ 105   1        Date[5]=day%10+'1'-1;
+ 106   1        for(i=0;i<6;i++)
+ 107   1          buf[i]=Date[i];
+ 108   1        return buf;
+ 109   1      }                 
+ 110          void WeekShow()
+ 111          {
+ 112   1          uchar wk[]="Sun Mon Tue Wed Thu Fri Sat Erro";
+ 113   1          uchar  D[]="Date 20";
+ 114   1        uchar week=0;
+ 115   1        uchar i;
+ 116   1        pd(0x00);
+ 117   1        week=GetWeek();
+C51 COMPILER V9.60.0.0   TIME                                                              12/22/2021 23:11:53 PAGE 3   
+
+ 118   1        for(i=0;i<4;i++)
+ 119   1        write_data(wk[week*4+i]);
+ 120   1        pd(0x40);
+ 121   1        for(i=0;i<7;i++)
+ 122   1        write_data(D[i]);
+ 123   1      }
+ 124          void DateShow()
+ 125          {
+ 126   1        String date;
+ 127   1        WeekShow();
+ 128   1        date=DatetoStr();
+ 129   1        write_data(date[0]);
+ 130   1        write_data(date[1]);
+ 131   1        write_data('-');
+ 132   1        write_data(date[2]);
+ 133   1        write_data(date[3]);
+ 134   1        write_data('-');
+ 135   1        write_data(date[4]);
+ 136   1        write_data(date[5]);
+ 137   1        pd(0x50);
+ 138   1      }
+ 139          void Loadbuf(uchar p,String buf)
+ 140          {
+ 141   1         if(p==0x08)
+ 142   1        {
+ 143   2          buf[0]=hour/10;
+ 144   2          buf[1]=hour%10;
+ 145   2          buf[2]=min/10;
+ 146   2          buf[3]=min%10;
+ 147   2          buf[4]=sec/10;
+ 148   2          buf[5]=sec%10;
+ 149   2        }
+ 150   1         if(p==0x47)
+ 151   1        {
+ 152   2          buf[0]=year/10;
+ 153   2          buf[1]=year%10;
+ 154   2          buf[2]=month/10;
+ 155   2          buf[3]=month%10;
+ 156   2          buf[4]=day/10;
+ 157   2          buf[5]=day%10;
+ 158   2        } 
+ 159   1      }
+ 160          void Save(uchar p,String buf)
+ 161          {
+ 162   1        if(p==0x08)
+ 163   1        {
+ 164   2          hour=buf[0]*10+buf[1];
+ 165   2          min=buf[2]*10+buf[3];
+ 166   2          sec=buf[4]*10+buf[5];
+ 167   2        }
+ 168   1        if(p==0x47)
+ 169   1        {
+ 170   2          year=buf[0]*10+buf[1];
+ 171   2          month=buf[2]*10+buf[3];
+ 172   2          day=buf[4]*10+buf[5];
+ 173   2        }
+ 174   1      }
+ 175          void Set(uchar p)
+ 176          {
+ 177   1         uchar i=0;
+ 178   1         uchar tmp[8]={0,1,1,2,3,3,4,5};
+ 179   1         uchar imr[8]={1,3,4,4,6,6,7,0};
+C51 COMPILER V9.60.0.0   TIME                                                              12/22/2021 23:11:53 PAGE 4   
+
+ 180   1         uchar iml[8]={7,0,1,1,3,4,4,6};
+ 181   1         uchar buf[6]={0,0,0,0,0,0};
+ 182   1         uchar dat=0x10;     
+ 183   1         Loadbuf(p,buf);               
+ 184   1         while((dat!=0x0f)&&(dat!=0x0e))
+ 185   1         {
+ 186   2             if(KeyDown) dat=scankey();
+ 187   2           if(dat<0x10)
+ 188   2           {
+ 189   3               if(dat<0x0a)
+ 190   3               {
+ 191   4             buf[tmp[i]]=dat;
+ 192   4             write_data(buf[tmp[i]]+'1'-1);
+ 193   4             dat=0x10;
+ 194   4             i=imr[i];
+ 195   4             }
+ 196   3             else
+ 197   3             {
+ 198   4              switch (dat)
+ 199   4            {
+ 200   5               case 12:
+ 201   5                       {
+ 202   6                    dat=0x10;
+ 203   6                          i=iml[i];
+ 204   6                  break;
+ 205   6                  }
+ 206   5               case 13:{
+ 207   6                        dat=0x10;
+ 208   6                          i=imr[i];
+ 209   6                  break;
+ 210   6                        }
+ 211   5               case 14:
+ 212   5                        { 
+ 213   6                  Save(p,buf);
+ 214   6                  break;
+ 215   6                  }
+ 216   5               case 15:break; 
+ 217   5            }
+ 218   4              }
+ 219   3            }
+ 220   2            pd(p+i);
+ 221   2         }
+ 222   1         pd(0x50);   
+ 223   1      }
+ 224          
+ 225          void setahour()
+ 226          {
+ 227   1          uchar dat=0xff,state;
+ 228   1        pd(0x45);
+ 229   1        while(dat!=0x0e) 
+ 230   1        { 
+ 231   2          if(dat<0x10)
+ 232   2          {
+ 233   3              if(state==0)
+ 234   3            {
+ 235   4               state++;
+ 236   4               ahour=ahour%10;
+ 237   4               ahour=ahour+dat*10;
+ 238   4               LcdData(0x45,ahour);
+ 239   4               pd(0x46);
+ 240   4            }
+ 241   3            else
+C51 COMPILER V9.60.0.0   TIME                                                              12/22/2021 23:11:53 PAGE 5   
+
+ 242   3            {
+ 243   4                 state=0;
+ 244   4               ahour=ahour/10;
+ 245   4               ahour=ahour*10;
+ 246   4               ahour=ahour+dat;
+ 247   4               LcdData(0x45,ahour);
+ 248   4               pd(0x45);
+ 249   4            }
+ 250   3          }
+ 251   2          if(KeyDown) dat=scankey();
+ 252   2          else dat=0xff;  
+ 253   2        } 
+ 254   1        pd(0x50);
+ 255   1      }
+ 256          void setamin()
+ 257          {
+ 258   1          uchar dat=0xff,state;
+ 259   1        pd(0x4c);
+ 260   1        while(dat!=0x0e) 
+ 261   1        {
+ 262   2          if(dat<0x10)
+ 263   2          {
+ 264   3              if(state==0)
+ 265   3            {
+ 266   4               state++;
+ 267   4               amin=amin%10;
+ 268   4               amin=amin+dat*10;
+ 269   4               LcdData(0x4c,amin);
+ 270   4               pd(0x4d);
+ 271   4            }
+ 272   3            else
+ 273   3            {
+ 274   4                 state=0;
+ 275   4               amin=amin/10;
+ 276   4               amin=amin*10;
+ 277   4               amin=amin+dat;
+ 278   4               LcdData(0x4c,amin);
+ 279   4               pd(0x4c);
+ 280   4            }
+ 281   3          }
+ 282   2          if(KeyDown) dat=scankey();
+ 283   2          else dat=0xff;  
+ 284   2        } 
+ 285   1        pd(0x50);
+ 286   1      }
+ 287          void AlarmClock()
+ 288          {
+ 289   1          uchar dat;
+ 290   1        LcdStr(0x00,"The Alarm Clock:");
+ 291   1        LcdStr(0x40,"Hour");
+ 292   1        LcdData(0x45,ahour);
+ 293   1        LcdStr(0x48,"Min");
+ 294   1        LcdData(0x4c,amin);
+ 295   1        while((dat!=0x0f)&&(dat!=0x0e))
+ 296   1        {
+ 297   2             if(KeyDown) dat=scankey();
+ 298   2           else dat=0xff;
+ 299   2           if(dat==0x0c) setahour();
+ 300   2           if(dat==0x0d) setamin(); 
+ 301   2        }
+ 302   1      }
+ 303          uchar CheckTime()
+C51 COMPILER V9.60.0.0   TIME                                                              12/22/2021 23:11:53 PAGE 6   
+
+ 304          {
+ 305   1         if(hour==ahour&&min==amin)
+ 306   1         return 1;
+ 307   1         else return 0;
+ 308   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1656    ----
+   CONSTANT SIZE    =    114    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      8     130
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

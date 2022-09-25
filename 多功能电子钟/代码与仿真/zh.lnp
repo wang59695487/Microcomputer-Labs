@@ -1,0 +1,10 @@
+"STARTUP.obj",
+"main.obj",
+"timer.obj",
+"time.obj",
+"ds18b20.obj",
+"Feiyun.obj",
+"key.obj",
+"lcd1602.obj" 
+TO "zh" 
+RAMSIZE(256) 

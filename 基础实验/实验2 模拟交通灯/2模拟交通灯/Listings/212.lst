@@ -1,0 +1,124 @@
+A51 MACRO ASSEMBLER  212                                                                  11/29/2019 20:03:34 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.5.0
+OBJECT MODULE PLACED IN .\Objects\212.obj
+ASSEMBLER INVOKED BY: D:\Keil_v5\C51\BIN\A51.EXE 212.asm SET(SMALL) DEBUG PRINT(.\Listings\212.lst) OBJECT(.\Objects\212
+                      .obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                     ORG     0000H
+
+0000 759000            2                     MOV     P1,#00H         ;∫Ïµ∆¡¡
+
+0003 75805B            3                     MOV     P0,#5BH
+
+0006 75A001            4                     MOV     P2,#01H
+
+0009 120057            5                     LCALL   DELAY
+
+000C 75805E            6     LOOP:   MOV     P0,#5EH         ;∂´Œ˜¬Ãƒœ±±∫Ï
+
+000F 75A002            7                     MOV     P2,#02H
+
+0012 12004F            8                     LCALL   DELAY2S 
+
+0015 120038            9                     LCALL   BLINK           ;∫Ï¬Ã…¡À∏
+
+0018 7580ED           10                     MOV     P0,#0EDH        ;ª∆µ∆¡¡
+
+001B 75A003           11                     MOV     P2,#03H
+
+001E 120057           12                     LCALL   DELAY
+
+0021 7580B3           13                     MOV     P0,#0B3H    ;∂´Œ˜∫Ïƒœ±±¬Ã
+
+0024 75A001           14                     MOV     P2,#01H
+
+0027 12004F           15                     LCALL   DELAY2S
+
+002A 120038           16                     LCALL   BLINK           ;∫Ï¬Ã…¡À∏
+
+002D 7580ED           17                     MOV     P0,#0EDH        ;ª∆µ∆¡¡
+
+0030 75A003           18                     MOV     P2,#03H         
+
+0033 120057           19                     LCALL   DELAY           
+
+0036 80D4             20                     SJMP    LOOP
+
+                      21     
+
+0038 7B02             22     BLINK:  MOV     R3,#2       ;∫Ï¬Ã…¡À∏
+
+003A 75805B           23     BLINK0: MOV     P0,#5BH     ;∫Ïµ∆¡¡
+
+003D 75A001           24                     MOV     P2,#01H
+
+0040 120057           25                     LCALL   DELAY
+
+0043 7580B6           26                     MOV     P0,#0B6H        ;¬Ãµ∆¡¡
+
+0046 75A002           27                     MOV     P2,#02H
+
+0049 120057           28                     LCALL   DELAY
+
+004C DBEC             29                     DJNZ    R3,BLINK0
+
+004E 22               30                     RET                     
+
+                      31     
+
+004F 7C04             32     DELAY2S:MOV         R4,#4               ;—” ±2s
+
+0051 120057           33     DELOOP0:LCALL   DELAY
+
+0054 DCFB             34                     DJNZ    R4,DELOOP0
+
+0056 22               35                     RET             
+
+                      36     
+
+0057 7D04             37     DELAY:  MOV     R5,#4           ;—” ±0.5s
+
+0059 7EF8             38     DELOOP3:MOV     R6,#248
+
+005B 7FFA             39     DELOOP2:MOV     R7,#250
+
+005D DFFE             40     DELOOP1:DJNZ    R7,DELOOP1
+
+005F DEFA             41                     DJNZ    R6,DELOOP2
+
+0061 DDF6             42                     DJNZ    R5,DELOOP3      
+
+0063 22               43                     RET
+
+                      44                     END
+
+A51 MACRO ASSEMBLER  212                                                                  11/29/2019 20:03:34 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+BLINK. . . . . . .  C ADDR   0038H   A   
+BLINK0 . . . . . .  C ADDR   003AH   A   
+DELAY. . . . . . .  C ADDR   0057H   A   
+DELAY2S. . . . . .  C ADDR   004FH   A   
+DELOOP0. . . . . .  C ADDR   0051H   A   
+DELOOP1. . . . . .  C ADDR   005DH   A   
+DELOOP2. . . . . .  C ADDR   005BH   A   
+DELOOP3. . . . . .  C ADDR   0059H   A   
+LOOP . . . . . . .  C ADDR   000CH   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

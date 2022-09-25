@@ -1,0 +1,1060 @@
+A51 MACRO ASSEMBLER  DS18B20                                                              12/26/2021 19:50:29 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.7.0
+OBJECT MODULE PLACED IN .\Objects\DS18B20.obj
+ASSEMBLER INVOKED BY: C:\Keil_v5\C51\BIN\A51.EXE ..\..\..\ASM\DS18B20.ASM SET(SMALL) DEBUG PRINT(.\Listings\DS18B20.lst)
+                       OBJECT(.\Objects\DS18B20.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+                       1     
+                       2     ;ds18b20
+  00B7                 3     DQ  EQU P3.7                ;DS18B20µÄÊý¾Ý¿ÚÎ»P3.7
+  00B2                 4     IN0 EQU P3.2                ;ºìÍâ½ÓÊÕÍ·ÎªP3.2
+                       5     ;ds1302
+  00B4                 6     IO_DATA EQU P3.4 ; Êý¾Ý´«ËÍ×ÜÏß
+  00B6                 7     SCLK EQU  P3.6 ; Ê±ÖÓ¿ØÖÆ×ÜÏß
+  00B5                 8     RST EQU P3.5 ; ¸´Î»×ÜÏß
+                       9     ;lcd1602
+  00A6                10     LCMRS EQU P2.6
+  00A5                11     LCMRW EQU P2.5
+  00A7                12     LCMEN EQU P2.7
+  0080                13     LCMDATA EQU P0
+                      14     
+                      15     ;ds18b20
+  0020                16     TPH DATA 20H                ;´æ·ÅÎÂ¶ÈÖµµÄ¸ß×Ö½Ú
+  0021                17     TPL DATA 21H                ;´æ·ÅÎÂ¶ÈÖµµÄµÍ×Ö½Ú
+  0023                18     BAI DATA 23H                ;×ªÎªÒªÏÔÊ¾µÄÊýÖµ 
+  0024                19     SHI DATA 24H
+  0025                20     G_E DATA 25H
+                      21     ;ds1302
+  0026                22     DATA0 DATA 26H                ;µÚÒ»Î»
+  0027                23     DATA1 DATA 27H                
+  0028                24     DATA2 DATA 28H               
+  0029                25     DATA3 DATA 29H
+                      26     ;lcd1602
+  0030                27     BitCnt  data 30h ; Êý¾ÝÎ»¼ÆÊýÆ÷
+  0031                28     ByteCnt data 31h ; Êý¾Ý×Ö½Ú¼ÆÊýÆ÷
+  0032                29     Command data 32h ; ÃüÁî×Ö½ÚµØÖ·
+  0040                30     RcvDat  DATA 40H ; ½ÓÊÕÊý¾Ý»º³åÇø£¬40H¡¢41H¡¤¡¤¡¤¡¤46H·Ö±ð¶ÔÓ¦Ãë¡¢·Ö¡¢Ê±¡¢ÈÕ¡¢ÔÂ¡¢ÐÇÆÚ¡¢Äê·
+                             ÝÍ¬Ê±
+  0050                31     XmtDat  DATA 50H ; ·¢ËÍÊý¾Ý»º³åÇø£¬ÓÉÓÚÖ»ÓÐÔÚ³õÊ¼»¯µÄÊ±ºòÓÃµ½£¬ÔÚÖ®ºó¾ÍÓÃÀ´´æ·ÅÉèÖÃÄÖÖÓµÄÊ±
+                             ¼ä
+                      32     
+  0060                33     NUMT  DATA 60H
+  0062                34     MODEL    DATA 62H
+                      35     ;Ä£Ê½£º
+                      36     ;0,mainÖ÷½çÃæ
+                      37     ;1,StimeÉèÖÃÊ±¼ä½çÃæ
+                      38     ;2,SclkÉèÖÃÄÖÖÓµÄÊ±¼ä
+  0067                39     NUM      DATA 67H
+  0068                40     count  data 68h
+  0068                41     zhongzhuan data 68h
+0000                  42     ORG 0
+0000 2100             43     JMP MAIN
+0003                  44     ORG 0003H
+0003 020542           45     LJMP INT
+000B                  46     org 000bh;¶¨Ê±Æ÷0ÖÐ¶ÏÈë¿ÚµØÖ·
+000B 02054E           47     LJMP TIM0
+0100                  48     ORG 100H
+0100                  49     MAIN:
+0100 1203CF           50             LCALL LCD1602_INIT  ;1602³õÊ¼»¯ÉèÖÃ
+0103 1203E8           51             LCALL LCMCLR  ;ÏÔÊ¾ÇåÆÁ
+0106 120565           52             LCALL DS_1302INIT
+0109 D2A8             53             SETB EX0;       ÔÊÐíÍâ²¿ÖÐ¶Ï0²úÉúÖÐ¶Ï 
+010B D2B8             54             SETB PX0;Éè¶¨Îª×î¸ß¼¶ÖÐ¶Ï
+010D D288             55             SETB IT0;ÏÂ½µÑØ´¥·¢·½Ê½
+A51 MACRO ASSEMBLER  DS18B20                                                              12/26/2021 19:50:29 PAGE     2
+
+010F D2AF             56         SETB EA;¿ªÆô×ÜÖÐ¶Ï
+0111 758901           57             MOV  TMOD,#01H;¶¨Ê±Æ÷·½Ê½1£¬¶¨Ê±Æ÷ÔËÐÐÓÉtr0¾ö¶¨
+0114 758C3C           58             MOV TH0,#3ch
+0117 758AAF           59             MOV TL0,#0afh;³õÊ¼»¯¼ÆÊýÖµ65535-50000=15535,Ã¿50ms,²úÉúÒ»´ÎÖÐ¶Ï
+011A D28C             60             setb TR0;¿ªÆô¶¨Ê±Æ÷
+011C D2A9             61             SETB ET0;ÔÊÐí¶¨Ê±Æ÷0ÖÐ¶Ï
+011E 756200           62             MOV MODEL,#0;³õÊ¼»¯ 
+0121 756001           63             MOV NUMT,#1 
+0124 756700           64             MOV NUM,#0
+0127 D292             65             setb p1.2
+0129 C291             66             clr p1.1
+012B                  67     while1:
+012B 856762           68             MOV MODEL,NUM
+012E 120136           69         LCALL TIME_CHECK
+0131 120263           70         LCALL SHOW_MAIN     ;ÏÔÊ¾
+0134 80F5             71         JMP while1
+                      72     ;ÄÖÖÓÊ±¼äÅÐ¶Ï
+0136                  73     TIME_CHECK:;ÕâÀïÖ»¼ì²âÁËÊ±ºÍ·ÖÊÇ·ñ¶ÔÓ¦
+0136 7A02             74         MOV R2,#2
+0138 7841             75         MOV R0,#RcvDat+1
+013A 7951             76             MOV R1,#XmtDat+1
+013C                  77     GO84:
+013C E6               78         MOV A,@R0
+013D 67               79             XRL A,@R1
+013E 08               80             INC R0
+013F 09               81             INC R1
+0140 7005             82             JNZ OUT84
+0142 DAF8             83             DJNZ R2,GO84
+0144 1201E0           84             LCALL sing
+0147                  85     OUT84:
+0147 22               86         RET
+                      87     
+0148 22               88     RET
+                      89     ;ÏÔÊ¾Ê±·ÖÃë²¿·Ö£¬
+0149                  90     show_TIME:
+0149 E562             91         MOV A,MODEL
+014B 6402             92             XRL A,#2
+014D 702E             93             JNZ NXT2
+014F 7B09             94         MOV R3,#9
+0151 7850             95         MOV R0,#XmtDat;Ä£Ê½2£¬´ËÊ±ÏÔÊ¾ÄÖÖÓµÄÊ±¼ä£¬XmtDatºóÃæÒ»¶ÎµØÖ·´æ·ÅµÄÊ±¼ä£¬ÀàËÆÒ»¸öÊý×éµÄÊ
+                             ×µØÖ·
+0153 748C             96             MOV     A,#8CH
+0155 12039B           97             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+0158 7453             98             MOV A,#53H
+015A 1203B0           99             LCALL LCMWR1 
+015D 748D            100             MOV     A,#8DH
+015F 12039B          101             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+0162 7463            102             MOV A,#63H
+0164 1203B0          103             LCALL LCMWR1
+0167 748E            104             MOV     A,#8EH
+0169 12039B          105             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+016C 746C            106             MOV A,#6CH
+016E 1203B0          107             LCALL LCMWR1 
+0171 748F            108             MOV     A,#8FH
+0173 12039B          109             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+0176 746B            110             MOV A,#6BH
+0178 1203B0          111             LCALL LCMWR1
+017B 8004            112             JMP NXT1
+017D                 113     NXT2:
+017D 7B09            114         MOV R3,#9
+017F 7840            115         MOV R0,#RcvDat;Ä£Ê½1ºÍ0Ê±£¬¶¼ÏÔÊ¾ÏÖÔÚµÄÊ±¼ä£¬ÓÃRcvDat
+0181                 116     NXT1:
+0181 7480            117             MOV A,#80H
+0183 2B              118             ADD     A,R3
+0184 12039B          119             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+0187 E6              120             MOV A,@R0
+A51 MACRO ASSEMBLER  DS18B20                                                              12/26/2021 19:50:29 PAGE     3
+
+0188 540F            121             ANL A,#0FH
+018A FF              122             MOV R7,A
+018B 940A            123             SUBB A,#10
+018D 5046            124             JNC JJ
+018F EF              125             MOV A,R7
+0190 2430            126             ADD A,#30H
+0192 1203B0          127             LCALL LCMWR1
+0195 1B              128             DEC R3
+0196 7480            129             MOV A,#80H
+0198 2B              130             ADD     A,R3
+0199 12039B          131             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+019C E6              132             MOV A,@R0
+019D 54F0            133             ANL A,#0F0H
+019F C4              134             SWAP A
+01A0 2430            135             ADD A,#30H
+01A2 1203B0          136             LCALL LCMWR1
+01A5 1B              137             DEC R3
+01A6 EB              138             MOV A,R3
+01A7 9401            139             SUBB A,#1
+01A9 600C            140             JZ GO4
+01AB 7480            141             MOV A,#80H
+01AD 2B              142             ADD     A,R3
+01AE 12039B          143             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+01B1 743A            144             MOV A,#3AH ;"-"
+01B3 1203B0          145             LCALL LCMWR1
+01B6 08              146             INC R0
+01B7                 147     GO4: 
+01B7 DBC8            148         DJNZ R3,NXT1 
+01B9                 149     EXIT_ST:
+01B9 7412            150         MOV A,#12H
+01BB 9542            151             SUBB A,42H
+01BD 500C            152             JNC MORNING
+01BF 7480            153             MOV     A,#80H
+01C1 12039B          154             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+01C4 7450            155             MOV A,#50H
+01C6 1203B0          156             LCALL LCMWR1
+01C9 800A            157             JMP JJ 
+01CB                 158     MORNING:;ÏÔÊ¾ÉÏÎç
+01CB 7480            159             MOV     A,#80H
+01CD 12039B          160             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+01D0 7441            161             MOV A,#41H
+01D2 1203B0          162             LCALL LCMWR1   
+01D5                 163     JJ:
+01D5 7481            164             MOV     A,#81H
+01D7 12039B          165             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+01DA 744D            166             MOV A,#4DH
+01DC 1203B0          167             LCALL LCMWR1     
+01DF 22              168     ret
+                     169     ;·¢³öÄÖÖÓÌáÊ¾Òô
+01E0                 170     sing:
+01E0 7D19            171         MOV R5,#25
+01E2 7E04            172         mov r6,#4
+01E4                 173     DelayX00us:                  ;2 µ±¸ÄÓÃ1TµÄMCUÊ±,Çëµ÷Õû´ËÑÓÊ±º¯Êý
+01E4 00              174         NOP                     ;1
+01E5 00              175         NOP                     ;1
+01E6 00              176         NOP                     ;1
+01E7 00              177         NOP                     ;1
+01E8 00              178         NOP                     ;1
+01E9 00              179         NOP                     ;1
+01EA 00              180         NOP                     ;1
+01EB 00              181         NOP                     ;1
+01EC DEF6            182         DJNZ R6,DelayX00us       ;2
+01EE B296            183             cpl p1.6
+01F0 7E04            184             mov r6,#4
+01F2 DDF0            185             DJNZ R5,DelayX00us       ;2
+01F4 7D19            186             mov r5,#25
+A51 MACRO ASSEMBLER  DS18B20                                                              12/26/2021 19:50:29 PAGE     4
+
+01F6 DFEC            187         DJNZ R7,DelayX00us       ;2
+01F8 22              188         RET                     ;2
+01F9 22              189     ret
+                     190     ;ÏÔÊ¾ÈÕÆÚ£¬Í¬ÀíÏÔÊ¾Ê±¼ä
+01FA                 191     show_DATE:
+01FA E562            192         MOV A,MODEL
+01FC 6402            193             XRL A,#2
+01FE 7009            194             JNZ NXT3
+0200 7B09            195         MOV R3,#9
+0202 7850            196         MOV R0,#XmtDat
+0204 08              197             INC R0
+0205 08              198             INC R0
+0206 08              199             INC R0
+0207 8007            200             JMP NXT
+0209                 201     NXT3:
+0209 7B09            202         MOV R3,#9
+020B 7840            203         MOV R0,#RcvDat
+020D 08              204             INC R0
+020E 08              205             INC R0
+020F 08              206             INC R0
+0210                 207     NXT:
+0210 74C0            208             MOV A,#0C0H
+0212 2B              209             ADD     A,R3
+0213 12039B          210             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+0216 E6              211             MOV A,@R0
+0217 540F            212             ANL A,#0FH
+0219 FF              213             MOV R7,A
+021A 940A            214             SUBB A,#10
+021C 5030            215             JNC EXIT_DA
+021E EF              216             MOV A,R7
+021F 2430            217             ADD A,#30H
+0221 1203B0          218             LCALL LCMWR1
+0224 1B              219             DEC R3
+0225 74C0            220             MOV A,#0C0H
+0227 2B              221             ADD     A,R3
+0228 12039B          222             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+022B E6              223             MOV A,@R0
+022C 54F0            224             ANL A,#0F0H
+022E C4              225             SWAP A
+022F 2430            226             ADD A,#30H
+0231 1203B0          227             LCALL LCMWR1
+0234 1B              228             DEC R3
+0235 EB              229             MOV A,R3
+0236 9401            230             SUBB A,#1
+0238 6012            231             JZ GO3
+023A 74C0            232             MOV A,#0C0H
+023C 2B              233             ADD     A,R3
+023D 12039B          234             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+0240 742D            235             MOV A,#2DH ;"-"
+0242 1203B0          236             LCALL LCMWR1
+0245 08              237             INC R0
+0246 E8              238             MOV A,R0
+0247 9445            239             SUBB A,#45H
+0249 7001            240             JNZ GO3
+024B 08              241             INC R0
+024C                 242     GO3: 
+024C DBC2            243         DJNZ R3,NXT 
+024E                 244     EXIT_DA:
+024E 74C0            245             MOV     A,#0C0H
+0250 12039B          246             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+0253 7432            247             MOV A,#32H
+0255 1203B0          248             LCALL LCMWR1 
+0258 74C1            249             MOV     A,#0C1H
+025A 12039B          250             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+025D 7430            251             MOV A,#30H
+025F 1203B0          252             LCALL LCMWR1 
+A51 MACRO ASSEMBLER  DS18B20                                                              12/26/2021 19:50:29 PAGE     5
+
+0262 22              253     ret
+                     254     ;ÏÔÊ¾µÄÖ÷½çÃæ
+0263                 255     SHOW_MAIN:
+0263 E562            256         MOV A,MODEL;µ±Ä£Ê½0Ê±£¬ÏÔÊ¾Ö÷½çÃæ£¬·ñÔò£¬ÏÔÊ¾ÐÞ¸ÄÊ±¼ä½çÃæ£¬ÏÔÊ¾µÄÊÇÍ¬Ò»¸öÊý×éRCVDATA,ÐÞ
+                             ¸ÄÊ±¼äÊ±£¬Ö»ÓÃÈ¥¸Ä±äÀïÃæµÄ¸÷¸öÊý¼´¿É
+0265 6400            257             XRL A,#0
+0267 702B            258             JNZ GO_JUMP1
+                     259     ;ÏÔÊ¾"Mian"
+0269 748C            260             MOV     A,#8CH
+026B 12039B          261             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+026E 744D            262             MOV A,#4DH
+0270 1203B0          263             LCALL LCMWR1 
+0273 748D            264             MOV     A,#8DH
+0275 12039B          265             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+0278 7469            266             MOV A,#69H
+027A 1203B0          267             LCALL LCMWR1
+027D 748E            268             MOV     A,#8EH
+027F 12039B          269             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+0282 7461            270             MOV A,#61H
+0284 1203B0          271             LCALL LCMWR1 
+0287 748F            272             MOV     A,#8FH
+0289 12039B          273             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+028C 746E            274             MOV A,#6EH
+028E 1203B0          275             LCALL LCMWR1
+0291 1205D0          276         LCALL Read_Multiplebyte;¶ÁÈÕÆÚ
+0294                 277     GO_JUMP1:;Ä£Ê½1Ê±£¬ÏÔÊ¾¡°Stime¡±
+0294 E562            278         MOV A,MODEL
+0296 6401            279         XRL A,#1
+0298 7032            280             JNZ  GO_JUMP
+029A 748B            281             MOV     A,#8BH
+029C 12039B          282             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+029F 7453            283             MOV A,#53H
+02A1 1203B0          284             LCALL LCMWR1 
+02A4 748C            285             MOV     A,#8CH
+02A6 12039B          286             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+02A9 7474            287             MOV A,#74H
+02AB 1203B0          288             LCALL LCMWR1
+02AE 748D            289             MOV     A,#8DH
+02B0 12039B          290             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+02B3 7469            291             MOV A,#69H
+02B5 1203B0          292             LCALL LCMWR1
+02B8 748E            293             MOV     A,#8EH
+02BA 12039B          294             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+02BD 746D            295             MOV A,#6DH
+02BF 1203B0          296             LCALL LCMWR1 
+02C2 748F            297             MOV     A,#8FH
+02C4 12039B          298             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+02C7 7465            299             MOV A,#65H
+02C9 1203B0          300             LCALL LCMWR1 
+02CC                 301     GO_JUMP: ;ÏÔÊ¾ÎÂ¶È   
+02CC 120308          302             LCALL READTEMP
+02CF 74CB            303             MOV A,#0CBH
+02D1 12039B          304         LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+02D4 E523            305             MOV A,BAI
+02D6 1203B0          306             LCALL LCMWR1
+02D9 74CC            307             MOV A,#0CCH
+02DB 12039B          308         LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+02DE E524            309             MOV A,SHI
+02E0 1203B0          310             LCALL LCMWR1
+02E3 74CD            311             MOV A,#0CDH
+02E5 12039B          312             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+02E8 742E            313             MOV A,#02EH
+02EA 1203B0          314             LCALL LCMWR1
+02ED 74CE            315             MOV A,#0CEH
+02EF 12039B          316             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+02F2 E525            317             MOV  A,G_E
+A51 MACRO ASSEMBLER  DS18B20                                                              12/26/2021 19:50:29 PAGE     6
+
+02F4 1203B0          318             LCALL LCMWR1
+02F7 74CF            319             MOV A,#0CFH
+02F9 12039B          320             LCALL LCMWR0  ;Êý¾ÝÖ¸ÕëÉèÖÃ
+02FC 7443            321             MOV  A,#43h
+02FE 1203B0          322             LCALL LCMWR1
+0301 1201FA          323             LCALL show_DATE
+0304 120149          324             LCALL show_TIME
+0307 22              325             RET
+                     326     ;¶ÁÎÂ¶È  
+0308                 327     READTEMP:
+0308 7153            328         CALL DS18B20_Reset      ;Éè±¸¸´Î»
+030A 74CC            329         MOV A,#0CCH             ;Ìø¹ýROMÃüÁî
+030C 7183            330         CALL DS18B20_WriteByte  ;ËÍ³öÃüÁî
+030E 7444            331         MOV A,#044H             ;¿ªÊ¼×ª»»
+0310 7183            332         CALL DS18B20_WriteByte  ;ËÍ³öÃüÁî
+0312 30B7FD          333         JNB DQ,$                ;µÈ´ý×ª»»Íê³É
+                     334     
+0315 7153            335         CALL DS18B20_Reset      ;Éè±¸¸´Î»
+0317 74CC            336         MOV A,#0CCH             ;Ìø¹ýROMÃüÁî
+0319 7183            337         CALL DS18B20_WriteByte  ;ËÍ³öÃüÁî
+031B 74BE            338         MOV A,#0BEH             ;¶ÁÔÝ´æ´æ´¢Æ÷
+031D 7183            339         CALL DS18B20_WriteByte  ;ËÍ³öÃüÁî
+031F 7168            340         CALL DS18B20_ReadByte   ;¶ÁÎÂ¶ÈµÍ×Ö½Ú
+0321 F521            341         MOV TPL,A               ;´æ´¢Êý¾Ý
+0323 75F00A          342             MOV B,#10
+0326 84              343             DIV AB
+0327 C0E0            344             PUSH ACC
+0329 E5F0            345             MOV A,B
+032B 2430            346             ADD A,#30H
+032D F525            347             MOV G_E,A
+032F D0E0            348             POP ACC
+0331 75F00A          349             MOV B,#10
+0334 84              350             DIV AB
+0335 2430            351             ADD A,#30H
+0337 F523            352             MOV BAI,A
+0339 E5F0            353             MOV A,B
+033B 2430            354             ADD A,#30H
+033D F524            355             MOV SHI,A
+033F 7168            356         CALL DS18B20_ReadByte   ;¶ÁÎÂ¶È¸ß×Ö½Ú
+0341 F520            357         MOV TPH,A               ;´æ´¢Êý¾Ý
+0343 2523            358             ADD A,BAI
+0345 F523            359             MOV BAI,A
+0347 22              360             RET
+                     361     
+                     362     ;**************************************
+                     363     ;ÑÓÊ±X*10Î¢Ãë(STC90C52RC@12M)
+                     364     ;²»Í¬µÄ¹¤×÷»·¾³,ÐèÒªµ÷Õû´Ëº¯Êý
+                     365     ;Èë¿Ú²ÎÊý:R7
+                     366     ;³ö¿Ú²ÎÊý:ÎÞ
+                     367     ;**************************************
+0348                 368     DelayX0us:                  ;2 µ±¸ÄÓÃ1TµÄMCUÊ±,Çëµ÷Õû´ËÑÓÊ±º¯Êý
+0348 00              369         NOP                     ;1
+0349 00              370         NOP                     ;1
+034A 00              371         NOP                     ;1
+034B 00              372         NOP                     ;1
+034C 00              373         NOP                     ;1
+034D 00              374         NOP                     ;1
+034E 00              375         NOP                     ;1
+034F 00              376         NOP                     ;1
+0350 DFF6            377         DJNZ R7,DelayX0us       ;2
+0352 22              378         RET                     ;2
+                     379     
+                     380     ;**************************************
+                     381     ;¸´Î»DS18B20,²¢¼ì²âÉè±¸ÊÇ·ñ´æÔÚ
+                     382     ;Èë¿Ú²ÎÊý:ÎÞ
+                     383     ;³ö¿Ú²ÎÊý:ÎÞ
+A51 MACRO ASSEMBLER  DS18B20                                                              12/26/2021 19:50:29 PAGE     7
+
+                     384     ;**************************************
+0353                 385     DS18B20_Reset:
+0353 C2B7            386         CLR DQ                  ;ËÍ³öµÍµçÆ½¸´Î»ÐÅºÅ
+0355 7F30            387         MOV R7,#48              ;ÑÓÊ±ÖÁÉÙ480us
+0357 7148            388         CALL DelayX0us
+0359 D2B7            389         SETB DQ                 ;ÊÍ·ÅÊý¾ÝÏß
+035B 7F06            390         MOV R7,#6               ;µÈ´ý60us
+035D 7148            391         CALL DelayX0us
+035F A2B7            392         MOV C,DQ                ;¼ì²â´æÔÚÂö³å
+0361 7F2A            393         MOV R7,#42              ;µÈ´ýÉè±¸ÊÍ·ÅÊý¾ÝÏß
+0363 7148            394         CALL DelayX0us
+0365 40EC            395         JC DS18B20_Reset        ;Èç¹ûÉè±¸²»´æÔÚ,Ôò¼ÌÐøµÈ´ý
+0367 22              396         RET
+                     397     
+                     398     ;**************************************
+                     399     ;´ÓDS18B20¶Á1×Ö½ÚÊý¾Ý
+                     400     ;Èë¿Ú²ÎÊý:ÎÞ
+                     401     ;³ö¿Ú²ÎÊý:ACC
+                     402     ;**************************************
+0368                 403     DS18B20_ReadByte:
+0368 E4              404         CLR A
+0369 C000            405         PUSH 0
+036B 750008          406         MOV 0,#8                ;8Î»¼ÆÊýÆ÷
+036E                 407     ReadNext:
+036E C2B7            408         CLR DQ                  ;¿ªÊ¼Ê±¼äÆ¬
+0370 00              409         NOP
+0371 00              410         NOP
+0372 D2B7            411         SETB DQ                 ;×¼±¸½ÓÊÕ
+0374 00              412         NOP
+0375 00              413         NOP
+0376 A2B7            414         MOV C,DQ                ;¶ÁÈ¡Êý¾Ý
+0378 13              415         RRC A
+0379 7F06            416         MOV R7,#6               ;µÈ´ýÊ±¼äÆ¬½áÊø
+037B 7148            417         CALL DelayX0us
+037D D500EE          418         DJNZ 0,ReadNext
+0380 D000            419         POP 0
+0382 22              420         RET
+                     421     
+                     422     ;**************************************
+                     423     ;ÏòDS18B20Ð´1×Ö½ÚÊý¾Ý
+                     424     ;Èë¿Ú²ÎÊý:ACC
+                     425     ;³ö¿Ú²ÎÊý:ÎÞ
+                     426     ;**************************************
+0383                 427     DS18B20_WriteByte:
+0383 C000            428         PUSH 0 
+0385 750008          429         MOV 0,#8                ;8Î»¼ÆÊýÆ÷
+0388                 430     WriteNext:
+0388 C2B7            431         CLR DQ                  ;¿ªÊ¼Ê±¼äÆ¬
+038A 00              432         NOP
+038B 00              433         NOP
+038C 13              434         RRC A                   ;´ø½øÎ»ÓÖ»·ÒÆÖ¸Áî£¬Êä³öÊý¾Ý
+038D 92B7            435         MOV DQ,C
+038F 7F06            436         MOV R7,#6               ;µÈ´ýÊ±¼äÆ¬½áÊø
+0391 7148            437         CALL DelayX0us
+0393 D2B7            438         SETB DQ                 ;×¼±¸ËÍ³öÏÂÒ»Î»Êý¾Ý
+0395 D500F0          439         DJNZ 0,WriteNext
+0398 D000            440         POP 0
+039A 22              441         RET
+039B                 442     LCMWR0:      ;×ÖÐ´Ö¸Áî£¬RS=L,RW=L,Ö¸ÁîÂë£¬EN¸ßÂö³å   ÏÔÊ¾Ä£Ê½ÉèÖÃ
+039B C0E0            443             PUSH ACC
+039D C2A6            444             CLR LCMRS          ;rs=0Ê±£¬ÊäÈëÖ¸Áî
+039F C2A5            445             CLR LCMRW          ;rw=0Ê±£¬Ð´ÈëÐÅÏ¢
+03A1 F580            446             MOV LCMDATA,A
+03A3 1203EE          447             LCALL DELAY
+03A6 D2A7            448             SETB LCMEN         
+03A8 1203EE          449             LCALL DELAY
+A51 MACRO ASSEMBLER  DS18B20                                                              12/26/2021 19:50:29 PAGE     8
+
+03AB C2A7            450             CLR LCMEN          ;enÏÂ½µÑØÖ´ÐÐÖ¸Áî
+03AD D0E0            451             POP ACC
+03AF 22              452             RET
+                     453     
+03B0                 454     LCMWR1:   ;Ð´Êý¾Ý           
+03B0 C0E0            455             PUSH ACC              
+03B2 D2A6            456             SETB LCMRS         ;rs=1Ê±£¬ÊäÈëÊý¾Ý
+03B4 F580            457             MOV LCMDATA,A
+03B6 1203EE          458             LCALL DELAY
+03B9 D2A7            459             SETB LCMEN
+03BB 1203EE          460             LCALL DELAY        ;enÏÂ½µÑØÖ´ÐÐÖ¸Áî
+03BE C2A7            461             CLR LCMEN
+03C0 D0E0            462             POP ACC
+03C2 22              463             RET
+                     464     
+03C3                 465     LOOP1:
+03C3 E4              466             CLR A
+03C4 93              467             MOVC A,@A+DPTR
+03C5 6007            468             JZ LOOP2
+03C7 1203B0          469             LCALL LCMWR1
+03CA A3              470             INC DPTR
+03CB 0203C3          471             LJMP LOOP1
+03CE                 472     LOOP2:
+03CE 22              473         RET
+                     474     
+03CF                 475     LCD1602_INIT: 
+03CF C2A5            476             CLR LCMRW
+03D1 C2A7            477             CLR LCMEN            
+03D3 7438            478             MOV A,#38H                ;ÏÔÊ¾Ä£Ê½ÉèÖÃ
+03D5 12039B          479             LCALL LCMWR0
+03D8 740C            480             MOV A,#0CH                ;ÏÔÊ¾¿ª¼°¹â±êÉèÖÃ
+03DA 12039B          481             LCALL LCMWR0
+03DD 7406            482             MOV A,#06H                ;ÏÔÊ¾¹â±êÒÆ¶¯ÉèÖÃ
+03DF 12039B          483             LCALL LCMWR0
+03E2 7401            484             MOV A,#01H                ;ÏÔÊ¾ÇåÆÁ
+03E4 12039B          485             LCALL LCMWR0
+03E7 22              486             RET
+                     487     
+03E8                 488     LCMCLR:                           
+03E8 7401            489             MOV A,#01H
+03EA 12039B          490             LCALL LCMWR0
+03ED 22              491             RET
+                     492     
+03EE                 493     DELAY:
+03EE 7E0A            494         MOV R6,#10           ;ÑÓ³Ù
+03F0                 495     D1:  
+03F0 7FF8            496         MOV R7,#248
+03F2 DFFE            497             DJNZ R7,$
+03F4 DEFA            498             DJNZ R6,D1
+03F6 22              499             RET
+03F7                 500     delayy00us:
+03F7 7E01            501         mov r6,#1
+03F9                 502     Delay00us:                  ;2 µ±¸ÄÓÃ1TµÄMCUÊ±,Çëµ÷Õû´ËÑÓÊ±º¯Êý
+03F9 00              503         NOP                     ;1
+03FA 00              504         NOP                     ;1
+03FB 00              505         NOP                     ;1
+03FC 00              506         NOP                     ;1
+03FD 00              507         NOP                     ;1
+03FE 00              508         NOP                     ;1
+03FF 00              509         NOP                     ;1
+0400 00              510         NOP                     ;1
+0401 DEF6            511         DJNZ R6,Delay00us       ;2
+0403 7E0A            512             mov r6,#10
+0405 DFF2            513         DJNZ R7,Delay00us       ;2
+0407 22              514         RET                     ;2
+                     515     ;¶ÁÈ¡Ò£¿ØÆ÷¼üÖµ
+A51 MACRO ASSEMBLER  DS18B20                                                              12/26/2021 19:50:29 PAGE     9
+
+0408                 516     READKEY:
+0408 7F53            517         MOV R7,#83;9.23MS   9.0MSµÍµçÆ½
+040A 1203F7          518             lcall delayy00us
+040D 30B24A          519             JNB P3.2,BACK2;Èç¹û»¹ÊÇµÍµçÆ½£¬ÉáÆú
+0410 7F29            520         MOV R7,#41;4.4MS   ¾­¹ý4.3msÖ®ºó£¬»¹ÊÇ¸ßµçÆ½ 
+0412 1203F7          521             lcall delayy00us
+0415 20B242          522             JB P3.2,BACK2;µÈ´ý¸ßµçÆ½½áÊø     ¾­¹ý4.3msÖ®ºó£¬»¹ÊÇ¸ßµçÆ½
+0418 12051A          523         LCALL READ1838     ;¶ÁµØÖ·Âë
+041B F526            524         MOV DATA0,A
+041D 12051A          525         LCALL READ1838     ;¶ÁµØÖ··´Âë
+0420 F527            526         MOV DATA1,A
+0422 12051A          527         LCALL READ1838     ;¶ÁÃüÁîÂë
+0425 F528            528         MOV DATA2,A
+0427 12051A          529         LCALL READ1838     ;¶ÁÃüÁî·´Âë
+042A F529            530         MOV DATA3,A
+                     531      
+042C E528            532         MOV A,DATA2
+042E 6446            533             XRL A,#46H   ;MODE¼ü
+0430 6068            534             JZ MODEL_CHAN1 
+0432 E528            535         MOV A,DATA2
+0434 6443            536             XRL A,#43H       ;>>¼ü
+0436 605F            537             JZ adress_miu1;Ö¸Õë¼õ
+0438 E528            538         MOV A,DATA2
+043A 6440            539             XRL A,#40H       ;<<¼ü
+043C 6056            540             JZ adress_add1;Ö¸Õë¼Ó
+043E E528            541         MOV A,DATA2
+0440 6409            542             XRL A,#09H  ;¡±+¡°
+0442 6059            543             JZ num_add;Êý×Ö¼Ó
+0444 E528            544         MOV A,DATA2
+0446 6415            545             XRL A,#15H  ;"-"
+0448 6002            546             JZ num_miu;Êý×Ö¼õ
+044A 800E            547         jmp BACK2
+044C                 548     num_miu:
+044C E562            549         MOV A,MODEL
+044E 6401            550             XRL A,#1;Ä£Ê½Ò»£¬ÐÞ¸ÄÊ±¼ä
+0450 6009            551             JZ ADJUST_TIMEmiu
+0452 E562            552         MOV A,MODEL
+0454 6402            553             XRL A,#2
+0456 602A            554             JZ ADJUST_CLKmiu;Ä£Ê½2£¬ÐÞ¸ÄÄÖÖÓ
+0458 8000            555             jmp BACK2
+045A                 556     BACK2:
+045A 22              557         ret
+045B                 558     ADJUST_TIMEmiu:
+045B 8968            559         mov zhongzhuan,r1
+045D AA60            560             MOV R2,NUMT
+045F 7940            561             MOV R1,#RcvDat;»ùµØÖ·¼ÓÆ«ÒÆÁ¿
+0461                 562     GO521:
+0461 09              563             INC R1
+0462 DAFD            564             DJNZ R2,GO521
+0464 E7              565             MOV A,@R1
+0465 9401            566             subb a,#1
+0467 D4              567             DA A;Ê®½øÖÆµ÷Õû
+0468 F7              568             MOV @R1,A
+0469 A968            569             mov r1,zhongzhuan
+046B 12058F          570         LCALL Write_Enable
+046E 8868            571             mov zhongzhuan,r0
+0470 7840            572             MOV R0,#RcvDat; Êý¾ÝµØÖ·¸²¸ø R0
+0472 12059D          573             LCALL Write_Multiplebyte
+0475 1205A6          574             LCALL Write_Disable
+0478 755000          575             MOV XmtDat,#00h; Ãëµ¥ÔªÄÚÈÝÎª 00h
+047B 755617          576             MOV XmtDat+6,#17H; Äêµ¥ÔªÄÚÈÝÎª 17h
+047E A868            577             mov r0,zhongzhuan
+0480 80D8            578             jmp BACK2
+0482                 579     ADJUST_CLKmiu:
+0482 8968            580         mov zhongzhuan,r1
+0484 AA60            581             MOV R2,NUMT
+A51 MACRO ASSEMBLER  DS18B20                                                              12/26/2021 19:50:29 PAGE    10
+
+0486 7950            582             MOV R1,#XmtDat;»ùµØÖ·¼ÓÆ«ÒÆÁ¿
+0488                 583     GO593:
+0488 09              584             INC R1
+0489 DAFD            585             DJNZ R2,GO593
+048B E7              586             MOV A,@R1
+048C 9401            587             subb a,#1
+048E D4              588             DA A;Ê®½øÖÆµ÷Õû
+048F F7              589             MOV @R1,A
+0490 A968            590             mov r1,zhongzhuan
+0492 80C6            591          jmp BACK2
+0494                 592     adress_add1:
+0494 0204F7          593         ljmp adress_add
+0497                 594     adress_miu1:
+0497 0204E5          595         ljmp adress_miu
+049A                 596     MODEL_CHAN1:
+049A 020509          597         ljmp MODEL_CHAN
+049D                 598     num_add:
+049D E562            599         MOV A,MODEL
+049F 6401            600             XRL A,#1;Ä£Ê½Ò»£¬ÐÞ¸ÄÊ±¼ä
+04A1 6008            601             JZ ADJUST_TIMEADD
+04A3 E562            602         MOV A,MODEL
+04A5 6402            603             XRL A,#2
+04A7 6029            604             JZ ADJUST_CLKADD;Ä£Ê½2£¬ÐÞ¸ÄÄÖÖÓ
+04A9 8039            605             jmp BACK1
+04AB                 606     ADJUST_TIMEADD:
+04AB 8968            607         mov zhongzhuan,r1
+04AD AA60            608             MOV R2,NUMT
+04AF 7940            609             MOV R1,#RcvDat;»ùµØÖ·¼ÓÆ«ÒÆÁ¿
+04B1                 610     GO626:
+04B1 09              611             INC R1
+04B2 DAFD            612             DJNZ R2,GO626
+04B4 E7              613             MOV A,@R1
+04B5 2401            614             add a,#1
+04B7 D4              615             DA A;Ê®½øÖÆµ÷Õû
+04B8 F7              616             MOV @R1,A
+04B9 A968            617             mov r1,zhongzhuan
+04BB 12058F          618         LCALL Write_Enable
+04BE 8868            619             mov zhongzhuan,r0
+04C0 7840            620             MOV R0,#RcvDat; Êý¾ÝµØÖ·¸²¸ø R0
+04C2 12059D          621             LCALL Write_Multiplebyte
+04C5 1205A6          622             LCALL Write_Disable
+04C8 755000          623             MOV XmtDat,#00h; Ãëµ¥ÔªÄÚÈÝÎª 00h
+04CB 755617          624             MOV XmtDat+6,#17H; Äêµ¥ÔªÄÚÈÝÎª 17h
+04CE A868            625             mov r0,zhongzhuan
+04D0 8012            626             jmp BACK1
+04D2                 627     ADJUST_CLKADD:
+04D2 8968            628         mov zhongzhuan,r1
+04D4 AA60            629             MOV R2,NUMT
+04D6 7950            630             MOV R1,#XmtDat;»ùµØÖ·¼ÓÆ«ÒÆÁ¿
+04D8                 631     GO647:
+04D8 09              632             INC R1
+04D9 DAFD            633             DJNZ R2,GO647
+04DB E7              634             MOV A,@R1
+04DC 2401            635             add a,#1
+04DE D4              636             DA A;Ê®½øÖÆµ÷Õû
+04DF F7              637             MOV @R1,A
+04E0 A968            638             mov r1,zhongzhuan
+04E2 8000            639             jmp BACK1
+04E4                 640     BACK1:
+04E4 22              641         RET
+04E5                 642     adress_miu:
+04E5 E560            643         MOV A,NUMT
+04E7 6401            644             XRL A,#1
+04E9 6007            645             JZ ZERO1
+04EB E560            646         MOV A,NUMT
+04ED 14              647             DEC A
+A51 MACRO ASSEMBLER  DS18B20                                                              12/26/2021 19:50:29 PAGE    11
+
+04EE F560            648         MOV NUMT,A
+04F0 8027            649             jmp BACK
+04F2                 650     ZERO1: 
+04F2 756005          651         MOV NUMT,#5
+04F5 8022            652             jmp BACK
+04F7                 653     adress_add:
+04F7 E560            654         MOV A,NUMT
+04F9 6405            655             XRL A,#5
+04FB 6007            656             JZ ZERO
+04FD E560            657         MOV A,NUMT
+04FF 04              658             INC A
+0500 F560            659         MOV NUMT,A
+0502 8015            660             jmp BACK
+0504                 661     ZERO: 
+0504 756001          662         MOV NUMT,#1
+0507 8010            663             jmp BACK
+0509                 664     MODEL_CHAN:
+0509 1203E8          665             LCALL LCMCLR  ;ÏÔÊ¾ÇåÆÁ
+050C E562            666         MOV A,MODEL
+050E 04              667             INC A
+050F FD              668             MOV R5,A
+0510 6403            669             XRL A,#3
+0512 7003            670             Jnz GOEXIT10
+0514 7400            671             MOV A,#0
+0516 FD              672             MOV R5,A
+0517                 673     GOEXIT10:
+0517 8D67            674         MOV NUM,R5   
+0519                 675     BACK:
+0519 22              676         RET
+051A                 677     READ1838:
+051A 7A08            678         MOV R2,#08
+051C                 679     PP:    
+051C 30B2FD          680             JNB P3.2,$;µÈ´ý¸ßµçÆ½£¬B±ÈÌØ
+051F 7F07            681             MOV R7,#7;ÑÓ³Ù0.7ms,Èô»¹ÊÇ¸ßµçÆ½£¬1
+0521 1203F7          682             lcall delayy00us
+0524 20B206          683             JB P3.2,ONE
+0527 C3              684         CLR C
+0528 C290            685             clr p1.0
+052A 13              686         RRC A
+052B A136            687         AJMP S
+052D D3              688     ONE:SETB C
+052E 13              689         RRC A  ;µÍÎ»ÔÚÇ°
+052F 7F0A            690             MOV R7,#10;ÑÓ³Ù1.0ms,µÈ¸ßµçÆ½¹ýÈ¥
+0531 D290            691             setb p1.0
+0533 1203F7          692             lcall delayy00us
+0536 DAE4            693     S:DJNZ R2,PP      
+0538 22              694       RET
+0539                 695     DELAY2:   ;Îó²î -0.347835623697us 0.78
+0539 7E8F            696         MOV R6,#8FH
+053B                 697     DL20:
+053B 7D01            698         MOV R5,#01H
+053D DDFE            699         DJNZ R5,$
+053F DEFA            700         DJNZ R6,DL20
+0541 22              701         RET
+0542                 702     INT:
+0542 C2AF            703         CLR EA;¹Ø±ÕÖÐ¶Ï
+0544 C0D0            704             PUSH PSW;±£»¤ÏÖ³¡
+0546 120408          705             LCALL READKEY
+0549 D0D0            706             POP PSW
+054B D2AF            707             SETB EA;´ò¿ªÖÐ¶Ï
+054D 32              708     RETI
+054E                 709     TIM0:
+054E 758C3C          710             MOV TH0,#3ch
+0551 758AAF          711             MOV TL0,#0afh;×°³õÖµ
+0554 E568            712         mov a,count
+0556 04              713             inc a
+A51 MACRO ASSEMBLER  DS18B20                                                              12/26/2021 19:50:29 PAGE    12
+
+0557 F568            714             mov count,a
+0559 640A            715             xrl a,#10
+055B 7007            716             jnz exit712
+055D B291            717             cpl p1.1
+055F B292            718             cpl p1.2
+0561 756800          719             mov count,#0
+0564                 720     exit712:
+0564 32              721     RETI
+0565                 722     DS_1302INIT:
+0565 12058F          723         LCALL Write_Enable
+0568 7850            724             MOV R0,#XmtDat; Êý¾ÝµØÖ·¸²¸ø R0
+056A 755000          725             MOV XmtDat,#00h; Ãëµ¥ÔªÄÚÈÝÎª 00h
+056D 755110          726             MOV XmtDat+1,#10h; ·Öµ¥ÔªÄÚÈÝÎª 10h
+0570 755208          727             MOV XmtDat+2,#08h; Ê±µ¥ÔªÄÚÈÝÎª 08h
+0573 755307          728             MOV XmtDat+3,#07h; ÈÕÆÚµ¥ÔªÄÚÈÝÎª 07h
+0576 755412          729             MOV XmtDat+4,#12h; ÔÂµ¥ÔªÄÚÈÝÎª 12h
+0579 755504          730             MOV XmtDat+5,#04h; ÐÇÆÚµ¥ÔªÄÚÈÝÎª 04h
+057C 755617          731             MOV XmtDat+6,#17H; Äêµ¥ÔªÄÚÈÝÎª 17h
+057F 755700          732             MOV XmtDat+7,#00; Ð´±£»¤µ¥ÔªÄÚÈÝÎª 00h
+0582 12059D          733             LCALL Write_Multiplebyte
+0585 1205A6          734             LCALL Write_Disable
+0588 755000          735             MOV XmtDat,#00h; Ãëµ¥ÔªÄÚÈÝÎª 00h
+058B 755617          736             MOV XmtDat+6,#17H; Äêµ¥ÔªÄÚÈÝÎª 17h
+058E 22              737     RET
+058F                 738     Write_Enable:
+058F 75328E          739             MOV Command,#8Eh ;ÃüÁî×Ö½ÚÎª 8E
+0592 753101          740             MOV ByteCnt,#1 ;µ¥×Ö½Ú´«ËÍÄ£Ê½
+0595 7850            741             MOV R0,#XmtDat; Êý¾ÝµØÖ·¸²¸ø R0
+0597 755000          742             MOV XmtDat,#00h; Êý¾ÝÄÚÈÝÎª 0 Ð´ÈëÔÊÐí
+059A B1E9            743             ACALL Send_Byte; µ÷ÓÃÐ´ÈëÊý¾Ý×Ó³ÌÐò
+059C 22              744     RET; ·µ»Øµ÷ÓÃ±¾×Ó³ÌÐò´¦
+059D                 745     Write_Multiplebyte:
+059D 7532BE          746             MOV Command,#0BEh ;ÃüÁî×Ö½ÚÎª BEh
+05A0 753108          747             MOV ByteCnt,#8 ;¶à×Ö½ÚÐ´ÈëÄ£Ê½ ´ËÄ£¿éÎª 8 ¸ö
+05A3 B1E9            748             ACALL Send_Byte; µ÷ÓÃÐ´ÈëÊý¾Ý×Ó³ÌÐò
+05A5 22              749     RET; ·µ»Øµ÷ÓÃ±¾×Ó³ÌÐò´¦
+05A6                 750     Write_Disable:
+05A6 75328E          751             MOV Command,#8Eh ;ÃüÁî×Ö½ÚÎª 8E
+05A9 753101          752             MOV ByteCnt,#1 ;µ¥×Ö½Ú´«ËÍÄ£Ê½
+05AC 7850            753             MOV R0,#XmtDat; Êý¾ÝµØÖ·¸²¸ø R0
+05AE 755080          754             MOV XmtDat,#80h; Êý¾ÝÄÚÈÝÎª 80h ½ûÖ¹Ð´Èë
+05B1 B1E9            755             ACALL Send_Byte; µ÷ÓÃÐ´ÈëÊý¾Ý×Ó³ÌÐò
+05B3 22              756     RET; ·µ»Øµ÷ÓÃ±¾×Ó³ÌÐò´¦
+05B4                 757     Osc_Enable:
+05B4 753280          758             MOV Command,#80h ; ÃüÁî×Ö½ÚÎª 80
+05B7 753101          759             MOV ByteCnt,#1 ; µ¥×Ö½Ú´«ËÍÄ£Ê½
+05BA 7850            760             MOV R0,#XmtDat; Êý¾ÝµØÖ·¸²¸ø R0
+05BC 755000          761             MOV XmtDat,#00h; Êý¾ÝÄÚÈÝÎª 0 Õñµ´Æ÷¹¤×÷ÔÊÐí
+05BF B1E9            762             ACALL Send_Byte; µ÷ÓÃÐ´ÈëÊý¾Ý×Ó³ÌÐò
+05C1 22              763     RET; ·µ»Øµ÷ÓÃ±¾×Ó³ÌÐò´¦
+05C2                 764     Osc_Disable:
+05C2 753280          765             MOV Command,#80h ;ÃüÁî×Ö½ÚÎª 80
+05C5 753101          766             MOV ByteCnt,#1 ;µ¥×Ö½Ú´«ËÍÄ£Ê½
+05C8 7850            767             MOV R0,#XmtDat; Êý¾ÝµØÖ·¸²¸ø R0
+05CA 755080          768             MOV XmtDat,#80h; Êý¾ÝÄÚÈÝÎª 80h Õñµ´Æ÷Í£Ö¹
+05CD B1E9            769             ACALL Send_Byte; µ÷ÓÃÐ´ÈëÊý¾Ý×Ó³ÌÐò
+05CF 22              770     RET; ·µ»Øµ÷ÓÃ±¾×Ó³ÌÐò´¦
+05D0                 771     Read_Multiplebyte:
+05D0 7532BF          772             MOV Command,#0BFh ;ÃüÁî×Ö½ÚÎª BFh
+05D3 753108          773             MOV ByteCnt,#8 ;¶à×Ö½Ú¶Á³öÄ£Ê½ ´ËÄ£¿éÎª 8 ¸ö
+05D6 7940            774             MOV R1,#RcvDat; Êý¾ÝµØÖ·¸²¸ø R1
+05D8 D11C            775             ACALL Receive_Byte; µ÷ÓÃ¶Á³öÊý¾Ý×Ó³ÌÐò
+05DA 22              776     RET
+05DB                 777     Write_Singlebyte:
+05DB 753284          778             MOV Command,#84h ; ÃüÁî×Ö½ÚÎª 84h
+05DE 753101          779             MOV ByteCnt,#1 ; µ¥×Ö½Ú´«ËÍÄ£Ê½
+A51 MACRO ASSEMBLER  DS18B20                                                              12/26/2021 19:50:29 PAGE    13
+
+05E1 7850            780             MOV R0,#XmtDat; Êý¾ÝµØÖ·¸²¸ø R0
+05E3 755088          781             MOV XmtDat,#88h; Êý¾ÝÄÚÈÝÎª 88h
+05E6 B1E9            782             ACALL Send_Byte; µ÷ÓÃÐ´ÈëÊý¾Ý×Ó³ÌÐò
+05E8 22              783     RET
+                     784     ;******************************************************************************************
+                             **
+                     785     ;·¢ËÍÊý¾Ý³ÌÐò
+                     786     ;Ãû³Æ:Send_Byte
+                     787     ;ÃèÊö:·¢ËÍ ByteCnt ¸ö×Ö½Ú¸ø±»¿ØÆ÷ DS1302
+                     788     ;ÃüÁî×Ö½ÚµØÖ·ÔÚ Command ÖÐ
+                     789     ;Ëù·¢ËÍÊý¾ÝµÄ×Ö½ÚÊýÔÚ ByteCnt ÖÐ ·¢ËÍµÄÊý¾ÝÔÚ XmtDat »º³åÇøÖÐ
+                     790     ;******************************************************************************************
+                             **
+05E9                 791     Send_Byte:
+05E9 C2B5            792     CLR RST ;¸´Î»Òý½ÅÎªµÍµçÆ½ ËùÓÐÊý¾Ý´«ËÍÖÕÖ¹
+05EB 00              793     NOP
+05EC C2B6            794     CLR SCLK  ;ÇåÊ±ÖÓ×ÜÏß
+05EE 00              795     NOP
+05EF D2B5            796     SETB RST ;¸´Î»Òý½ÅÎª¸ßµçÆ½ Âß¼­¿ØÖÆÓÐÐ§
+05F1 00              797     NOP
+05F2 E532            798     MOV A,Command
+05F4 753008          799     MOV BitCnt,#08h
+05F7                 800     S_Byte0:
+05F7 13              801     RRC A; ½«×îµÍÎ»´«ËÍ¸ø½øÎ»Î» C
+05F8 92B4            802     MOV IO_DATA,C; Î»´«ËÍÖÁÊý¾Ý×ÜÏß
+05FA 00              803     NOP
+05FB D2B6            804     SETB SCLK; Ê±ÖÓÉÏÉýÑØ ·¢ËÍÊý¾ÝÓÐÐ§
+05FD 00              805     NOP
+05FE C2B6            806     CLR SCLK; ÇåÊ±ÖÓ×ÜÏß
+0600 D530F4          807     DJNZ BitCnt,S_Byte0; Î»´«ËÍÎ´Íê±ÏÔò¼ÌÐø
+0603 00              808     NOP
+0604                 809     S_Byte1:; ×¼±¸·¢ËÍÊý¾Ý
+0604 E6              810     MOV A,@R0; ´«ËÍÊý¾Ý ¹ý³ÌÓë´«ËÍÃüÁîÏàÍ¬
+0605 753008          811     MOV BitCnt,#08h
+0608                 812     S_Byte2:
+0608 13              813     RRC A
+0609 92B4            814     MOV IO_DATA,C
+060B 00              815     NOP
+060C D2B6            816     SETB SCLK
+060E 00              817     NOP
+060F C2B6            818     CLR SCLK
+0611 D530F4          819     DJNZ BitCnt,S_Byte2
+0614 08              820     INC R0; ·¢ËÍÊý¾ÝµÄÄÚ´æµØÖ·¼Ó 1
+0615 D531EC          821     DJNZ ByteCnt,S_Byte1; ×Ö½Ú´«ËÍÎ´Íê±ÏÔò¼ÌÐø
+0618 00              822     NOP
+0619 C2B5            823     CLR RST; Âß¼­²Ù×÷Íê±Ï Çå RST
+061B 22              824     RET
+                     825     ;***************************************************************************************
+                     826     ;½ÓÊÕÊý¾Ý³ÌÐò;
+                     827     ;Ãû³Æ:Receive_Byte
+                     828     ;ÃèÊö:´Ó±»¿ØÆ÷ DS1302 ½ÓÊÕ ByteCnt ¸ö×Ö½ÚÊý¾Ý
+                     829     ;ÃüÁî×Ö½ÚµØÖ·ÔÚ Command ÖÐ
+                     830     ;Ëù½ÓÊÕÊý¾ÝµÄ×Ö½ÚÊýÔÚ ByteCnt ÖÐ ½ÓÊÕµÄÊý¾ÝÔÚ RcvDat »º³åÇøÖÐ
+                     831     ;***********************************************************************************
+061C                 832     Receive_Byte:
+061C C2B5            833     CLR RST ;¸´Î»Òý½ÅÎªµÍµçÆ½ ËùÓÐÊý¾Ý´«ËÍÖÕÖ¹
+061E 00              834     NOP
+061F C2B6            835     CLR SCLK; ÇåÊ±ÖÓ×ÜÏß
+0621 00              836     NOP
+0622 D2B5            837     SETB RST ;¸´Î»Òý½ÅÎª¸ßµçÆ½ Âß¼­¿ØÖÆÓÐÐ§
+0624 E532            838     MOV A,Command; ×¼±¸·¢ËÍÃüÁî×Ö½Ú
+0626 753008          839     MOV BitCnt,#08h; ´«ËÍÎ»ÊýÎª 8
+0629                 840     R_Byte0:
+0629 13              841     RRC A; ½«×îµÍÎ»´«ËÍ¸ø½øÎ»Î» C
+062A 92B4            842     MOV IO_DATA,C; Î»´«ËÍÖÁÊý¾Ý×ÜÏß
+062C 00              843     NOP
+A51 MACRO ASSEMBLER  DS18B20                                                              12/26/2021 19:50:29 PAGE    14
+
+062D D2B6            844     SETB SCLK; Ê±ÖÓÉÏÉýÑØ ·¢ËÍÊý¾ÝÓÐÐ§
+062F 00              845     NOP
+0630 C2B6            846     CLR SCLK; ÇåÊ±ÖÓ×ÜÏß
+0632 D530F4          847     DJNZ BitCnt,R_Byte0; Î»´«ËÍÎ´Íê±ÏÔò¼ÌÐø
+0635 00              848     NOP
+0636                 849     R_Byte1:; ×¼±¸½ÓÊÕÊý¾Ý
+0636 E4              850     CLR A; ÇåÀà¼ÓÆ÷
+0637 C3              851     CLR C; Çå½øÎ»Î» C
+0638 753008          852     MOV BitCnt,#08h; ½ÓÊÕÎ»ÊýÎª 8
+063B                 853     R_Byte2:
+063B 00              854     NOP
+063C A2B4            855     MOV C,IO_DATA; Êý¾Ý×ÜÏßÉÏµÄÊý¾Ý´«ËÍ¸ø C
+063E 13              856     RRC A; ´Ó×îµÍÎ»½ÓÊÕÊý¾Ý
+063F D2B6            857     SETB SCLK; Ê±ÖÓ×ÜÏßÖÃ¸ß
+0641 00              858     NOP
+0642 C2B6            859     CLR SCLK; Ê±ÖÓÏÂ½µÑØ½ÓÊÕÊý¾ÝÓÐÐ§
+0644 D530F4          860     DJNZ BitCnt,R_Byte2; Î»½ÓÊÕÎ´Íê±ÏÔò¼ÌÐø
+0647 F7              861     MOV @R1,A; ½ÓÊÕµ½µÄÍêÕûÊý¾Ý×Ö½Ú·ÅÈë½ÓÊÕÄÚ´æ»º³åÇø
+0648 09              862     INC R1; ½ÓÊÕÊý¾ÝµÄÄÚ´æµØÖ·¼Ó 1
+0649 D531EA          863     DJNZ ByteCnt,R_Byte1; ×Ö½Ú½ÓÊÕÎ´Íê±ÏÔò¼ÌÐø
+064C 00              864     NOP
+064D C2B5            865     CLR RST; Âß¼­²Ù×÷Íê±Ï Çå RST
+064F 22              866     RET
+                     867     ;==========================================================================================
+                             ===
+                     868     END
+A51 MACRO ASSEMBLER  DS18B20                                                              12/26/2021 19:50:29 PAGE    15
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+ACC. . . . . . . .  D ADDR   00E0H   A   
+ADJUST_CLKADD. . .  C ADDR   04D2H   A   
+ADJUST_CLKMIU. . .  C ADDR   0482H   A   
+ADJUST_TIMEADD . .  C ADDR   04ABH   A   
+ADJUST_TIMEMIU . .  C ADDR   045BH   A   
+ADRESS_ADD . . . .  C ADDR   04F7H   A   
+ADRESS_ADD1. . . .  C ADDR   0494H   A   
+ADRESS_MIU . . . .  C ADDR   04E5H   A   
+ADRESS_MIU1. . . .  C ADDR   0497H   A   
+B. . . . . . . . .  D ADDR   00F0H   A   
+BACK . . . . . . .  C ADDR   0519H   A   
+BACK1. . . . . . .  C ADDR   04E4H   A   
+BACK2. . . . . . .  C ADDR   045AH   A   
+BAI. . . . . . . .  D ADDR   0023H   A   
+BITCNT . . . . . .  D ADDR   0030H   A   
+BYTECNT. . . . . .  D ADDR   0031H   A   
+COMMAND. . . . . .  D ADDR   0032H   A   
+COUNT. . . . . . .  D ADDR   0068H   A   
+D1 . . . . . . . .  C ADDR   03F0H   A   
+DATA0. . . . . . .  D ADDR   0026H   A   
+DATA1. . . . . . .  D ADDR   0027H   A   
+DATA2. . . . . . .  D ADDR   0028H   A   
+DATA3. . . . . . .  D ADDR   0029H   A   
+DELAY. . . . . . .  C ADDR   03EEH   A   
+DELAY00US. . . . .  C ADDR   03F9H   A   
+DELAY2 . . . . . .  C ADDR   0539H   A   
+DELAYX00US . . . .  C ADDR   01E4H   A   
+DELAYX0US. . . . .  C ADDR   0348H   A   
+DELAYY00US . . . .  C ADDR   03F7H   A   
+DL20 . . . . . . .  C ADDR   053BH   A   
+DQ . . . . . . . .  B ADDR   00B0H.7 A   
+DS18B20_READBYTE .  C ADDR   0368H   A   
+DS18B20_RESET. . .  C ADDR   0353H   A   
+DS18B20_WRITEBYTE.  C ADDR   0383H   A   
+DS_1302INIT. . . .  C ADDR   0565H   A   
+EA . . . . . . . .  B ADDR   00A8H.7 A   
+ET0. . . . . . . .  B ADDR   00A8H.1 A   
+EX0. . . . . . . .  B ADDR   00A8H.0 A   
+EXIT712. . . . . .  C ADDR   0564H   A   
+EXIT_DA. . . . . .  C ADDR   024EH   A   
+EXIT_ST. . . . . .  C ADDR   01B9H   A   
+GO3. . . . . . . .  C ADDR   024CH   A   
+GO4. . . . . . . .  C ADDR   01B7H   A   
+GO521. . . . . . .  C ADDR   0461H   A   
+GO593. . . . . . .  C ADDR   0488H   A   
+GO626. . . . . . .  C ADDR   04B1H   A   
+GO647. . . . . . .  C ADDR   04D8H   A   
+GO84 . . . . . . .  C ADDR   013CH   A   
+GOEXIT10 . . . . .  C ADDR   0517H   A   
+GO_JUMP. . . . . .  C ADDR   02CCH   A   
+GO_JUMP1 . . . . .  C ADDR   0294H   A   
+G_E. . . . . . . .  D ADDR   0025H   A   
+IN0. . . . . . . .  B ADDR   00B0H.2 A   
+INT. . . . . . . .  C ADDR   0542H   A   
+IO_DATA. . . . . .  B ADDR   00B0H.4 A   
+IT0. . . . . . . .  B ADDR   0088H.0 A   
+JJ . . . . . . . .  C ADDR   01D5H   A   
+LCD1602_INIT . . .  C ADDR   03CFH   A   
+LCMCLR . . . . . .  C ADDR   03E8H   A   
+LCMDATA. . . . . .  D ADDR   0080H   A   
+A51 MACRO ASSEMBLER  DS18B20                                                              12/26/2021 19:50:29 PAGE    16
+
+LCMEN. . . . . . .  B ADDR   00A0H.7 A   
+LCMRS. . . . . . .  B ADDR   00A0H.6 A   
+LCMRW. . . . . . .  B ADDR   00A0H.5 A   
+LCMWR0 . . . . . .  C ADDR   039BH   A   
+LCMWR1 . . . . . .  C ADDR   03B0H   A   
+LOOP1. . . . . . .  C ADDR   03C3H   A   
+LOOP2. . . . . . .  C ADDR   03CEH   A   
+MAIN . . . . . . .  C ADDR   0100H   A   
+MODEL. . . . . . .  D ADDR   0062H   A   
+MODEL_CHAN . . . .  C ADDR   0509H   A   
+MODEL_CHAN1. . . .  C ADDR   049AH   A   
+MORNING. . . . . .  C ADDR   01CBH   A   
+NUM. . . . . . . .  D ADDR   0067H   A   
+NUMT . . . . . . .  D ADDR   0060H   A   
+NUM_ADD. . . . . .  C ADDR   049DH   A   
+NUM_MIU. . . . . .  C ADDR   044CH   A   
+NXT. . . . . . . .  C ADDR   0210H   A   
+NXT1 . . . . . . .  C ADDR   0181H   A   
+NXT2 . . . . . . .  C ADDR   017DH   A   
+NXT3 . . . . . . .  C ADDR   0209H   A   
+ONE. . . . . . . .  C ADDR   052DH   A   
+OSC_DISABLE. . . .  C ADDR   05C2H   A   
+OSC_ENABLE . . . .  C ADDR   05B4H   A   
+OUT84. . . . . . .  C ADDR   0147H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+P3 . . . . . . . .  D ADDR   00B0H   A   
+PP . . . . . . . .  C ADDR   051CH   A   
+PSW. . . . . . . .  D ADDR   00D0H   A   
+PX0. . . . . . . .  B ADDR   00B8H.0 A   
+RCVDAT . . . . . .  D ADDR   0040H   A   
+READ1838 . . . . .  C ADDR   051AH   A   
+READKEY. . . . . .  C ADDR   0408H   A   
+READNEXT . . . . .  C ADDR   036EH   A   
+READTEMP . . . . .  C ADDR   0308H   A   
+READ_MULTIPLEBYTE.  C ADDR   05D0H   A   
+RECEIVE_BYTE . . .  C ADDR   061CH   A   
+RST. . . . . . . .  B ADDR   00B0H.5 A   
+R_BYTE0. . . . . .  C ADDR   0629H   A   
+R_BYTE1. . . . . .  C ADDR   0636H   A   
+R_BYTE2. . . . . .  C ADDR   063BH   A   
+S. . . . . . . . .  C ADDR   0536H   A   
+SCLK . . . . . . .  B ADDR   00B0H.6 A   
+SEND_BYTE. . . . .  C ADDR   05E9H   A   
+SHI. . . . . . . .  D ADDR   0024H   A   
+SHOW_DATE. . . . .  C ADDR   01FAH   A   
+SHOW_MAIN. . . . .  C ADDR   0263H   A   
+SHOW_TIME. . . . .  C ADDR   0149H   A   
+SING . . . . . . .  C ADDR   01E0H   A   
+S_BYTE0. . . . . .  C ADDR   05F7H   A   
+S_BYTE1. . . . . .  C ADDR   0604H   A   
+S_BYTE2. . . . . .  C ADDR   0608H   A   
+TH0. . . . . . . .  D ADDR   008CH   A   
+TIM0 . . . . . . .  C ADDR   054EH   A   
+TIME_CHECK . . . .  C ADDR   0136H   A   
+TL0. . . . . . . .  D ADDR   008AH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TPH. . . . . . . .  D ADDR   0020H   A   
+TPL. . . . . . . .  D ADDR   0021H   A   
+TR0. . . . . . . .  B ADDR   0088H.4 A   
+WHILE1 . . . . . .  C ADDR   012BH   A   
+WRITENEXT. . . . .  C ADDR   0388H   A   
+WRITE_DISABLE. . .  C ADDR   05A6H   A   
+WRITE_ENABLE . . .  C ADDR   058FH   A   
+WRITE_MULTIPLEBYTE  C ADDR   059DH   A   
+A51 MACRO ASSEMBLER  DS18B20                                                              12/26/2021 19:50:29 PAGE    17
+
+WRITE_SINGLEBYTE .  C ADDR   05DBH   A   
+XMTDAT . . . . . .  D ADDR   0050H   A   
+ZERO . . . . . . .  C ADDR   0504H   A   
+ZERO1. . . . . . .  C ADDR   04F2H   A   
+ZHONGZHUAN . . . .  D ADDR   0068H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

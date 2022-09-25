@@ -1,0 +1,112 @@
+A51 MACRO ASSEMBLER  2121                                                                 12/25/2019 17:01:08 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.5.0
+OBJECT MODULE PLACED IN .\Objects\2121.obj
+ASSEMBLER INVOKED BY: D:\Keil_v5\C51\BIN\A51.EXE 2121.asm SET(SMALL) DEBUG PRINT(.\Listings\2121.lst) OBJECT(.\Objects\2
+                      121.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                     ORG     0000H
+
+0000 803E              2                     SJMP    MAIN
+
+                       3                     
+
+0040                   4                     ORG             0040H
+
+0040 7830              5     MAIN:   MOV     R0,#30H                 ;¸³³õÖµ1-8
+
+0042 7908              6                     MOV     R1,#08H 
+
+0044 7A01              7                     MOV     R2,#01H 
+
+0046 EA                8     STORE:  MOV     A,R2
+
+0047 F6                9                     MOV     @R0,A 
+
+0048 0A               10                     INC             R2
+
+0049 08               11                     INC             R0              
+
+004A D9FA             12                     DJNZ    R1,STORE
+
+                      13     
+
+004C 7830             14     LOOP:   MOV     R0,#30H                 ;R0Ö¸ÏòÏÔÊ¾»º´æÇøÊ×Ö·
+
+004E 797F             15                     MOV     R1,#7FH                 ;R1ÎªÎ»¿ØÐÅºÅ¼Ä´æÆ÷£¬Ö¸ÏòµÚ1¸öÊÂë¹Ü
+
+0050 E6               16     NEXT:   MOV     A,@R0                   ;È¡³öÒ»¸öÊ
+
+0051 08               17                     INC     R0                              ;Ö¸ÕëÖ¸ÏòÏÂÒ»¸öÊµØÖ·
+
+0052 900066           18                     MOV     DPTR,#TABLE     ;DPTRÖ¸Ïò7¶ÎÂë±íÊ×µØÖ·
+
+0055 93               19                     MOVC    A,@A+DPTR               ;È¡³ö¸ÃÊµÄ7¶ÎÂë
+
+0056 F580             20                     MOV     P0,A                    ;½«7¶ÎÂëÊä³öµ½¶ÎÂëÊä³ö¿Ú
+
+0058 E9               21                     MOV     A,R1
+
+0059 F590             22                     MOV     P1,A                    ;Î»¿ØÐÅºÅÊä³öµ½Î»¿ØÊä³ö¿Ú
+
+005B 120070           23                     LCALL   DELAY1ms                
+
+005E D3               24                     SETB    C
+
+005F E9               25                     MOV     A,R1
+
+0060 13               26                     RRC     A
+
+0061 F9               27                     MOV     R1,A                    ;ÐÞ¸ÄÎ»¿ØÐÅºÅ£¬Ö¸ÏòÏÂÒ»¸öÊÂë¹Ü
+
+0062 40EC             28                     JC              NEXT                    ;Ã»ÓÐÏÔÊ¾Íê±Ï£¬¼ÌÐø
+
+0064 80E6             29                     SJMP    LOOP                            
+
+                      30                                             
+
+0066 3F065B4F         31     TABLE: DB 3FH,06H,5BH,4FH,66H,6DH,7DH,07H,7FH,6FH       ;0-9µÄ¶ÎÂë
+
+006A 666D7D07                
+006E 7F6F                    
+                      32     
+
+0070 7E02             33     DELAY1ms:MOV    R6,#2                   ;ÑÓÊ±1ms
+
+0072 7FFA             34     DELOOP2:MOV     R7,#250                 ;2¦Ìs*250*2
+
+0074 DFFE             35     DELOOP1:DJNZ    R7,DELOOP1
+
+0076 DEFA             36                     DJNZ    R6,DELOOP2
+
+0078 22               37                     RET
+
+                      38                     END
+
+A51 MACRO ASSEMBLER  2121                                                                 12/25/2019 17:01:08 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+DELAY1MS . . . . .  C ADDR   0070H   A   
+DELOOP1. . . . . .  C ADDR   0074H   A   
+DELOOP2. . . . . .  C ADDR   0072H   A   
+LOOP . . . . . . .  C ADDR   004CH   A   
+MAIN . . . . . . .  C ADDR   0040H   A   
+NEXT . . . . . . .  C ADDR   0050H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+STORE. . . . . . .  C ADDR   0046H   A   
+TABLE. . . . . . .  C ADDR   0066H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

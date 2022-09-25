@@ -1,0 +1,24 @@
+		ORG	0000H			
+MAIN:	MOV		R1,#06H		;循环次数
+		MOV		R0,#0H		;显示初始值
+LOOP:	MOV 	A,R0		;取段码
+		MOV 	DPTR,#TABLE 
+		MOVC 	A,@A+DPTR 
+		MOV 	P0,A		;输出到数码管
+		LCALL	DELAY200ms	;延时200ms
+		INC		R0			;显示数字加1
+		DJNZ	R1,LOOP		;显示完毕否
+		SJMP	MAIN		;循环显示
+		
+TABLE:  DB 0FEH,0FDH,0FBH,0F7H,0EFH,0DFH
+			
+DELAY200ms:MOV 	R5,#2		;延时200ms
+DELOOP3:MOV 	R6,#199
+DELOOP2:MOV 	R7,#249
+DELOOP1:DJNZ 	R7,DELOOP1
+		DJNZ 	R6,DELOOP2
+		DJNZ 	R5,DELOOP3	
+		RET
+		END
+			
+			

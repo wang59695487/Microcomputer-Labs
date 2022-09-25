@@ -1,0 +1,183 @@
+C51 COMPILER V9.60.0.0   CLOCK                                                             12/22/2021 21:01:52 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE CLOCK
+OBJECT MODULE PLACED IN .\Objects\clock.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE clock.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\Listings\clo
+                    -ck.lst) TABS(2) OBJECT(.\Objects\clock.obj)
+
+line level    source
+
+   1          /*-----------------clock.c------------------*/
+   2          #include<reg52.h>
+   3          #include<string.h>
+   4          #include<LCD1602.h>
+   5          #include<DS1302.h>
+   6          #include<18B20.h>
+   7          #define uchar unsigned char
+   8          #define uint unsigned int
+   9          
+  10          sbit K1=P2^3;   //??????
+  11          sbit K2=P2^2;   //????
+  12          sbit K3=P2^1;   //????
+  13          sbit K4=P2^0;   //??
+  14          sbit Bell=P3^3;
+  15          uchar *WEEK[]={"SUN","MON","TUS","WEN","THU","FRI","SAT"};  /*????*/
+  16          uchar MonthsDays[]={0,31,0,31,30,31,30,31,31,30,31,30,31};  /*???,2??????*/
+  17          uchar LCD_DSY_BUFFER1[]={"DATE 00-00-00   "};  //??????
+  18          uchar LCD_DSY_BUFFER2[]={"   C 00:00:00   "};
+  19          uchar a[]={"00"};
+  20          uchar DateTime[7];      //??????
+  21          char Adjust_Index=-1;
+  22          uchar Change_Flag[]="-MHDM-Y";uint p=0; 
+  23          void Format_DateTime(uchar d, uchar *a)   /*?????????????*/
+  24          { a[0]=d/10+'0';a[1]=d%10+'0';}
+  25          uchar isLeapYear(uint y)  //???????
+  26          { 
+  27   1      return (y%4==0 && y%100!=0) || (y%400==0);}
+  28          //??????,?2000.1.1???? ,??1999.12.31???
+  29          void RefreshWeekDay()
+  30          { uint i,d,w=5;
+  31   1        for(i=2000;i<2000+DateTime[6]; i++)
+  32   1        { d=isLeapYear(i) ? 366 : 365;
+  33   2          w=(w+d)%7;} //?????12.31??? 
+  34   1        d=0;
+  35   1        for(i=1; i<DateTime[4]; i++)
+  36   1        d+=MonthsDays[i];  //??????
+  37   1        d+=DateTime[3];
+  38   1        DateTime[5]=(w+d)%7+1;}
+  39          //??????????
+  40          void DateTime_Adjust(char x)
+  41          {
+  42   1        switch(Adjust_Index)
+  43   1        {
+  44   2          case 6: if(x==1 && DateTime[6]<99) DateTime[6]++;        //?,???00-99
+  45   2              if(x==-1 && DateTime[6]>0) DateTime[6]--;
+  46   2              MonthsDays[2]=isLeapYear(2000+DateTime[6])?29:28;
+  47   2              RefreshWeekDay();                    //????
+  48   2              break;
+  49   2          case 4: if(x==1) DateTime[4]++;       //?,???1-12
+  50   2              if(DateTime[4]>12) DateTime[4]=1;    /*????,???????*/
+  51   2              if(x==-1 ) DateTime[4]--;
+  52   2              if(DateTime[4]<1) DateTime[4]=12;
+  53   2              MonthsDays[2]=isLeapYear(2000+DateTime[6])?29:28;
+  54   2              if(DateTime[3]!=MonthsDays[DateTime[4]])
+C51 COMPILER V9.60.0.0   CLOCK                                                             12/22/2021 21:01:52 PAGE 2   
+
+  55   2                DateTime[3]=MonthsDays[DateTime[4]];
+  56   2              RefreshWeekDay();
+  57   2              break;
+  58   2          case 3: MonthsDays[2]=isLeapYear(2000+DateTime[6])?29:28; //?
+  59   2              if(x==1) DateTime[3]++;
+  60   2              if(DateTime[3]>MonthsDays[DateTime[4]])  DateTime[3]=1;   //????,????????
+  61   2              if(x==-1) DateTime[3]--;
+  62   2              if(DateTime[3]<1) DateTime[3]=MonthsDays[DateTime[4]];
+  63   2              RefreshWeekDay();
+  64   2              break;
+  65   2          case 2: if(x==1) DateTime[2]++;  //??
+  66   2              if(DateTime[2]>23) DateTime[2]=0;      //????
+  67   2              if(x==-1 && DateTime[2]>0) DateTime[2]--;
+  68   2              break;
+  69   2          case 1: if(x==1) DateTime[1]++;  //??
+  70   2              if(DateTime[1]>59) DateTime[1]=0;
+  71   2              if(x==-1 && DateTime[1]>0) DateTime[1]--;
+  72   2              break;
+  73   2        }
+  74   1      }
+  75          void T0_INT0() interrupt 1   //???0??,??????
+  76          { Bell=~Bell;
+  77   1        p++;
+  78   1        if(p<400)       //??
+  79   1        {   TH0=(8192-700)/32;
+  80   2               TL0=(8192-700)%32;
+  81   2        }
+  82   1        else if(p<800)      //??
+  83   1        {
+  84   2          TH0=(8192-1000)/32;
+  85   2          TL0=(8192-1000)%32;
+  86   2        }
+  87   1        else
+  88   1        {   TR0=0;         //?????,??????
+  89   2          p=0;
+  90   2        } 
+  91   1      }
+  92          void EX_INT0() interrupt 0   //????0,??????
+  93          { if(K1==0)
+  94   1        { while(K1==0);
+  95   2          if(Adjust_Index==-1 || Adjust_Index==1) 
+  96   2          Adjust_Index=7;          //??K1????????
+  97   2          Adjust_Index--;       /*??????????????*/
+  98   2          if(Adjust_Index==5) Adjust_Index=4;   /*????????*/
+  99   2          LCD_DSY_BUFFER2[13]='[';
+ 100   2          LCD_DSY_BUFFER2[14]=Change_Flag[Adjust_Index];
+ 101   2          LCD_DSY_BUFFER2[15]=']';
+ 102   2        }
+ 103   1        else if(K2==0)            
+ 104   1          { while(K2==0); DateTime_Adjust(1);   
+ 105   2        }
+ 106   1        else if(K3==0)
+ 107   1        {   while(K3==0); DateTime_Adjust(-1);     //???
+ 108   2        }
+ 109   1        else if(K4==0)
+ 110   1        {   while(K4==0); 
+ 111   2          SET_DS1302();      //????????DS1302,????
+ 112   2          LCD_DSY_BUFFER2[13]=' ';
+ 113   2          LCD_DSY_BUFFER2[14]=' ';
+ 114   2          LCD_DSY_BUFFER2[15]=' ';
+ 115   2          Adjust_Index=-1;
+ 116   2        }
+C51 COMPILER V9.60.0.0   CLOCK                                                             12/22/2021 21:01:52 PAGE 3   
+
+ 117   1      } 
+ 118            
+ 119          //???  
+ 120          void main()
+ 121          { Init_LCD();
+ 122   1        IE=0x83;     //??INT0?T0??
+ 123   1        IP=0x01;   //???????
+ 124   1        IT0=0x01;  //???????
+ 125   1        TMOD=0x00;   //????????0
+ 126   1        TH0=(8192-700)/32;
+ 127   1        TL0=(8192-700)%32;
+ 128   1        while(1)
+ 129   1        {
+ 130   2          Format_DateTime(DateTime[6],LCD_DSY_BUFFER1+5);   /*??????????*/
+ 131   2          Format_DateTime(DateTime[4],LCD_DSY_BUFFER1+8);
+ 132   2          Format_DateTime(DateTime[3],LCD_DSY_BUFFER1+11);
+ 133   2          strcpy(LCD_DSY_BUFFER1+13,WEEK[DateTime[5]-1]);    /*????*/
+ 134   2          Format_DateTime(DateTime[2],LCD_DSY_BUFFER2+5);
+ 135   2          Format_DateTime(DateTime[1],LCD_DSY_BUFFER2+8);
+ 136   2          Format_DateTime(DateTime[0],LCD_DSY_BUFFER2+11);  
+ 137   2          ShowString(0x00,0,LCD_DSY_BUFFER1); //?LCD?????
+ 138   2          ShowString(0x00,1,LCD_DSY_BUFFER2);
+ 139   2          if(DateTime[1]==0&DateTime[0]==0)  //???? ,????
+ 140   2          {     
+ 141   3      TR0=1;  
+ 142   3      }        //?????0
+ 143   2          if(Adjust_Index==-1)
+ 144   2       GetTime();
+ 145   2          wendu=Readtemperature();
+ 146   2           temp_g=wendu%100/10+'0';//??????????%100????
+ 147   2           temp_d=wendu%10+'0';
+ 148   2          w_dat(temp_g);   
+ 149   2         Delay(5);
+ 150   2           w_dat(temp_d);   
+ 151   2         Delay(6);
+ 152   2          
+ 153   2        }
+ 154   1      }
+*** WARNING C290 IN LINE 16 OF clock.c: missing return value
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1860    ----
+   CONSTANT SIZE    =     54    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     92      16
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  0 ERROR(S)

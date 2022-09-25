@@ -1,0 +1,77 @@
+C51 COMPILER V9.60.0.0   LCD1602                                                           12/22/2021 23:11:55 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE LCD1602
+OBJECT MODULE PLACED IN lcd1602.OBJ
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE lcd1602.c OPTIMIZE(8,SPEED) BROWSE TABS(2)
+
+line level    source
+
+   1          #include"Feiyun.h"
+   2          void write_com(uchar com)
+   3          { 
+   4   1        lcdrs=0;
+   5   1        lcdrw=0;
+   6   1        P0=com;
+   7   1        delay(1);
+   8   1        lcden=1;
+   9   1        delay(1);
+  10   1        lcden=0;
+  11   1      }
+  12          void write_data(uchar date)
+  13          {    
+  14   1        lcdrs=1;
+  15   1        lcdrw=0;
+  16   1        P0=date;
+  17   1        delay(1);
+  18   1        lcden=1;
+  19   1        delay(1);
+  20   1        lcden=0;
+  21   1      } 
+  22          void LcdInit(void)
+  23          {
+  24   1        lcden=0;
+  25   1        write_com(0x38);
+  26   1        write_com(0x0f);
+  27   1        write_com(0x06);
+  28   1        write_com(0x01);
+  29   1      }
+  30          void LcdChar(uchar p,uchar dat)
+  31          {
+  32   1        pd(p);
+  33   1        write_data(dat);
+  34   1        pd(0x50);
+  35   1      }
+  36          void LcdStr(uchar p,String str)
+  37          {
+  38   1        pd(p);
+  39   1        while(*str!='\0')
+  40   1          {
+  41   2            write_data(*str);
+  42   2            str++;             //指向下一个要发送的数据
+  43   2          }
+  44   1        pd(0x50);
+  45   1      }
+  46          void LcdData(uchar p,uchar dat)
+  47          {
+  48   1        pd(p);
+  49   1        write_data(dat/10+0x30);
+  50   1        write_data(dat%10+0x30);
+  51   1        pd(0x50);
+  52   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+C51 COMPILER V9.60.0.0   LCD1602                                                           12/22/2021 23:11:55 PAGE 2   
+
+   CODE SIZE        =    169    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----       5
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

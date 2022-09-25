@@ -1,0 +1,89 @@
+C51 COMPILER V9.60.0.0   MAIN                                                              12/22/2021 23:11:53 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE TABS(2)
+
+line level    source
+
+   1          #include"Feiyun.h"
+   2          uchar sws=3;
+   3          void Init()
+   4          {
+   5   1        LcdInit();
+   6   1        TimeDateInit();
+   7   1        TimerInit();  
+   8   1      }
+   9          void KeyPro()
+  10          {
+  11   1        KEY temp;
+  12   1        ReadKey(&temp); 
+  13   1        if(temp.c_key==0x0a)
+  14   1        cls,sws=1;
+  15   1        if(temp.c_key==0x0b)
+  16   1        cls,sws=2;
+  17   1        if(temp.c_key==0x0c)
+  18   1        Set(0x08);
+  19   1        if(temp.c_key==0x0d)
+  20   1        Set(0x47);
+  21   1        if(temp.c_key==0x0e)
+  22   1        sws=3;
+  23   1        if(temp.c_key==0x0f)
+  24   1        sws=0;
+  25   1      }
+  26          void MsgPro()
+  27          {
+  28   1          if(timer.iscg&0xf0)  
+  29   1        {
+  30   2              timer.iscg&=0x0f;
+  31   2          DateCg();
+  32   2          if(sws==0)
+  33   2            {
+  34   3            BuzzClose;
+  35   3            TimeShow();
+  36   3              DateShow();
+  37   3            }
+  38   2            else if(sws==1)
+  39   2          {     
+  40   3            TempShow();
+  41   3          }
+  42   2          else if(sws==2)
+  43   2          {
+  44   3              AlarmClock();
+  45   3          }
+  46   2          else if(sws==3)
+  47   2          { 
+  48   3            TimeShow();
+  49   3              DateShow();
+  50   3              if(CheckTime())
+  51   3                BuzzOpen;
+  52   3          }    
+  53   2        } 
+  54   1      }
+  55          void main()
+C51 COMPILER V9.60.0.0   MAIN                                                              12/22/2021 23:11:53 PAGE 2   
+
+  56          {
+  57   1        Init();
+  58   1        while(1)
+  59   1        {
+  60   2            MsgPro();
+  61   2          if(KeyDown) 
+  62   2          KeyPro();      
+  63   2        }      
+  64   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    209    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      1       3
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,9 @@
+"..\OBJ\main.obj",
+"..\OBJ\ds1302.obj",
+"..\OBJ\lcd.obj",
+"..\OBJ\globalvar.obj",
+"..\OBJ\key.obj",
+"..\OBJ\51it.obj",
+"..\OBJ\temp.obj" 
+TO "..\OBJ\eleclock" 
+PRINT(".\eleclock.m51") RAMSIZE(256) 

@@ -1,0 +1,76 @@
+A51 MACRO ASSEMBLER  113                                                                  11/17/2019 21:51:07 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.5.0
+OBJECT MODULE PLACED IN .\Objects\113.obj
+ASSEMBLER INVOKED BY: D:\Keil_v5\C51\BIN\A51.EXE 113.asm SET(SMALL) DEBUG PRINT(.\Listings\113.lst) OBJECT(.\Objects\113
+                      .obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                     ORG     0000H
+
+0000 7B28              2     MAIN:   MOV             R3,#40
+
+0002 7401              3                     MOV     A,#01H
+
+0004 F590              4     OUTPUT: MOV     P1,A
+
+0006 23                5                     RL              A
+
+0007 120011            6                     LCALL   DELAY
+
+000A DBF8              7                     DJNZ    R3,OUTPUT
+
+000C 759000            8                     MOV     P1,#0
+
+000F 80FE              9                     SJMP    $
+
+                      10                     
+
+0011 7D04             11     DELAY:  MOV     R5,#4            ;—” ±≥Ã–Ú,500∫¡√Î
+
+0013 7EF8             12     DELOOP3:MOV     R6,#248
+
+0015 7FFA             13     DELOOP2:MOV     R7,#250
+
+0017 DFFE             14     DELOOP1:DJNZ    R7,DELOOP1
+
+0019 DEFA             15                     DJNZ    R6,DELOOP2
+
+001B DDF6             16                     DJNZ    R5,DELOOP3      
+
+001D 7C02             17                     MOV             R4,#2            ;≤π≥‰—” ±8Œ¢√Î
+
+001F DCFE             18     DELOOP0:DJNZ    R4,DELOOP0
+
+0021 00               19                     NOP
+
+0022 22               20                     RET
+
+                      21                     END
+
+                             
+
+A51 MACRO ASSEMBLER  113                                                                  11/17/2019 21:51:07 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+DELAY. . . . . . .  C ADDR   0011H   A   
+DELOOP0. . . . . .  C ADDR   001FH   A   
+DELOOP1. . . . . .  C ADDR   0017H   A   
+DELOOP2. . . . . .  C ADDR   0015H   A   
+DELOOP3. . . . . .  C ADDR   0013H   A   
+MAIN . . . . . . .  C ADDR   0000H   A   
+OUTPUT . . . . . .  C ADDR   0004H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

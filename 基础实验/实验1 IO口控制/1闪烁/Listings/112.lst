@@ -1,0 +1,60 @@
+A51 MACRO ASSEMBLER  112                                                                  11/16/2019 23:01:21 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.5.0
+OBJECT MODULE PLACED IN .\Objects\112.obj
+ASSEMBLER INVOKED BY: D:\Keil_v5\C51\BIN\A51.EXE 112.asm SET(SMALL) DEBUG PRINT(.\Listings\112.lst) OBJECT(.\Objects\112
+                      .obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                     ORG     0000H
+
+0000 74FE              2     MAIN:   MOV     A,#0FEH
+
+0002 F590              3     OUTPUT: MOV     P1,A
+
+0004 23                4                     RL              A
+
+0005 12000A            5                     LCALL   DELAY
+
+0008 80F8              6                     SJMP    OUTPUT
+
+                       7                     
+
+000A 7E00              8     DELAY:  MOV     R6,#0            ;—” ±≥Ã–Ú,‘º125∫¡√Î
+
+000C 7FFA              9     DELOOP2:MOV     R7,#250
+
+000E DFFE             10     DELOOP1:DJNZ    R7,DELOOP1
+
+0010 DEFA             11                     DJNZ    R6,DELOOP2
+
+0012 22               12                     RET
+
+                      13                     END
+
+                             
+
+                                     
+
+A51 MACRO ASSEMBLER  112                                                                  11/16/2019 23:01:21 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+DELAY. . . . . . .  C ADDR   000AH   A   
+DELOOP1. . . . . .  C ADDR   000EH   A   
+DELOOP2. . . . . .  C ADDR   000CH   A   
+MAIN . . . . . . .  C ADDR   0000H   A   
+OUTPUT . . . . . .  C ADDR   0002H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

@@ -1,0 +1,4 @@
+".\Objects\STARTUP.obj",
+".\Objects\clock.obj" 
+TO ".\Objects\Final2" 
+PRINT(".\Listings\Final2.m51") RAMSIZE(256) 

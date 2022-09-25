@@ -1,0 +1,163 @@
+A51 MACRO ASSEMBLER  2121                                                                 12/25/2019 16:57:11 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.5.0
+OBJECT MODULE PLACED IN .\Objects\2121.obj
+ASSEMBLER INVOKED BY: D:\Keil_v5\C51\BIN\A51.EXE 2121.asm SET(SMALL) DEBUG PRINT(.\Listings\2121.lst) OBJECT(.\Objects\2
+                      121.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                     ORG     0000H                   
+
+0000 75900F            2     MAIN:   MOV             P1,#0FH                 ;P1准备输入
+
+0003 E590              3                     MOV             A,P1                    ;查询有无按键
+
+0005 24F0              4                     ADD             A,#0F0H
+
+0007 B4FF02            5                     CJNE    A,#0FFH,IFKEY   ;取列值
+
+000A 80F4              6                     SJMP    MAIN
+
+                       7                     
+
+000C 120082            8     IFKEY:  LCALL   DELAY10ms       ;去前沿抖动
+
+000F 7BFF              9                     MOV             R3,#0FFH        ;设置按键初值   
+
+0011 75900F           10                     MOV     P1,#0FH                 ;行输出全0
+
+0014 E590             11                     MOV             A,P1                    ;读入键值               
+
+0016 24F0             12                     ADD             A,#0F0H
+
+0018 64FF             13                     XRL     A,#0FFH                 ;取列值
+
+001A B40004           14                     CJNE    A,#0,IFKEY1     ;不为零跳转
+
+001D 74FF             15                     MOV             A,#0FFH                 ;将A全置1
+
+001F 8037             16                     SJMP    NOKEY           
+
+0021 F5F0             17     IFKEY1: MOV             B,A                     ;将列值送入B
+
+0023 7590F0           18                     MOV     P1,#0F0H                ;列输出全0
+
+0026 E590             19                     MOV             A,P1                    ;读入键值               
+
+0028 240F             20                     ADD             A,#0FH
+
+002A 64FF             21                     XRL     A,#0FFH                 ;取行值
+
+002C B40004           22                     CJNE    A,#0,IFKEY2     ;不为零跳转
+
+002F 74FF             23                     MOV             A,#0FFH           
+
+0031 8025             24             SJMP    NOKEY   
+
+0033 25F0             25     IFKEY2: ADD     A,B                             ;得到特征码
+
+0035 F5F0             26                     MOV     B,A                             ;将特征码保存到B                
+
+0037 900061           27                     MOV     DPTR,#KEYCD             
+
+003A 0B               28     SCAN:   INC     R3                              ;特征码匹配
+
+003B EB               29             MOV     A,R3
+
+003C 93               30             MOVC    A,@A+DPTR               ;获取特征码
+
+003D B5F002           31             CJNE    A,B,SCAN1       ;特征码与B中是否一致
+
+0040 8007             32             SJMP    WAIT            
+
+0042 B4FFF5           33     SCAN1:  CJNE    A,#0FFH,SCAN    ;没有溢出继续查询
+
+0045 74FF             34             MOV     A,#0FFH         ;将A全置1    
+
+0047 800F             35             SJMP    NOKEY    
+
+                      36                                         
+
+0049 75900F           37     WAIT:   MOV     P1,#0FH                 ;行输出全0
+
+004C E590             38                     MOV             A,P1                    ;读入键值               
+
+004E 24F0             39                     ADD             A,#0F0H
+
+0050 64FF             40                     XRL     A,#0FFH                 ;取列值
+
+0052 B400F4           41                     CJNE    A,#0,WAIT               ;不为零跳转
+
+0055 120082           42                     LCALL   DELAY10ms       ;去后沿抖动
+
+0058 EB               43     NOKEY:  MOV     A,R3                    ;静态事牍芟允臼值
+
+0059 900072           44                     MOV     DPTR,#TABLE 
+
+005C 93               45                     MOVC    A,@A+DPTR 
+
+005D F580             46                     MOV     P0,A
+
+005F 809F             47                     SJMP    MAIN
+
+                      48             
+
+0061 11214181         49     KEYCD:  DB 11H,21H,41H,81H,12H,22H,42H,82H,14H,24H,44H,84H,18H,28H,48H,88H,0FFH
+
+0065 12224282                
+0069 14244484                
+006D 18284888                
+0071 FF                      
+0072 C0F9A4B0         50     TABLE:  DB 0C0H,0F9H,0A4H,0B0H,99H,92H,82H,0F8H,80H,90H,08H,00H,46H,40H,06H,0EH
+
+0076 999282F8                
+007A 80900800                
+007E 4640060E                
+A51 MACRO ASSEMBLER  2121                                                                 12/25/2019 16:57:11 PAGE     2
+
+                      51             
+
+0082 7E14             52     DELAY10ms:MOV   R6,#20                  ;延时10ms
+
+0084 7FFA             53     DELOOP2:MOV     R7,#250                 ;2μs*250*20
+
+0086 DFFE             54     DELOOP1:DJNZ    R7,DELOOP1
+
+0088 DEFA             55                     DJNZ    R6,DELOOP2
+
+008A 22               56                     RET
+
+                      57                     END
+
+A51 MACRO ASSEMBLER  2121                                                                 12/25/2019 16:57:11 PAGE     3
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+B. . . . . . . . .  D ADDR   00F0H   A   
+DELAY10MS. . . . .  C ADDR   0082H   A   
+DELOOP1. . . . . .  C ADDR   0086H   A   
+DELOOP2. . . . . .  C ADDR   0084H   A   
+IFKEY. . . . . . .  C ADDR   000CH   A   
+IFKEY1 . . . . . .  C ADDR   0021H   A   
+IFKEY2 . . . . . .  C ADDR   0033H   A   
+KEYCD. . . . . . .  C ADDR   0061H   A   
+MAIN . . . . . . .  C ADDR   0000H   A   
+NOKEY. . . . . . .  C ADDR   0058H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+SCAN . . . . . . .  C ADDR   003AH   A   
+SCAN1. . . . . . .  C ADDR   0042H   A   
+TABLE. . . . . . .  C ADDR   0072H   A   
+WAIT . . . . . . .  C ADDR   0049H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

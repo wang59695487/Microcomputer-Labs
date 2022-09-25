@@ -1,0 +1,66 @@
+C51 COMPILER V9.01   COM                                                                   06/19/2011 22:57:50 PAGE 1   
+
+
+C51 COMPILER V9.01, COMPILATION OF MODULE COM
+OBJECT MODULE PLACED IN com.OBJ
+COMPILER INVOKED BY: C:\Program Files\Keil\C51\BIN\C51.EXE com.c BROWSE
+
+line level    source
+
+   1          /***********************************************
+   2          /*串口通讯
+   3          /*按下按钮，单片机发送数据"Come On!\r\n"给主机
+   4          /*单片机晶振：11.0592MHz
+   5          /*波特率：  9600bps
+   6          /*串口发送一个字节
+   7          ***********************************************/
+   8          #include<Com.h>
+   9          void ComInit()
+  10          {
+  11   1        TMOD = 0x22;   //定时器1工作在方式2,定时器0工作在方式1
+  12   1        TH1  = 0xfd;   //工作波特率：  9600bps
+  13   1        TL1  = 0xfd;   //工作波特率：  9600bps
+  14   1        SCON = 0x50;   //工作波特率：  9600bps
+  15   1        ES   = 1;             //开串口中断
+  16   1        TR1  = 1;             //允许定时器1工作
+  17   1        EA   = 1;                             //总中断开关
+  18   1      }
+  19          void SendChar(uchar uart_dat)
+  20          {
+  21   1        SBUF = uart_dat;    //待发送的数据写入缓冲区
+  22   1        while(!TI);         //等待发送完成
+  23   1        TI = 0;             //清零发送标志位
+  24   1      } 
+  25          void SendStr(String str)
+  26          {
+  27   1         while(*str!='\0')
+  28   1         {
+  29   2           SendChar(*str);
+  30   2           str++;                      //指向下一个要发送的数据
+  31   2         }                           
+  32   1      }
+  33          void INT_UartRcv(void) interrupt 4 using 2 
+  34          {
+  35   1        unsigned char Rcv = 0; //串口接收中断函数
+  36   1        if(RI)                 //查询接收标志位（有数据发送过来时置为1）
+  37   1        {
+  38   2              RI  = 0;              //接收标志位清零
+  39   2          Rcv = SBUF;           //存储缓冲区的数据
+  40   2          SendChar(Rcv);        //让从电脑上传到单片机的数据，传回的电脑显示 
+  41   2          //do_uart(Rcv);
+  42   2        }
+  43   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     70    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

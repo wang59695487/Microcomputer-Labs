@@ -1,0 +1,324 @@
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                    12/22/2021  23:11:55  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22.2.0, INVOKED BY:
+C:\KEIL_V5\C51\BIN\BL51.EXE STARTUP.obj, main.obj, timer.obj, time.obj, ds18b20.obj, Feiyun.obj, key.obj, lcd1602.obj TO
+>>  zh RAMSIZE (256)
+
+
+MEMORY MODEL: SMALL WITH FLOATING POINT ARITHMETIC
+
+
+INPUT MODULES INCLUDED:
+  STARTUP.obj (?C_STARTUP)
+  main.obj (MAIN)
+  timer.obj (TIMER)
+  time.obj (TIME)
+  ds18b20.obj (DS18B20)
+  Feiyun.obj (FEIYUN)
+  key.obj (KEY)
+  lcd1602.obj (LCD1602)
+  C:\KEIL_V5\C51\LIB\C51FPS.LIB (?C?FPMUL)
+  C:\KEIL_V5\C51\LIB\C51FPS.LIB (?C?FCAST)
+  C:\KEIL_V5\C51\LIB\C51FPS.LIB (?C?CASTF)
+  C:\KEIL_V5\C51\LIB\C51FPS.LIB (?C?FPGETOPN)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C_INIT)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?COPY)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?CLDPTR)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?CLDOPTR)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?CSTPTR)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?CSTOPTR)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?UIDIV)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?SIDIV)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C?LNEG)
+
+
+LINK MAP OF MODULE:  zh (?C_STARTUP)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            REG     0008H     0008H     ABSOLUTE     "REG BANK 1"
+            DATA    0010H     0041H     UNIT         _DATA_GROUP_
+            DATA    0051H     0008H     UNIT         ?DT?TIME
+            DATA    0059H     0004H     UNIT         ?DT?TIMER
+            DATA    005DH     0002H     UNIT         ?DT?DS18B20
+            DATA    005FH     0001H     UNIT         ?DT?MAIN
+            IDATA   0060H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+                    0003H     0008H                  *** GAP ***
+            CODE    000BH     0003H     ABSOLUTE     
+            CODE    000EH     03CEH     UNIT         ?C?LIB_CODE
+            CODE    03DCH     00F5H     UNIT         ?PR?_SET?TIME
+            CODE    04D1H     00A1H     UNIT         ?PR?_LOADBUF?TIME
+            CODE    0572H     008CH     UNIT         ?C_C51STARTUP
+            CODE    05FEH     007EH     UNIT         ?PR?TEMPSHOW?DS18B20
+            CODE    067CH     007DH     UNIT         ?PR?_SAVE?TIME
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  12/22/2021  23:11:55  PAGE 2
+
+
+            CODE    06F9H     007CH     UNIT         ?PR?GETTEMP?DS18B20
+            CODE    0775H     007CH     UNIT         ?PR?SCANKEY?KEY
+            CODE    07F1H     007BH     UNIT         ?PR?SETAHOUR?TIME
+            CODE    086CH     007BH     UNIT         ?PR?SETAMIN?TIME
+            CODE    08E7H     0077H     UNIT         ?PR?WEEKSHOW?TIME
+            CODE    095EH     0072H     UNIT         ?PR?DATESHOW?TIME
+            CODE    09D0H     0072H     UNIT         ?CO?TIME
+            CODE    0A42H     0070H     UNIT         ?PR?KEYPRO?MAIN
+            CODE    0AB2H     0068H     UNIT         ?PR?ALARMCLOCK?TIME
+            CODE    0B1AH     0064H     UNIT         ?PR?TIMETOSTR?TIME
+            CODE    0B7EH     0064H     UNIT         ?PR?DATETOSTR?TIME
+            CODE    0BE2H     005BH     UNIT         ?PR?_READKEY?KEY
+            CODE    0C3DH     0059H     UNIT         ?PR?GETWEEK?TIME
+            CODE    0C96H     004AH     UNIT         ?PR?TIMER0_INTERRUPT?TIMER
+            CODE    0CE0H     003FH     UNIT         ?PR?MSGPRO?MAIN
+            CODE    0D1FH     003DH     UNIT         ?PR?_GETMDM?TIME
+            CODE    0D5CH     0037H     UNIT         ?PR?TIMESHOW?TIME
+            CODE    0D93H     0033H     UNIT         ?PR?RESET?DS18B20
+            CODE    0DC6H     0032H     UNIT         ?PR?READ_BYTE?DS18B20
+            CODE    0DF8H     0031H     UNIT         ?CO?KEY
+            CODE    0E29H     002BH     UNIT         ?PR?DATECG?TIME
+            CODE    0E54H     002BH     UNIT         ?PR?_WRITE_BYTE?DS18B20
+            CODE    0E7FH     002AH     UNIT         ?PR?_LCDSTR?LCD1602
+            CODE    0EA9H     0024H     UNIT         ?PR?_LCDDATA?LCD1602
+            CODE    0ECDH     0023H     UNIT         ?C_INITSEG
+            CODE    0EF0H     001EH     UNIT         ?PR?_DELAY?FEIYUN
+            CODE    0F0EH     001DH     UNIT         ?PR?_WRITE_COM?LCD1602
+            CODE    0F2BH     0019H     UNIT         ?PR?MAIN?MAIN
+            CODE    0F44H     0019H     UNIT         ?PR?_WRITE_DATA?LCD1602
+            CODE    0F5DH     0018H     UNIT         ?PR?TIMERINIT?TIMER
+            CODE    0F75H     0018H     UNIT         ?PR?TIMEDATEINIT?TIME
+            CODE    0F8DH     0017H     UNIT         ?PR?TIMECG?TIME
+            CODE    0FA4H     0016H     UNIT         ?PR?LCDINIT?LCD1602
+            CODE    0FBAH     0015H     UNIT         ?PR?_DELAY_US?DS18B20
+            CODE    0FCFH     0011H     UNIT         ?PR?_ISLEEP?TIME
+            CODE    0FE0H     0011H     UNIT         ?CO?DS18B20
+            CODE    0FF1H     0010H     UNIT         ?PR?CHECKTIME?TIME
+            CODE    1001H     000FH     UNIT         ?PR?_LCDCHAR?LCD1602
+            CODE    1010H     000EH     UNIT         ?PR?_GETMDY?TIME
+            CODE    101EH     0009H     UNIT         ?PR?INIT?MAIN
+
+
+
+OVERLAY MAP OF MODULE:   zh (?C_STARTUP)
+
+
+SEGMENT                              DATA_GROUP 
+  +--> CALLED SEGMENT              START    LENGTH
+--------------------------------------------------
+?C_C51STARTUP                      -----    -----
+  +--> ?PR?MAIN?MAIN
+  +--> ?C_INITSEG
+
+?PR?MAIN?MAIN                      -----    -----
+  +--> ?PR?INIT?MAIN
+  +--> ?PR?MSGPRO?MAIN
+  +--> ?PR?KEYPRO?MAIN
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  12/22/2021  23:11:55  PAGE 3
+
+
+
+?PR?INIT?MAIN                      -----    -----
+  +--> ?PR?LCDINIT?LCD1602
+  +--> ?PR?TIMEDATEINIT?TIME
+  +--> ?PR?TIMERINIT?TIMER
+
+?PR?LCDINIT?LCD1602                -----    -----
+  +--> ?PR?_WRITE_COM?LCD1602
+
+?PR?_WRITE_COM?LCD1602             -----    -----
+  +--> ?PR?_DELAY?FEIYUN
+
+?PR?MSGPRO?MAIN                    -----    -----
+  +--> ?PR?DATECG?TIME
+  +--> ?PR?TIMESHOW?TIME
+  +--> ?PR?DATESHOW?TIME
+  +--> ?PR?TEMPSHOW?DS18B20
+  +--> ?PR?ALARMCLOCK?TIME
+  +--> ?PR?CHECKTIME?TIME
+
+?PR?DATECG?TIME                    -----    -----
+  +--> ?PR?_GETMDM?TIME
+
+?PR?_GETMDM?TIME                   0041H    0010H
+  +--> ?CO?TIME
+  +--> ?PR?_ISLEEP?TIME
+
+?PR?TIMESHOW?TIME                  0010H    0003H
+  +--> ?PR?TIMETOSTR?TIME
+  +--> ?CO?TIME
+  +--> ?PR?_LCDSTR?LCD1602
+  +--> ?PR?_LCDDATA?LCD1602
+  +--> ?PR?_LCDCHAR?LCD1602
+
+?PR?TIMETOSTR?TIME                 0013H    000CH
+
+?PR?_LCDSTR?LCD1602                0014H    0003H
+  +--> ?PR?_WRITE_COM?LCD1602
+  +--> ?PR?_WRITE_DATA?LCD1602
+
+?PR?_WRITE_DATA?LCD1602            -----    -----
+  +--> ?PR?_DELAY?FEIYUN
+
+?PR?_LCDDATA?LCD1602               0013H    0001H
+  +--> ?PR?_WRITE_COM?LCD1602
+  +--> ?PR?_WRITE_DATA?LCD1602
+
+?PR?_LCDCHAR?LCD1602               0013H    0001H
+  +--> ?PR?_WRITE_COM?LCD1602
+  +--> ?PR?_WRITE_DATA?LCD1602
+
+?PR?DATESHOW?TIME                  0010H    0003H
+  +--> ?PR?WEEKSHOW?TIME
+  +--> ?PR?DATETOSTR?TIME
+  +--> ?PR?_WRITE_DATA?LCD1602
+  +--> ?PR?_WRITE_COM?LCD1602
+
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  12/22/2021  23:11:55  PAGE 4
+
+
+?PR?WEEKSHOW?TIME                  0013H    002BH
+  +--> ?CO?TIME
+  +--> ?PR?_WRITE_COM?LCD1602
+  +--> ?PR?GETWEEK?TIME
+  +--> ?PR?_WRITE_DATA?LCD1602
+
+?PR?GETWEEK?TIME                   003EH    0003H
+  +--> ?PR?_GETMDY?TIME
+  +--> ?PR?_GETMDM?TIME
+
+?PR?_GETMDY?TIME                   -----    -----
+  +--> ?PR?_ISLEEP?TIME
+
+?PR?DATETOSTR?TIME                 0013H    000CH
+
+?PR?TEMPSHOW?DS18B20               0010H    0004H
+  +--> ?PR?GETTEMP?DS18B20
+  +--> ?PR?_WRITE_COM?LCD1602
+  +--> ?PR?_WRITE_DATA?LCD1602
+  +--> ?CO?DS18B20
+  +--> ?PR?_LCDSTR?LCD1602
+
+?PR?GETTEMP?DS18B20                -----    -----
+  +--> ?PR?RESET?DS18B20
+  +--> ?PR?_WRITE_BYTE?DS18B20
+  +--> ?PR?READ_BYTE?DS18B20
+
+?PR?RESET?DS18B20                  -----    -----
+  +--> ?PR?_DELAY_US?DS18B20
+
+?PR?_WRITE_BYTE?DS18B20            -----    -----
+  +--> ?PR?_DELAY_US?DS18B20
+
+?PR?READ_BYTE?DS18B20              -----    -----
+  +--> ?PR?_DELAY_US?DS18B20
+
+?PR?ALARMCLOCK?TIME                0010H    0001H
+  +--> ?CO?TIME
+  +--> ?PR?_LCDSTR?LCD1602
+  +--> ?PR?_LCDDATA?LCD1602
+  +--> ?PR?SCANKEY?KEY
+  +--> ?PR?SETAHOUR?TIME
+  +--> ?PR?SETAMIN?TIME
+
+?PR?SCANKEY?KEY                    0034H    0002H
+  +--> ?PR?_DELAY?FEIYUN
+  +--> ?CO?KEY
+
+?PR?SETAHOUR?TIME                  0011H    0002H
+  +--> ?PR?_WRITE_COM?LCD1602
+  +--> ?PR?_LCDDATA?LCD1602
+  +--> ?PR?SCANKEY?KEY
+
+?PR?SETAMIN?TIME                   0011H    0002H
+  +--> ?PR?_WRITE_COM?LCD1602
+  +--> ?PR?_LCDDATA?LCD1602
+  +--> ?PR?SCANKEY?KEY
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  12/22/2021  23:11:55  PAGE 5
+
+
+
+?PR?KEYPRO?MAIN                    0010H    0003H
+  +--> ?PR?_READKEY?KEY
+  +--> ?PR?_WRITE_COM?LCD1602
+  +--> ?PR?_SET?TIME
+
+?PR?_READKEY?KEY                   0013H    0004H
+  +--> ?PR?SCANKEY?KEY
+
+?PR?_SET?TIME                      0013H    0021H
+  +--> ?CO?TIME
+  +--> ?PR?_LOADBUF?TIME
+  +--> ?PR?SCANKEY?KEY
+  +--> ?PR?_WRITE_DATA?LCD1602
+  +--> ?PR?_SAVE?TIME
+  +--> ?PR?_WRITE_COM?LCD1602
+
+*** NEW ROOT ***************************************************
+
+?PR?TIMER0_INTERRUPT?TIMER         -----    -----
+  +--> ?PR?TIMECG?TIME
+
+
+
+SYMBOL TABLE OF MODULE:  zh (?C_STARTUP)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        ?C?FPMUL
+  C:000EH         PUBLIC        ?C?FPMUL
+  -------         ENDMOD        ?C?FPMUL
+
+  -------         MODULE        ?C?FCAST
+  C:011EH         PUBLIC        ?C?FCASTC
+  C:0119H         PUBLIC        ?C?FCASTI
+  C:0114H         PUBLIC        ?C?FCASTL
+  -------         ENDMOD        ?C?FCAST
+
+  -------         MODULE        ?C?CASTF
+  C:0152H         PUBLIC        ?C?CASTF
+  -------         ENDMOD        ?C?CASTF
+
+  -------         MODULE        ?C?COPY
+  C:02A3H         PUBLIC        ?C?COPY
+  -------         ENDMOD        ?C?COPY
+
+  -------         MODULE        ?C?CLDPTR
+  C:02C9H         PUBLIC        ?C?CLDPTR
+  -------         ENDMOD        ?C?CLDPTR
+
+  -------         MODULE        ?C?CLDOPTR
+  C:02E2H         PUBLIC        ?C?CLDOPTR
+  -------         ENDMOD        ?C?CLDOPTR
+
+  -------         MODULE        ?C?CSTPTR
+  C:030FH         PUBLIC        ?C?CSTPTR
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  12/22/2021  23:11:55  PAGE 6
+
+
+  -------         ENDMOD        ?C?CSTPTR
+
+  -------         MODULE        ?C?CSTOPTR
+  C:0321H         PUBLIC        ?C?CSTOPTR
+  -------         ENDMOD        ?C?CSTOPTR
+
+  -------         MODULE        ?C?UIDIV
+  C:0343H         PUBLIC        ?C?UIDIV
+  -------         ENDMOD        ?C?UIDIV
+
+  -------         MODULE        ?C?SIDIV
+  C:0398H         PUBLIC        ?C?SIDIV
+  -------         ENDMOD        ?C?SIDIV
+
+  -------         MODULE        ?C?LNEG
+  C:03CEH         PUBLIC        ?C?LNEG
+  -------         ENDMOD        ?C?LNEG
+
+Program Size: data=97.0 xdata=0 code=4127
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

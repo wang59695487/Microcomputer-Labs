@@ -1,0 +1,776 @@
+C51 COMPILER V9.51   MAIN                                                                  12/17/2020 09:50:51 PAGE 1   
+
+
+C51 COMPILER V9.51, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.obj
+COMPILER INVOKED BY: E:\Keil C51\C51\BIN\C51.EXE program\main.c BROWSE DEBUG OBJECTEXTEND PRINT(.\main.lst) TABS(2) OBJE
+                    -CT(main.obj)
+
+line level    source
+
+   1          #include <reg51.h>
+   2          #include "ds1302.h"
+   3          #include "lcd1602.h"
+   4          bit adjust,init,rulecheck,flag,flagbuz,flagtim,s_tr,t_tr,t_inwork;
+   5          sbit buzzer=P2^7; sbit k1=P1^0; sbit k2=P1^1; sbit k3=P1^2; sbit k4=P1^3;
+   6          unsigned int countbuz,countbut1;
+   7          unsigned long s_time,t_time;
+   8          unsigned char i,j,premode,mode,count,countbut;
+   9          unsigned char time[7];
+  10          unsigned char k[7]={1,2,3,4,5,6,0}; //起始年份为2018年
+  11          unsigned char alarm[3][4]={{0x00,0x00,0x12,0},{0x00,0x00,0x12,0},{0x00,0x00,0x12,0}};
+  12          unsigned char code string0[]={"alarm"};
+  13          unsigned char code string1[]={"stop-watch"};
+  14          unsigned char code string2[]={"timer"};
+  15          unsigned char code string3[]={"Press any buttonto cancel alarm!"};
+  16          void main(void)
+  17          {
+  18   1        unsigned char a;
+  19   1        TMOD=0x11;
+  20   1        TH0=0xdc;
+  21   1        TL0=0x00;
+  22   1        TH1=0xfc;
+  23   1        TL1=0x66;
+  24   1        EA=1;
+  25   1        ET0=ET1=1;
+  26   1        TR0=TR1=1;
+  27   1        countbut1=0;
+  28   1        s_time=t_time=0;
+  29   1        adjust=init=rulecheck=flag=flagbuz=flagtim=s_tr=t_tr=t_inwork=0;
+  30   1        i=j=mode=count=countbut=0;
+  31   1        lcdinit();
+  32   1        while(1)
+  33   1        {
+  34   2          while(mode==0)
+  35   2          { 
+  36   3            if(init==1)
+  37   3            {
+  38   4              lcdinit();
+  39   4              init=0;
+  40   4            }
+  41   3            if(rulecheck==1)
+  42   3            {
+  43   4              time[i]++;
+  44   4              if(i==6)
+  45   4              {
+  46   5                if((2000+time[6]/16*10+time[6]%16)%4==0)
+  47   5                {
+  48   6                  for(a=0;a<7;a++)
+  49   6                  {
+  50   7                    k[a]+=2;
+  51   7                    if(k[a]>6)
+  52   7                      k[a]-=7;
+  53   7                  }
+  54   6                }
+C51 COMPILER V9.51   MAIN                                                                  12/17/2020 09:50:51 PAGE 2   
+
+  55   5                else
+  56   5                {
+  57   6                  for(a=0;a<7;a++)
+  58   6                  {
+  59   7                    k[a]++;
+  60   7                    if(k[a]>6)
+  61   7                      k[a]-=7;
+  62   7                  }
+  63   6                }
+  64   5              }         
+  65   4              if(time[0]%16>9)
+  66   4              {
+  67   5                time[0]&=0xf0;
+  68   5                time[0]+=0x10;    
+  69   5              }   
+  70   4              if(time[0]>0x59)
+  71   4                time[0]=0;
+  72   4              if(time[1]%16>9)
+  73   4              {
+  74   5                time[1]&=0xf0;
+  75   5                time[1]+=0x10;    
+  76   5              }
+  77   4              if(time[1]>0x59)
+  78   4                time[1]=0;
+  79   4              if(time[2]%16>9)
+  80   4              {
+  81   5                time[2]&=0xf0;
+  82   5                time[2]+=0x10;    
+  83   5              }
+  84   4              if(time[2]>0x23)
+  85   4                time[2]=0;
+  86   4              if(time[3]%16>9)
+  87   4              {
+  88   5                time[3]&=0xf0;
+  89   5                time[3]+=0x10;    
+  90   5              } 
+  91   4              if(time[4]==0x01||0x03||0x05||0x07||0x08||0x10||0x12)
+  92   4              {
+  93   5                if(time[3]>0x31)
+  94   5                  time[3]=0x01;
+  95   5              } 
+  96   4              if(time[4]==0x04||0x06||0x09||0x11)
+  97   4              {
+  98   5                if(time[3]>0x30)
+  99   5                  time[3]=0x01;
+ 100   5              } 
+ 101   4              if((2000+time[6]/16*10+time[6]%16)%4==0&&time[4]==0x02)
+ 102   4              {
+ 103   5                if(time[3]>0x29)
+ 104   5                  time[3]=0x01;
+ 105   5              }
+ 106   4              else if(time[4]==0x02)
+ 107   4              {
+ 108   5                if(time[3]>0x28)
+ 109   5                  time[3]=0x01;
+ 110   5              }   
+ 111   4              if(time[4]%16>9)
+ 112   4              {
+ 113   5                time[4]&=0xf0;
+ 114   5                time[4]+=0x10;    
+ 115   5              }
+ 116   4              if(time[4]>0x12)
+C51 COMPILER V9.51   MAIN                                                                  12/17/2020 09:50:51 PAGE 3   
+
+ 117   4                time[4]=0x01;   
+ 118   4              if(time[4]==0x01||time[4]==0x10)
+ 119   4                time[5]=(k[0]+time[3]/16*10+time[3]%16)%7;
+ 120   4              else if(time[4]==0x05)
+ 121   4                time[5]=(k[1]+(time[3]/16*10+time[3]%16))%7;
+ 122   4              else if(time[4]==0x08)
+ 123   4                time[5]=(k[2]+(time[3]/16*10+time[3]%16))%7;
+ 124   4              else if(time[4]==0x02||time[4]==0x03||time[4]==0x11)
+ 125   4                time[5]=(k[3]+(time[3]/16*10+time[3]%16))%7;
+ 126   4              else if(time[4]==0x06)
+ 127   4                time[5]=(k[4]+(time[3]/16*10+time[3]%16))%7;
+ 128   4              else if(time[4]==0x09||time[4]==0x12)
+ 129   4                time[5]=(k[5]+(time[3]/16*10+time[3]%16))%7;
+ 130   4              else if(time[4]==0x04||time[4]==0x07)
+ 131   4                time[5]=(k[6]+(time[3]/16*10+time[3]%16))%7;
+ 132   4              if(time[5]==0)
+ 133   4                time[5]=7;
+ 134   4              if(time[6]%16>9)
+ 135   4              {
+ 136   5                time[6]&=0xf0;
+ 137   5                time[6]+=0x10;    
+ 138   5              } 
+ 139   4              if(time[6]>0x99)
+ 140   4                time[6]=0;
+ 141   4              rulecheck=0;
+ 142   4            }
+ 143   3            
+ 144   3            if(adjust==1)
+ 145   3              ds1302writetime();
+ 146   3            ds1302readtime();
+ 147   3            
+ 148   3            if(rulecheck==0)
+ 149   3            {
+ 150   4              lcdwritecom(0x81);
+ 151   4              if(adjust==1&&flag==1&&i==6)
+ 152   4              {
+ 153   5                lcdwritedata(' ');
+ 154   5                lcdwritedata(' ');
+ 155   5                lcdwritedata(' ');
+ 156   5                lcdwritedata(' ');
+ 157   5              }
+ 158   4              else
+ 159   4              {
+ 160   5                lcdwritedata('2');
+ 161   5                lcdwritedata('0');
+ 162   5                lcdwritedata('0'+time[6]/16);
+ 163   5                lcdwritedata('0'+time[6]%16);
+ 164   5              }
+ 165   4              lcdwritedata('-');
+ 166   4              if(adjust==1&&flag==1&&i==4)
+ 167   4              {
+ 168   5                lcdwritedata(' ');
+ 169   5                lcdwritedata(' ');
+ 170   5              }
+ 171   4              else
+ 172   4              {
+ 173   5                lcdwritedata('0'+time[4]/16);
+ 174   5                lcdwritedata('0'+time[4]%16);
+ 175   5              }
+ 176   4              lcdwritedata('-');
+ 177   4              if(adjust==1&&flag==1&&i==3)
+ 178   4              {
+C51 COMPILER V9.51   MAIN                                                                  12/17/2020 09:50:51 PAGE 4   
+
+ 179   5                lcdwritedata(' ');
+ 180   5                lcdwritedata(' ');
+ 181   5              }
+ 182   4              else
+ 183   4              {
+ 184   5                lcdwritedata('0'+time[3]/16);
+ 185   5                lcdwritedata('0'+time[3]%16);
+ 186   5              }
+ 187   4              lcdwritedata('(');
+ 188   4              switch(time[5])
+ 189   4              {
+ 190   5                case 1: lcdwritedata('s');lcdwritedata('u');lcdwritedata('n'); break;
+ 191   5                case 2: lcdwritedata('m');lcdwritedata('o');lcdwritedata('n'); break;
+ 192   5                case 3: lcdwritedata('t');lcdwritedata('u');lcdwritedata('e'); break;
+ 193   5                case 4: lcdwritedata('w');lcdwritedata('e');lcdwritedata('d'); break;
+ 194   5                case 5: lcdwritedata('t');lcdwritedata('h');lcdwritedata('u'); break;
+ 195   5                case 6: lcdwritedata('f');lcdwritedata('r');lcdwritedata('i'); break;
+ 196   5                case 7: lcdwritedata('s');lcdwritedata('a');lcdwritedata('t'); break;
+ 197   5              }
+ 198   4              lcdwritedata(')');
+ 199   4              
+ 200   4              lcdwritecom(0x80+0x44);
+ 201   4              if(adjust==1&&flag==1&&i==2)
+ 202   4              {
+ 203   5                lcdwritedata(' ');
+ 204   5                lcdwritedata(' ');      
+ 205   5              }
+ 206   4              else
+ 207   4              {
+ 208   5                lcdwritedata('0'+time[2]/16);
+ 209   5                lcdwritedata('0'+time[2]%16);
+ 210   5              }
+ 211   4              lcdwritedata(':');
+ 212   4              if(adjust==1&&flag==1&&i==1)
+ 213   4              {
+ 214   5                lcdwritedata(' ');
+ 215   5                lcdwritedata(' ');      
+ 216   5              }
+ 217   4              else
+ 218   4              {
+ 219   5                lcdwritedata('0'+time[1]/16);
+ 220   5                lcdwritedata('0'+time[1]%16);
+ 221   5              }
+ 222   4              lcdwritedata(':');
+ 223   4              if(adjust==1&&flag==1&&i==0)
+ 224   4              {
+ 225   5                lcdwritedata(' ');
+ 226   5                lcdwritedata(' ');      
+ 227   5              }
+ 228   4              else
+ 229   4              {
+ 230   5                lcdwritedata('0'+time[0]/16);
+ 231   5                lcdwritedata('0'+time[0]%16);
+ 232   5              }
+ 233   4              if(alarm[0][3]==1||alarm[1][3]==1||alarm[2][3]==1)
+ 234   4                lcdwritedata(1);
+ 235   4            }
+ 236   3          }
+ 237   2          while(mode==1)
+ 238   2          {
+ 239   3            if(init==1)
+ 240   3            {
+C51 COMPILER V9.51   MAIN                                                                  12/17/2020 09:50:51 PAGE 5   
+
+ 241   4              lcdinit();
+ 242   4              init=0;
+ 243   4            }
+ 244   3            if(rulecheck==1)
+ 245   3            {
+ 246   4              alarm[j][i]++;
+ 247   4              if(alarm[j][0]%16>9)
+ 248   4              {
+ 249   5                alarm[j][0]+=0x10;
+ 250   5                alarm[j][0]&=0xf0;
+ 251   5              }
+ 252   4              if(alarm[j][0]>0x59)
+ 253   4                alarm[j][0]=0;
+ 254   4              if(alarm[j][1]%16>9)
+ 255   4              {
+ 256   5                alarm[j][1]&=0xf0;
+ 257   5                alarm[j][1]+=0x10;
+ 258   5              }
+ 259   4              if(alarm[j][1]>0x59)
+ 260   4                alarm[j][1]=0;
+ 261   4              if(alarm[j][2]%16>9)
+ 262   4              {
+ 263   5                alarm[j][2]&=0xf0;
+ 264   5                alarm[j][2]+=0x10;
+ 265   5              }
+ 266   4              if(alarm[j][2]>0x23)
+ 267   4                alarm[j][2]=0;
+ 268   4              rulecheck=0;
+ 269   4            }
+ 270   3            else
+ 271   3            {
+ 272   4              lcdwritecom(0x85);
+ 273   4              for(a=0;a<5;a++)
+ 274   4                lcdwritedata(string0[a]);
+ 275   4              lcdwritedata('0'+j);
+ 276   4              
+ 277   4              lcdwritecom(0x80+0x44);
+ 278   4              if(adjust==1&&flag==1&&i==2)
+ 279   4              {
+ 280   5                lcdwritedata(' ');
+ 281   5                lcdwritedata(' ');
+ 282   5              }
+ 283   4              else
+ 284   4              {
+ 285   5                lcdwritedata('0'+alarm[j][2]/16);
+ 286   5                lcdwritedata('0'+alarm[j][2]%16);
+ 287   5              }
+ 288   4              lcdwritedata(':');
+ 289   4              if(adjust==1&&flag==1&&i==1)
+ 290   4              {
+ 291   5                lcdwritedata(' ');
+ 292   5                lcdwritedata(' ');
+ 293   5              }
+ 294   4              else
+ 295   4              {
+ 296   5                lcdwritedata('0'+alarm[j][1]/16);
+ 297   5                lcdwritedata('0'+alarm[j][1]%16);
+ 298   5              }
+ 299   4              lcdwritedata(':');
+ 300   4              if(adjust==1&&flag==1&&i==0)
+ 301   4              {
+ 302   5                lcdwritedata(' ');
+C51 COMPILER V9.51   MAIN                                                                  12/17/2020 09:50:51 PAGE 6   
+
+ 303   5                lcdwritedata(' ');
+ 304   5              }
+ 305   4              else
+ 306   4              {
+ 307   5                lcdwritedata('0'+alarm[j][0]/16);
+ 308   5                lcdwritedata('0'+alarm[j][0]%16);
+ 309   5              }
+ 310   4              if(alarm[j][3]==1)
+ 311   4                lcdwritedata(0);
+ 312   4              else
+ 313   4                lcdwritedata(' ');
+ 314   4            }
+ 315   3          }
+ 316   2          while(mode==2)
+ 317   2          {
+ 318   3            if(init==1)
+ 319   3            {
+ 320   4              lcdinit();
+ 321   4              init=0;
+ 322   4            }
+ 323   3            if(s_time%10000/100>59)
+ 324   3            {
+ 325   4              s_time-=6000;
+ 326   4              s_time+=10000;
+ 327   4            }
+ 328   3            if(s_time%1000000/10000>59)
+ 329   3            {
+ 330   4              s_time-=600000;
+ 331   4              s_time+=1000000;
+ 332   4            }
+ 333   3            lcdwritecom(0x83);
+ 334   3            for(a=0;a<10;a++)
+ 335   3              lcdwritedata(string1[a]);
+ 336   3            
+ 337   3            lcdwritecom(0x80+0x42);
+ 338   3            lcdwritedata('-');
+ 339   3            lcdwritedata('0'+s_time/10000000);
+ 340   3            lcdwritedata('0'+s_time%10000000/1000000);
+ 341   3            lcdwritedata(':');
+ 342   3            lcdwritedata('0'+s_time%1000000/100000);
+ 343   3            lcdwritedata('0'+s_time%100000/10000);
+ 344   3            lcdwritedata(':');
+ 345   3            lcdwritedata('0'+s_time%10000/1000);
+ 346   3            lcdwritedata('0'+s_time%1000/100);
+ 347   3            lcdwritedata(':');
+ 348   3            lcdwritedata('0'+s_time%100/10);
+ 349   3            lcdwritedata('0'+s_time%10);
+ 350   3          }
+ 351   2          while(mode==3)
+ 352   2          {
+ 353   3            if(init==1)
+ 354   3            {
+ 355   4              lcdinit();
+ 356   4              init=0;
+ 357   4            }
+ 358   3            if(rulecheck==1)
+ 359   3            {
+ 360   4              if(i==0)
+ 361   4                t_time++;
+ 362   4              else if(i==1)
+ 363   4                t_time+=100;
+ 364   4              else if(i==2)
+C51 COMPILER V9.51   MAIN                                                                  12/17/2020 09:50:51 PAGE 7   
+
+ 365   4                t_time+=10000;
+ 366   4              else if(i==3)
+ 367   4                t_time+=1000000;
+ 368   4              if(t_time%10000/100>59)
+ 369   4              {
+ 370   5                t_time-=6000;
+ 371   5                t_time+=10000;
+ 372   5              }
+ 373   4              if(t_time%1000000/10000>59)
+ 374   4              {
+ 375   5                t_time-=600000;
+ 376   5                t_time+=1000000;
+ 377   5              }
+ 378   4              if(t_time/1000000>99)
+ 379   4                t_time-=100000000;
+ 380   4              rulecheck=0;
+ 381   4            }
+ 382   3            else
+ 383   3            {
+ 384   4              if(t_time%10000/100>59)
+ 385   4                t_time-=4000;
+ 386   4              if(t_time%1000000/10000>59)
+ 387   4                t_time-=400000;
+ 388   4              lcdwritecom(0x85);
+ 389   4              for(a=0;a<5;a++)
+ 390   4                lcdwritedata(string2[a]);
+ 391   4              
+ 392   4              lcdwritecom(0x80+0x42);
+ 393   4              lcdwritedata('-');
+ 394   4              
+ 395   4              if(adjust==1&&flag==1&&i==3)
+ 396   4              {
+ 397   5                lcdwritedata(' ');
+ 398   5                lcdwritedata(' ');
+ 399   5              }
+ 400   4              else
+ 401   4              {
+ 402   5                lcdwritedata('0'+t_time/10000000);
+ 403   5                lcdwritedata('0'+t_time%10000000/1000000);
+ 404   5              }
+ 405   4              lcdwritedata(':');
+ 406   4              if(adjust==1&&flag==1&&i==2)
+ 407   4              {
+ 408   5                lcdwritedata(' ');
+ 409   5                lcdwritedata(' ');
+ 410   5              }
+ 411   4              else
+ 412   4              {
+ 413   5                lcdwritedata('0'+t_time%1000000/100000);
+ 414   5                lcdwritedata('0'+t_time%100000/10000);
+ 415   5              }
+ 416   4              lcdwritedata(':');
+ 417   4              if(adjust==1&&flag==1&&i==1)
+ 418   4              {
+ 419   5                lcdwritedata(' ');
+ 420   5                lcdwritedata(' ');
+ 421   5              }
+ 422   4              else
+ 423   4              {
+ 424   5                lcdwritedata('0'+t_time%10000/1000);
+ 425   5                lcdwritedata('0'+t_time%1000/100);
+ 426   5              }
+C51 COMPILER V9.51   MAIN                                                                  12/17/2020 09:50:51 PAGE 8   
+
+ 427   4              lcdwritedata(':');
+ 428   4              if(adjust==1&&flag==1&&i==0)
+ 429   4              {
+ 430   5                lcdwritedata(' ');
+ 431   5                lcdwritedata(' ');
+ 432   5              }
+ 433   4              else
+ 434   4              {
+ 435   5                lcdwritedata('0'+t_time%100/10);
+ 436   5                lcdwritedata('0'+t_time%10);
+ 437   5              }
+ 438   4            }
+ 439   3          }
+ 440   2          while(mode==4)
+ 441   2          {
+ 442   3            if(init==1)
+ 443   3            {
+ 444   4              lcdinit();
+ 445   4              init=0;
+ 446   4            }
+ 447   3            lcdwritecom(0x80);
+ 448   3            for(a=0;a<16;a++)
+ 449   3              lcdwritedata(string3[a]);
+ 450   3            lcdwritecom(0x80+0x40);
+ 451   3            for(a=16;a<32;a++)
+ 452   3              lcdwritedata(string3[a]);
+ 453   3          }
+ 454   2        }
+ 455   1      }
+ 456          void timer0() interrupt 1
+ 457          {
+ 458   1        TH0=0xdc;
+ 459   1        TL0=0x00;
+ 460   1        if(flagbuz==1)
+ 461   1        {
+ 462   2          count++;
+ 463   2          if(count==100&&mode!=3)
+ 464   2          {
+ 465   3            flag=~flag;
+ 466   3            init=1;
+ 467   3            count=0;
+ 468   3          }
+ 469   2        } 
+ 470   1        else if(adjust==1)
+ 471   1        {
+ 472   2          count++;
+ 473   2          if((count==10&&mode==0)||(count==60&&(mode==1||(mode==3&&flagbuz==0))))
+ 474   2          {
+ 475   3            flag=~flag;
+ 476   3            count=0;
+ 477   3          }
+ 478   2        }
+ 479   1        else
+ 480   1        {
+ 481   2          count=0;
+ 482   2          flag=0;
+ 483   2          i=0;
+ 484   2        }
+ 485   1        if(s_tr==1)
+ 486   1        {
+ 487   2          s_time++;
+ 488   2          if(s_time==99595900)
+C51 COMPILER V9.51   MAIN                                                                  12/17/2020 09:50:51 PAGE 9   
+
+ 489   2          {
+ 490   3            s_tr=0;
+ 491   3            s_time=0;
+ 492   3          }
+ 493   2        }
+ 494   1        if(t_tr==1)
+ 495   1        {
+ 496   2          t_time--;
+ 497   2          if(t_time==0)
+ 498   2          {
+ 499   3            t_tr=0;
+ 500   3            flagbuz=1;
+ 501   3            flagtim=1;
+ 502   3          }
+ 503   2        }
+ 504   1        if(mode==3&&t_inwork==0)
+ 505   1        {
+ 506   2          if(adjust==0)
+ 507   2            adjust=1;
+ 508   2        }
+ 509   1        if(flagbuz==1)
+ 510   1        {
+ 511   2          if(flagtim==1)
+ 512   2          {
+ 513   3            buzzer=0;
+ 514   3            countbuz++;
+ 515   3          }
+ 516   2          else
+ 517   2          {
+ 518   3            countbuz++;
+ 519   3            if(countbuz==1)
+ 520   3              premode=mode;
+ 521   3            if(flag==1)
+ 522   3            {
+ 523   4              mode=4;   
+ 524   4              buzzer=0;
+ 525   4            }
+ 526   3            else
+ 527   3            {
+ 528   4              mode=premode;
+ 529   4              buzzer=1;
+ 530   4            }
+ 531   3          }
+ 532   2          if(countbuz==500&&flagtim==1)
+ 533   2          {
+ 534   3            t_inwork=0;
+ 535   3            flagbuz=0;
+ 536   3            flagtim=0;
+ 537   3            buzzer=1;
+ 538   3            countbuz=0;
+ 539   3          }
+ 540   2          else if(countbuz==3000)
+ 541   2          {
+ 542   3            flagbuz=0;
+ 543   3            mode=premode;
+ 544   3            init=1;
+ 545   3            buzzer=1;
+ 546   3            countbuz=0;
+ 547   3          }
+ 548   2        }
+ 549   1      }
+ 550          void timer1() interrupt 3
+C51 COMPILER V9.51   MAIN                                                                  12/17/2020 09:50:51 PAGE 10  
+
+ 551          {
+ 552   1        TR1=0;
+ 553   1        if(k1==0)
+ 554   1        {
+ 555   2          if(countbut<=20)
+ 556   2            countbut++;
+ 557   2          if(countbut==20)
+ 558   2          {
+ 559   3            if(flagbuz==1&&mode!=3)
+ 560   3            {
+ 561   4              flagbuz=0;
+ 562   4              mode=premode;
+ 563   4              init=1;
+ 564   4              buzzer=1;
+ 565   4            }
+ 566   3            else if(mode==0&&adjust==1)
+ 567   3            {
+ 568   4              if(i==4)
+ 569   4                i+=2;
+ 570   4              else
+ 571   4                i++;
+ 572   4              if(i>6)
+ 573   4                i=0;
+ 574   4            }
+ 575   3            else if(mode==1&&adjust==1)
+ 576   3            {
+ 577   4              if(i==2)
+ 578   4                i=0;
+ 579   4              else
+ 580   4                i++;      
+ 581   4            }
+ 582   3            else if(1)
+ 583   3            {
+ 584   4              init=1;
+ 585   4              if(mode==3)
+ 586   4              {
+ 587   5                mode=0;
+ 588   5                adjust=0;
+ 589   5              }
+ 590   4              else
+ 591   4                mode++;   
+ 592   4            }
+ 593   3          }
+ 594   2        }
+ 595   1        else if(k2==0)
+ 596   1        {
+ 597   2          if(countbut<=20)
+ 598   2            countbut++;
+ 599   2          if(countbut==20)
+ 600   2          {
+ 601   3            if(flagbuz==1&&mode!=3)
+ 602   3            {
+ 603   4              flagbuz=0;
+ 604   4              mode=premode;
+ 605   4              init=1;
+ 606   4              buzzer=1;
+ 607   4            }
+ 608   3            else if(mode==0||mode==1)
+ 609   3              adjust=~adjust;
+ 610   3            else if(mode==2&&s_time==0)
+ 611   3              s_tr=1;
+ 612   3            else if(mode==3&&adjust==1)
+C51 COMPILER V9.51   MAIN                                                                  12/17/2020 09:50:51 PAGE 11  
+
+ 613   3            {
+ 614   4              if(i==3)
+ 615   4                i=0;
+ 616   4              else
+ 617   4                i++;
+ 618   4            }
+ 619   3          }
+ 620   2        }
+ 621   1        else if(k3==0)
+ 622   1        {
+ 623   2          if(countbut<=20)
+ 624   2            countbut++;
+ 625   2          else if(countbut>20)
+ 626   2            countbut1++;
+ 627   2          if(countbut==20)
+ 628   2          {
+ 629   3            if(flagbuz==1&&mode!=3)
+ 630   3            {
+ 631   4              flagbuz=0;
+ 632   4              mode=premode;
+ 633   4              init=1;
+ 634   4              buzzer=1;
+ 635   4            }
+ 636   3            else if(mode==0&&adjust==1)
+ 637   3              rulecheck=1;
+ 638   3            else if(mode==1&&adjust==0)
+ 639   3            {
+ 640   4              if(j<2)
+ 641   4                j++;
+ 642   4              else
+ 643   4                j=0;
+ 644   4            }
+ 645   3            else if(mode==1&&adjust==1)
+ 646   3              rulecheck=1;
+ 647   3            else if(mode==2&&s_time!=0)
+ 648   3              s_tr=~s_tr;
+ 649   3            else if(mode==3&&t_inwork==0)
+ 650   3              rulecheck=1;
+ 651   3            else if(mode==3&&t_inwork==1)
+ 652   3              t_tr=~t_tr;
+ 653   3          }
+ 654   2          else if(countbut1==320)
+ 655   2          {
+ 656   3            if(mode==0&&adjust==1)
+ 657   3              rulecheck=1;
+ 658   3            else if(mode==1&&adjust==1)
+ 659   3              rulecheck=1;
+ 660   3            else if(mode==3&&t_inwork==0)
+ 661   3              rulecheck=1;
+ 662   3            countbut1=0;
+ 663   3          }
+ 664   2        }
+ 665   1        else if(k4==0)
+ 666   1        {
+ 667   2          if(countbut<=20)
+ 668   2            countbut++;
+ 669   2          if(countbut==20)
+ 670   2          {
+ 671   3            if(flagbuz==1&&mode!=3)
+ 672   3            {
+ 673   4              flagbuz=0;
+ 674   4              mode=premode;
+C51 COMPILER V9.51   MAIN                                                                  12/17/2020 09:50:51 PAGE 12  
+
+ 675   4              init=1;
+ 676   4              buzzer=1;
+ 677   4            }
+ 678   3            else if(mode==1&&adjust==0)
+ 679   3              alarm[j][3]=!alarm[j][3];
+ 680   3            else if(mode==2&&s_tr==0)
+ 681   3              s_time=0;
+ 682   3            else if(mode==3&&t_inwork==0&&t_time!=0)
+ 683   3            {
+ 684   4              t_tr=1;
+ 685   4              t_inwork=1;
+ 686   4              adjust=0;
+ 687   4            }
+ 688   3            else if(mode==3&&t_tr==0)
+ 689   3            { 
+ 690   4              t_time=0;
+ 691   4              t_inwork=0;
+ 692   4            }
+ 693   3          }
+ 694   2        }
+ 695   1        else if(1)
+ 696   1        {
+ 697   2          countbut=0;
+ 698   2          countbut1=0;
+ 699   2        }
+ 700   1        
+ 701   1        if(alarm[0][3]==1&&adjust==0)
+ 702   1        {
+ 703   2          if(alarm[0][2]==time[2])
+ 704   2            if(alarm[0][1]==time[1])
+ 705   2              if(alarm[0][0]==time[0])
+ 706   2                if(countbuz==0)
+ 707   2                  flagbuz=1;
+ 708   2        }
+ 709   1        if(alarm[1][3]==1&&adjust==0)
+ 710   1        {
+ 711   2          if(alarm[1][2]==time[2])
+ 712   2            if(alarm[1][1]==time[1])
+ 713   2              if(alarm[1][0]==time[0])
+ 714   2                if(countbuz==0)
+ 715   2                  flagbuz=1;
+ 716   2        }
+ 717   1        if(alarm[2][3]==1&&adjust==0)
+ 718   1        {
+ 719   2          if(alarm[2][2]==time[2])
+ 720   2            if(alarm[2][1]==time[1])
+ 721   2              if(alarm[2][0]==time[0])
+ 722   2                if(countbuz==0)
+ 723   2                  flagbuz=1;
+ 724   2        }
+ 725   1        TH1=0xfc;
+ 726   1        TL1=0x66;
+ 727   1        TR1=1;
+ 728   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   4330    ----
+   CONSTANT SIZE    =     56    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     44       1
+C51 COMPILER V9.51   MAIN                                                                  12/17/2020 09:50:51 PAGE 13  
+
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      9    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

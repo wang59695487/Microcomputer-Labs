@@ -1,0 +1,60 @@
+A51 MACRO ASSEMBLER  2121                                                                 12/22/2021 18:40:54 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.7.0
+NO OBJECT MODULE REQUESTED
+ASSEMBLER INVOKED BY: C:\Keil_v5\C51\BIN\A51.EXE 2121.asm SET(SMALL) DEBUG PRINT(.\Listings\2121.lst) OBJECT(.\Objects\2
+                      121.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                     ORG 0000H
+0000 020030            2                     LJMP MAIN
+0003                   3                     ORG 0003H
+0003 02003A            4                     LJMP INT0SUB
+                       5                     
+0030                   6                     ORG 0030H
+0030 D288              7     MAIN:   SETB IT0         ;下降沿触发
+0032 D2AF              8                     SETB EA          ;CPU中断开放
+0034 D2A8              9                     SETB EX0         ;INT0中断允许
+0036 D290             10                     SETB  P1.0
+0038 80FE             11                     SJMP $
+                      12                             
+003A C2A8             13     INT0SUB:CLR Ex0
+                      14             delay 10ms
+*** _________________________________^
+*** ERROR #A9 IN 14 (2121.asm, LINE 14): SYNTAX ERROR
+003C B290             15             CPL p1.0
+                      16             delay 10ms
+*** _________________________________^
+*** ERROR #A9 IN 16 (2121.asm, LINE 16): SYNTAX ERROR
+003E D2A8             17             SETB Ex0
+0040                  18             RET I
+*** _________________________________^
+*** _____________________________________^
+*** ERROR #A38 IN 18 (2121.asm, LINE 18): NUMBER OF OPERANDS DOES NOT MATCH INSTRUCTION
+*** ERROR #A45 IN 18 (2121.asm, LINE 18): UNDEFINED SYMBOL (PASS-2)
+                      19             END
+A51 MACRO ASSEMBLER  2121                                                                 12/22/2021 18:40:54 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+DELAY. . . . . . .    ----   -----       
+EA . . . . . . . .  B ADDR   00A8H.7 A   
+EX0. . . . . . . .  B ADDR   00A8H.0 A   
+I. . . . . . . . .    ----   -----       
+INT0SUB. . . . . .  C ADDR   003AH   A   
+IT0. . . . . . . .  B ADDR   0088H.0 A   
+MAIN . . . . . . .  C ADDR   0030H   A   
+MS . . . . . . . .    ----   -----       
+P1 . . . . . . . .  D ADDR   0090H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 4 ERROR(S)

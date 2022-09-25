@@ -1,0 +1,81 @@
+A51 MACRO ASSEMBLER  2121                                                                 12/25/2019 17:04:10 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.5.0
+OBJECT MODULE PLACED IN .\Objects\2121.obj
+ASSEMBLER INVOKED BY: D:\Keil_v5\C51\BIN\A51.EXE 2121.asm SET(SMALL) DEBUG PRINT(.\Listings\2121.lst) OBJECT(.\Objects\2
+                      121.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                     ORG     0000H                   
+
+0000 7906              2     MAIN:   MOV             R1,#06H         ;—≠ª∑¥Œ 
+
+0002 7800              3                     MOV             R0,#0H          ;œ‘ æ≥ı º÷µ
+
+0004 E8                4     LOOP:   MOV     A,R0            ;»°∂Œ¬Î
+
+0005 900013            5                     MOV     DPTR,#TABLE 
+
+0008 93                6                     MOVC    A,@A+DPTR 
+
+0009 F580              7                     MOV     P0,A            ; ‰≥ˆµΩ ¬Îπ‹
+
+000B 120019            8                     LCALL   DELAY200ms      ;—” ±200ms
+
+000E 08                9                     INC             R0                      ;œ‘ æ ◊÷º”1
+
+000F D9F3             10                     DJNZ    R1,LOOP         ;œ‘ æÕÍ±œ∑Ò
+
+0011 80ED             11                     SJMP    MAIN            ;—≠ª∑œ‘ æ
+
+                      12                     
+
+0013 FEFDFBF7         13     TABLE:  DB 0FEH,0FDH,0FBH,0F7H,0EFH,0DFH
+
+0017 EFDF                    
+                      14                             
+
+0019 7D02             15     DELAY200ms:MOV  R5,#2           ;—” ±200ms
+
+001B 7EC7             16     DELOOP3:MOV     R6,#199
+
+001D 7FF9             17     DELOOP2:MOV     R7,#249
+
+001F DFFE             18     DELOOP1:DJNZ    R7,DELOOP1
+
+0021 DEFA             19                     DJNZ    R6,DELOOP2
+
+0023 DDF6             20                     DJNZ    R5,DELOOP3      
+
+0025 22               21                     RET
+
+                      22                     END
+
+                                                     
+
+                                                     
+
+A51 MACRO ASSEMBLER  2121                                                                 12/25/2019 17:04:10 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+DELAY200MS . . . .  C ADDR   0019H   A   
+DELOOP1. . . . . .  C ADDR   001FH   A   
+DELOOP2. . . . . .  C ADDR   001DH   A   
+DELOOP3. . . . . .  C ADDR   001BH   A   
+LOOP . . . . . . .  C ADDR   0004H   A   
+MAIN . . . . . . .  C ADDR   0000H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+TABLE. . . . . . .  C ADDR   0013H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)

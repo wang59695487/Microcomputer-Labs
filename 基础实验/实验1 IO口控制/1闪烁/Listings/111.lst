@@ -1,0 +1,58 @@
+A51 MACRO ASSEMBLER  111                                                                  11/17/2019 12:00:54 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.5.0
+OBJECT MODULE PLACED IN .\Objects\111.obj
+ASSEMBLER INVOKED BY: D:\Keil_v5\C51\BIN\A51.EXE 111.ASM SET(SMALL) DEBUG PRINT(.\Listings\111.lst) OBJECT(.\Objects\111
+                      .obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                     ORG     0000H
+
+0000 C290              2     LOOP:   CLR     P1.0
+
+0002 12000F            3                     LCALL   Delay10ms
+
+0005 D290              4                     SETB    P1.0
+
+0007 12000F            5                     LCALL   Delay10ms
+
+000A 12000F            6                     LCALL   Delay10ms
+
+000D 80F1              7                     SJMP    LOOP
+
+                       8                     
+
+000F 7E14              9     Delay10ms:      MOV  R6,#20
+
+0011 7FFA             10     Dloop1:         MOV  R7,#250
+
+0013 DFFE             11     DLoop0:         DJNZ R7 ,Dloop0
+
+0015 DEFA             12                             DJNZ R6 ,Dloop1
+
+0017 22               13                             RET
+
+                      14     
+
+*** WARNING #A41 IN 14 (111.ASM, LINE 14): MISSING 'END' STATEMENT
+A51 MACRO ASSEMBLER  111                                                                  11/17/2019 12:00:54 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+DELAY10MS. . . . .  C ADDR   000FH   A   
+DLOOP0 . . . . . .  C ADDR   0013H   A   
+DLOOP1 . . . . . .  C ADDR   0011H   A   
+LOOP . . . . . . .  C ADDR   0000H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  1 WARNING(S), 0 ERROR(S)

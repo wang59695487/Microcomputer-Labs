@@ -1,0 +1,170 @@
+BL51 BANKED LINKER/LOCATER V6.22                                                        12/05/2019  17:48:46  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22, INVOKED BY:
+D:\KEIL_V5\C51\BIN\BL51.EXE .\Objects\STARTUP.obj, .\Objects\2121.obj TO .\Objects\2121 PRINT (.\Listings\2121.m51)
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\STARTUP.obj (?C_STARTUP)
+  .\Objects\2121.obj (2121)
+
+
+LINK MAP OF MODULE:  .\Objects\2121 (?C_STARTUP)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            IDATA   0008H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+* OVERLAP * CODE    0000H     00BFH     ABSOLUTE     
+            CODE    00BFH     000CH     UNIT         ?C_C51STARTUP
+
+
+
+UNRESOLVED EXTERNAL SYMBOLS:
+   ?C_START
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\2121 (?C_STARTUP)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        ?C_STARTUP
+  C:00BFH         SEGMENT       ?C_C51STARTUP
+  I:0008H         SEGMENT       ?STACK
+  C:0000H         PUBLIC        ?C_STARTUP
+  D:00E0H         SYMBOL        ACC
+  D:00F0H         SYMBOL        B
+  D:0083H         SYMBOL        DPH
+  D:0082H         SYMBOL        DPL
+  N:0000H         SYMBOL        IBPSTACK
+  N:0100H         SYMBOL        IBPSTACKTOP
+  N:0080H         SYMBOL        IDATALEN
+  C:00C2H         SYMBOL        IDATALOOP
+  N:0000H         SYMBOL        PBPSTACK
+  N:0100H         SYMBOL        PBPSTACKTOP
+  N:0000H         SYMBOL        PDATALEN
+  N:0000H         SYMBOL        PDATASTART
+  N:0000H         SYMBOL        PPAGE
+  N:0000H         SYMBOL        PPAGEENABLE
+  D:00A0H         SYMBOL        PPAGE_SFR
+  D:0081H         SYMBOL        SP
+  C:00BFH         SYMBOL        STARTUP1
+  N:0000H         SYMBOL        XBPSTACK
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/05/2019  17:48:46  PAGE 2
+
+
+  N:0000H         SYMBOL        XBPSTACKTOP
+  N:0000H         SYMBOL        XDATALEN
+  N:0000H         SYMBOL        XDATASTART
+  C:0000H         LINE#         126
+  C:00BFH         LINE#         133
+  C:00C1H         LINE#         134
+  C:00C2H         LINE#         135
+  C:00C3H         LINE#         136
+  C:00C5H         LINE#         185
+  C:00C8H         LINE#         196
+  -------         ENDMOD        ?C_STARTUP
+
+  -------         MODULE        2121
+  C:0083H         SYMBOL        DEL2
+  C:0085H         SYMBOL        DEL3
+  C:0087H         SYMBOL        DEL4
+  C:0067H         SYMBOL        DEL_NS
+  C:0081H         SYMBOL        DLY125MS
+  B:00A8H.7       SYMBOL        EA
+  C:0071H         SYMBOL        END0
+  B:00A8H.1       SYMBOL        ET0
+  C:008EH         SYMBOL        INT00
+  C:0037H         SYMBOL        MUSIC0
+  C:003AH         SYMBOL        MUSIC1
+  C:004FH         SYMBOL        MUSIC2
+  B:0090H.0       SYMBOL        OUTPUT
+  D:0090H         SYMBOL        P1
+  C:0030H         SYMBOL        START
+  C:0097H         SYMBOL        TABLE
+  C:009FH         SYMBOL        TABLE1
+  D:008CH         SYMBOL        TH0
+  D:008AH         SYMBOL        TL0
+  D:0089H         SYMBOL        TMOD
+  B:0088H.4       SYMBOL        TR0
+  C:0000H         LINE#         3
+  C:000BH         LINE#         5
+  C:0030H         LINE#         8
+  C:0033H         LINE#         9
+  C:0035H         LINE#         10
+  C:0037H         LINE#         11
+  C:0038H         LINE#         12
+  C:003AH         LINE#         13
+  C:003DH         LINE#         14
+  C:003FH         LINE#         15
+  C:0040H         LINE#         17
+  C:0042H         LINE#         18
+  C:0044H         LINE#         19
+  C:0046H         LINE#         20
+  C:0048H         LINE#         21
+  C:004AH         LINE#         22
+  C:004BH         LINE#         23
+  C:004DH         LINE#         24
+  C:004FH         LINE#         25
+  C:0052H         LINE#         26
+  C:0054H         LINE#         27
+  C:0055H         LINE#         28
+  C:0057H         LINE#         29
+BL51 BANKED LINKER/LOCATER V6.22                                                      12/05/2019  17:48:46  PAGE 3
+
+
+  C:0058H         LINE#         30
+  C:005AH         LINE#         31
+  C:005CH         LINE#         32
+  C:005EH         LINE#         33
+  C:0060H         LINE#         34
+  C:0061H         LINE#         35
+  C:0063H         LINE#         36
+  C:0065H         LINE#         37
+  C:0067H         LINE#         38
+  C:006AH         LINE#         39
+  C:006DH         LINE#         40
+  C:006FH         LINE#         41
+  C:0071H         LINE#         42
+  C:0073H         LINE#         43
+  C:0076H         LINE#         44
+  C:0079H         LINE#         45
+  C:007CH         LINE#         46
+  C:007FH         LINE#         47
+  C:0081H         LINE#         49
+  C:0083H         LINE#         50
+  C:0085H         LINE#         51
+  C:0087H         LINE#         52
+  C:0089H         LINE#         53
+  C:008BH         LINE#         54
+  C:008DH         LINE#         55
+  C:008EH         LINE#         57
+  C:0091H         LINE#         58
+  C:0094H         LINE#         59
+  C:0096H         LINE#         60
+  -------         ENDMOD        2121
+
+*** WARNING L5: CODE SPACE MEMORY OVERLAP
+    FROM:    0000H
+    TO:      0002H
+
+*** WARNING L1: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  ?C_START
+    MODULE:  .\Objects\STARTUP.obj (?C_STARTUP)
+
+*** WARNING L2: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  ?C_START
+    MODULE:  .\Objects\STARTUP.obj (?C_STARTUP)
+    ADDRESS: 00C9H
+
+Program Size: data=9.0 xdata=0 code=206
+LINK/LOCATE RUN COMPLETE.  3 WARNING(S),  0 ERROR(S)

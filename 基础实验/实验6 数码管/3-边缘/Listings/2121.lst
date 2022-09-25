@@ -1,0 +1,130 @@
+A51 MACRO ASSEMBLER  2121                                                                 12/25/2019 17:12:21 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.5.0
+OBJECT MODULE PLACED IN .\Objects\2121.obj
+ASSEMBLER INVOKED BY: D:\Keil_v5\C51\BIN\A51.EXE 2121.asm SET(SMALL) DEBUG PRINT(.\Listings\2121.lst) OBJECT(.\Objects\2
+                      121.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1                     ORG 0000H
+
+0000 803E              2                     SJMP MAIN
+
+000B                   3                     ORG 000BH                               ;T0ÖÐ¶Ï
+
+000B 020094            4                     LJMP T0INT
+
+                       5                     
+
+0040                   6                     ORG 0040H               
+
+0040 758901            7     MAIN:   MOV     TMOD,#01H               ;¹¤×÷·½Ê½1
+
+0043 7800              8                     MOV             R0,#0
+
+0045 7D03              9     LOOP:   MOV     R5,#3                   ;ÉèÖÃ3¸ö50msÑ­»·
+
+0047 758C3C           10                     MOV     TH0,#3CH                ;¶¨Ê±³õÊ¼×´Ì¬
+
+004A 758AB0           11                     MOV     TL0,#0B0H
+
+004D D28C             12                     SETB    TR0                             
+
+004F D2AF             13                     SETB    EA                              ;ÖÐ¶Ï³õÊ¼»¯
+
+0051 D2A9             14                     SETB    ET0
+
+                      15     
+
+                      16                     ;¶¯Ì¬ÊÂë¹ÜÏÔÊ¾  
+
+0053 E8               17     DISDLAY:MOV     A,R0                    ;È¡³öÑ­»·´ÎÊ
+
+0054 90006C           18                     MOV     DPTR,#DUAN              ;È¡³ö¶ÎÂë
+
+0057 93               19                     MOVC    A,@A+DPTR               
+
+0058 F580             20                     MOV     P0,A            
+
+005A E8               21                     MOV     A,R0                    ;È¡³öÑ­»·´ÎÊ
+
+005B 900080           22                     MOV     DPTR,#WEI               ;È¡³öÎ»Âë
+
+005E 93               23                     MOVC    A,@A+DPTR 
+
+005F F590             24                     MOV     P1,A
+
+0061 BD00EF           25                     CJNE    R5,#0,DISDLAY   ;ÅÐ¶Ï50msÊÇ·ñÍê³É
+
+0064 7D03             26                     MOV     R5,#3                   ;ÉèÖÃ3¸ö50msÑ­»·
+
+0066 08               27                     INC             R0                              
+
+0067 B814E9           28                     CJNE    R0,#20,DISDLAY  ;¼ÌÐøÑ­»·
+
+006A 80D4             29                     SJMP    MAIN
+
+                      30                             
+
+006C 08102001         31     DUAN:   DB 08H,10H,20H,01H                      ;µÚ1¸öÊÂë¹Ü4¸ö¶ÎµÄ¶ÎÂë£¬¹²20¸ö
+
+0070 01010101         32                     DB 01H,01H,01H,01H,01H,01H      ;µÚ2-7¸öÊÂë¹ÜµÄa¶Î¶ÎÂë
+
+0074 0101                    
+0076 01020408         33                     DB 01H,02H,04H,08H              ;µÚ8¸öÊÂë¹Ü4¸ö¶ÎµÄ¶ÎÂë
+
+007A 08080808         34                     DB 08H,08H,08H,08H,08H,08H      ;µÚ7-2¸öÊÂë¹ÜµÄd¶Î¶ÎÂë
+
+007E 0808                    
+0080 FEFEFEFE         35     WEI:    DB 0FEH,0FEH,0FEH,0FEH          ;µÚ1¸öÊÂë¹ÜµÄÎ»Âë
+
+0084 FDFBF7EF         36                     DB 0FDH,0FBH,0F7H,0EFH,0DFH,0BFH        ;µÚ2-7¸öÊÂë¹ÜµÄÎ»Âë
+
+0088 DFBF                    
+008A 7F7F7F7F         37                     DB 7FH,7FH,7FH,7FH                      ;µÚ8¸öÊÂë¹ÜµÄÎ»Âë
+
+008E BFDFEFF7         38                     DB 0BFH,0DFH,0EFH,0F7H,0FBH,0FDH        ;µÚ7-2¸öÊÂë¹ÜµÄÎ»Âë
+
+0092 FBFD                    
+                      39     
+
+0094 758AB0           40     T0INT:  MOV  TL0,#0B0H                  ;T0ÖÐ¶Ï
+
+0097 758C3C           41                     MOV  TH0,#3CH
+
+009A 1D               42                     DEC  R5
+
+009B 32               43                     RETI
+
+                      44                     END
+
+A51 MACRO ASSEMBLER  2121                                                                 12/25/2019 17:12:21 PAGE     2
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+DISDLAY. . . . . .  C ADDR   0053H   A   
+DUAN . . . . . . .  C ADDR   006CH   A   
+EA . . . . . . . .  B ADDR   00A8H.7 A   
+ET0. . . . . . . .  B ADDR   00A8H.1 A   
+LOOP . . . . . . .  C ADDR   0045H   A   
+MAIN . . . . . . .  C ADDR   0040H   A   
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+T0INT. . . . . . .  C ADDR   0094H   A   
+TH0. . . . . . . .  D ADDR   008CH   A   
+TL0. . . . . . . .  D ADDR   008AH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TR0. . . . . . . .  B ADDR   0088H.4 A   
+WEI. . . . . . . .  C ADDR   0080H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 0 ERROR(S)
